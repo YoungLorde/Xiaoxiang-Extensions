@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "com/xiaoxiang/configext/mixin/GameTabMixin": {
+      "net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$GameTab": "net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$GameTab"
+    }
+  },
+  "data": {
+    "searge": {
+      "com/xiaoxiang/configext/mixin/GameTabMixin": {
+        "net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$GameTab": "net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$GameTab"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+
+# Files from Forge MDK
+forge*changelog.txt
+changelog.txt
+
+# The original Xiaoxiang Cultivation World mod jar, kept here only so this
+# project can compile against it (compileOnly - never bundled into our own
+# built jar). It's "All Rights Reserved" and not ours to redistribute, so it
+# must never be committed/pushed to a public repo.
+libs/*.jar
+
+# Local build output and crash dumps - not meant for the public repo.
+build_log.txt
+hs_err_pid*.log
+replay_pid*.log
+
+# Local v1 backup (old source tree + a built jar) - superseded by the current
+# source, and a compiled binary shouldn't live in git history. Remove this
+# line (and the line below listing the folder, if any) if you'd rather keep
+# it versioned.
+backups/

@@ -1,0 +1,196 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/YoungLorde/Xiaoxiang-Extensions/issues"
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+displayURL="https://github.com/YoungLorde/Xiaoxiang-Extensions"
+logoFile="logo.png"
+credits="Thanks to the Xiaoxiang Cultivation World mod team for the original mod. This extension would not exist without their incredible work creating a deep cultivation experience in Minecraft."
+authors="${mod_authors}"
+description='''
+Xiaoxiang Config Extension
+===========================
+
+The definitive configuration tool for the Xiaoxiang Cultivation World mod.
+Adds 300+ config options covering every aspect of the cultivation experience,
+from realm progression and spell balance to UI customization and accessibility.
+
+Requires Xiaoxiang Cultivation World. Works entirely through Mixins injecting
+into the original mod's compiled classes at runtime - no original mod files
+are ever modified.
+
+FEATURES
+--------
+
+Cultivation Systems:
+  - Per-realm max Qi, lifespan, Qi shield reduction, and tribulation damage
+  - Global multipliers for all realm values (scale everything at once)
+  - 12 realms fully configurable: Mortal through True Immortal
+  - Foundation Dao and Golden Core Dao path bonuses
+  - Spirit root and physique rarity weights and multipliers
+
+Spells & Combat:
+  - Global spell damage, Qi cost, and charge time multipliers
+  - Per-spell configuration for all individual spells
+  - Passive spell intervals and Qi costs (slow regen, bigu, qi mending, etc.)
+  - Weapon damage multiplier and tier-based Qi cost reduction
+  - NPC combat tactics (dodge, scan, reaction per realm)
+
+Crafting & Economy:
+  - Alchemy furnace max Qi and XP gain per tier
+  - Refining furnace max Qi and XP gain per tier
+  - Pill Qi recovery, spirit stone Qi, blood burn pill, clear mind, divine stride
+  - Storage bag dimensions (columns and rows)
+  - Sect shops, departments, tasks, schedules, defense, and population
+
+World Generation:
+  - Biome Qi density profiles (max Qi, orb gain, supply per second)
+  - Spirit vein core tiers (5 tiers with max Qi, orb gain, supply rate)
+  - Spirit plant max age, growth ticks, and Qi orb amounts
+  - Formation core max Qi, gathering/growth multipliers, barrier strength
+
+Identity & Progression:
+  - Starting lifespan ranges by identity category (martial, scholar, cultivator, abandoned)
+  - Identity draw deck size and reroll rounds
+  - Bone age limits, time estimate days, NPC tribulation death chance
+  - Custom identities: create your own with a name, description, and hand-picked
+    starting item loadout from a full vanilla + Xiaoxiang item browser
+    (duplication and adding custom identities to the live draw roster are
+    built but held back for a future update)
+
+Trials & Tribulations:
+  - Heavenly tribulation interval, charge, and bolt cooldown
+  - Heart Demon trial vitality multipliers by morality band
+  - Shatter Core trial boss stats per Dao path
+  - Loose Immortal per-level bonuses (12 bonus types)
+
+Qi System:
+  - Player Qi consumption rate
+  - Qi absorption multipliers for SSR and SR spirit roots
+  - Qi shield reduction per realm
+  - Meditation Qi recovery bonuses
+  - Spirit stone ore max Qi and regeneration rates
+
+Lifespan & Morality:
+  - Start bone age and age-per-day rate
+  - Near-immortal threshold for slow aging
+  - Ordinary death penalty years
+  - Morality alignment thresholds and tribulation damage scaling
+
+Status Effects:
+  - Blood Berserk attack/move speed boost
+  - Dao Heart Wound attack/move penalty
+  - Shatter Armor armor/toughness reduction
+  - Inverse Five Elements element reversal
+
+Beast Cultivation:
+  - Beast advance costs per realm
+  - Check intervals for beast cultivation updates
+  - Qi density threshold for beast cultivation
+  - Configurable scope (monsters only or all mobs)
+
+UI & Accessibility:
+  - Text scale (Chinese and English separately)
+  - Text weight (thin/normal/bold/extra bold)
+  - Full color customization (15+ color options)
+  - High-contrast mode for visually impaired players
+  - Reduce motion option for motion sensitivity
+  - Bar-style HUD replacing vanilla hearts/food
+  - Live preview panel for UI settings
+
+POWER-USER CONFIG SCREEN
+-------------------------
+
+Config Screen Enhancements:
+  - Converging wave animation on selected tabs (cultivation-themed)
+  - Cultivation-themed colored text (Qi=jade, Realm=golden, Tribulation=cinnabar)
+  - Entry type indicators (icons showing boolean/numeric/color/string)
+  - Config diff indicators (yellow=modified, red=over max)
+  - Value formatting with commas and units
+  - Over-max warnings with type-specific messages
+  - Red left-border accent for over-max entries
+
+Search & Filter:
+  - Search filters: All, Modified, Boolean, Numeric, Color, String, OverMax, Favorites
+  - Global search across all tabs
+  - Per-tab search memory
+  - Search history (last 5 queries)
+  - Match count badges on tabs
+
+Editing:
+  - New scroll modifier scheme:
+    Ctrl=x1, Ctrl+C=x0.01, Ctrl+Shift=x10, Shift=x100, Ctrl+Shift+C=x1000
+  - Ctrl locks tab scrolling (only adjusts selected entry)
+  - Escape to deselect entry
+  - Active multiplier badge on selected rows
+  - Undo/Redo (Ctrl+Z / Ctrl+Y) with 50-change history
+  - Right-click to favorite/lock entries
+  - Shift+right-click to lock/unlock
+
+Profiles & Management:
+  - Config export/import to JSON (clipboard)
+  - Config checksum for sharing/verification
+  - Config diff view (show all modified settings)
+  - Favorites system (star entries for quick access)
+  - Config locking (prevent accidental changes)
+  - Config validation on close (over-max warnings)
+  - Modpack presets: save/load entire configurations
+  - Per-world overrides: different values per world, applied automatically on load
+  - Custom tabs: build your own tab pulling configs from multiple categories
+  - Tab reordering: right-click to move a tab right, shift+right-click to move left
+  - Config dependencies: show, hide, enable, or disable one setting based on another
+
+Navigation & Help:
+  - Keyboard shortcuts: 1-9 for top tabs, Up/Down for sub-tabs
+  - Standard partition spacing (no indentation)
+  - Settings count at top-right
+  - Export/Import/Diff/Checksum buttons at bottom
+  - Minimap tree view showing your current position in the config hierarchy
+  - Inline (?) help icons with hover tooltips explaining what a value actually does
+  - Toast notifications for saves and value changes
+  - Color wheel picker, dropdown pickers for enum-like values, and a full editor
+    for long text values
+
+MIXIN ARCHITECTURE
+------------------
+Uses 30+ mixins to intercept hardcoded values in the original mod,
+replacing them with configurable values at runtime. No original mod
+files are modified - all changes are done through bytecode injection.
+
+COMPATIBILITY
+-------------
+Requires: Xiaoxiang Cultivation World mod (version 0.1 or later)
+Requires: Minecraft Forge 47.x (for Minecraft 1.20.1)
+Optional: Configured mod (provides GUI config screen access)
+
+The config screen is accessible from:
+  Mods menu -> Xiaoxiang Config Extension -> Config button
+
+CREDITS
+-------
+Creator: Young Lorde (Thy_YoungLorde)
+Built on: Xiaoxiang Cultivation World, created by the Xiaoxiang Cultivation team
+Powered by: Minecraft Forge and Mixin
+'''
+displayTest="IGNORE_ALL_VERSION"
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="xiaoxiang_cultivation"
+    mandatory=true
+    versionRange="[0.1,)"
+    ordering="AFTER"
+    side="BOTH"
