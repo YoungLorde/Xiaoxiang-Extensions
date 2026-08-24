@@ -28,6 +28,9 @@ git config user.email "Mohamed3132@gmail.com"
 echo == Staging project files (respects .gitignore) ==
 git add .
 
+echo == Marking gradlew as executable (fixes "Permission denied" on Mac/Linux/CI) ==
+git update-index --chmod=+x gradlew
+
 echo == Committing (skips cleanly if nothing changed) ==
 git commit -m "Update project files"
 
