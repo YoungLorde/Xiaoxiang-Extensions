@@ -10,7 +10,10 @@ REM      old v1 backup folder. Only your mod's own project files go up.
 REM   3. Commits whatever changed since the last run (no-ops cleanly if
 REM      nothing changed)
 REM   4. Points the repo at github.com/YoungLorde/Xiaoxiang-Extensions
-REM   5. Pushes to main
+REM   5. Pulls in anything already sitting on GitHub (e.g. the README/LICENSE
+REM      GitHub already has there) and merges it in, so the push doesn't get
+REM      rejected for "not having" a commit that only exists on GitHub's side
+REM   6. Pushes to main
 REM
 REM The first push may pop up a browser window asking you to log into
 REM GitHub - that's normal, it's how Git verifies it's you. You never
@@ -40,6 +43,10 @@ git branch -M main
 echo == Pointing at GitHub ==
 git remote remove origin >nul 2>&1
 git remote add origin https://github.com/YoungLorde/Xiaoxiang-Extensions.git
+
+echo == Pulling in anything already on GitHub (safe to ignore any message here) ==
+git fetch origin main
+git merge origin/main --allow-unrelated-histories -m "Merge GitHub's initial repo content" --no-edit
 
 echo == Pushing ==
 git push -u origin main

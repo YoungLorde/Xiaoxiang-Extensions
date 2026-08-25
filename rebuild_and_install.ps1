@@ -15,7 +15,7 @@ $ErrorActionPreference = "Stop"
 
 $ProjectDir = "C:\Users\YoungLorde\Desktop\XiaoxiangConfigMod"
 $ModsDir    = "C:\Users\YoungLorde\AppData\Roaming\ATLauncher\instances\XiaoCultivationWorld\mods"
-$JarName    = "xiaoxiang_config_ext-1.0.0.jar"
+$JarName    = "xiaoxiang_config_ext-1.0.1.jar"
 $LogFile    = Join-Path $ProjectDir "build_log.txt"
 
 try {

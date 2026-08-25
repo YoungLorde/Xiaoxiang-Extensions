@@ -41,3 +41,13 @@ replay_pid*.log
 # line (and the line below listing the folder, if any) if you'd rather keep
 # it versioned.
 backups/
+
+# Leftover Realm Expansion scaffolding that briefly landed in this folder by
+# mistake before that project got its own Desktop folder. It belongs in
+# XiaoxiangRealmExpansion, not here - safe to delete these three files from
+# this folder entirely. Ignored here as a safety net so they can never be
+# accidentally staged/pushed from this repo again, even if they're still
+# sitting on disk.
+install_realm_expansion.bat
+install_realm_expansion.ps1
+scaffold_realm_expansion.bat

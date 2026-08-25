@@ -861,6 +861,12 @@ public class CustomConfigScreen extends Screen {
         loadTooltipMemory();
         // Load custom tabs, tab order, and config dependencies
         CustomTabManager.loadFromConfig();
+        // Drop any custom tab (player-made or expansion-registered) whose
+        // path prefixes no longer match a single currently-registered config
+        // value - e.g. left behind by an expansion mod that's since been
+        // uninstalled. See CustomTabManager.pruneOrphanedTabs() for why this
+        // has to run here, every time the screen opens.
+        CustomTabManager.pruneOrphanedTabs();
         ConfigDependencyManager.loadFromConfig();
         // Load per-world overrides if enabled
         if (PerWorldOverrideManager.isEnabled()) {
@@ -1247,8 +1253,8 @@ public class CustomConfigScreen extends Screen {
             // Search across ALL config values (or current tab if not global)
             String query = searchBox.getValue();
             for (String path : ConfigValueAccessor.getAllPaths()) {
+                if (!ConfigValueAccessor.exists(path)) continue;
                 ForgeConfigSpec.ConfigValue<?> value = ConfigValueAccessor.get(path);
-                if (value == null) continue;
                 // If not global search, filter to current tab
                 if (!globalSearch) {
                     String subTabKey = activeTopTab + "." + activeSubTab;
@@ -1275,9 +1281,22 @@ public class CustomConfigScreen extends Screen {
                     for (String cp : customPaths) {
                         if (path.startsWith(cp + ".") || path.equals(cp)) {
                             belongs = true;
-                            String afterPrefix = path.substring(cp.length() + 1);
-                            String[] parts = afterPrefix.split("\\.");
-                            if (parts.length > 1) group = prettifySegment(parts[0]);
+                            // Prefer a real registered section name (e.g. "Golden Core")
+                            // for the prefix that matched, so an expansion mod with one
+                            // prefix per realm gets one real group per realm instead of
+                            // every prefix collapsing into whatever the first path
+                            // segment after it happens to be (e.g. every realm sharing
+                            // a "layers" sub-key would otherwise all group as "Layers").
+                            // Hand-built custom tabs have no registered sections, so
+                            // this returns null for them and they keep the old behavior.
+                            String sectionName = CustomTabManager.getSectionNameForPrefix(activeTopTab, cp);
+                            if (sectionName != null) {
+                                group = sectionName;
+                            } else {
+                                String afterPrefix = path.substring(cp.length() + 1);
+                                String[] parts = afterPrefix.split("\\.");
+                                if (parts.length > 1) group = prettifySegment(parts[0]);
+                            }
                             break;
                         }
                     }
@@ -1286,8 +1305,8 @@ public class CustomConfigScreen extends Screen {
                     if (!activeGroup.isEmpty() && !group.equals(activeGroup)) continue;
                     // Check config dependency visibility
                     if (!ConfigDependencyManager.shouldBeVisible(path)) continue;
+                    if (!ConfigValueAccessor.exists(path)) continue;
                     ForgeConfigSpec.ConfigValue<?> value = ConfigValueAccessor.get(path);
-                    if (value == null) continue;
                     ConfigEntryInfo info = ConfigDescriptionRegistry.get(path);
                     if (info == null) info = findInfoByFuzzyMatch(path);
                     filteredEntries.add(new DisplayEntry(path, value, info, group));
@@ -1502,6 +1521,20 @@ public class CustomConfigScreen extends Screen {
 
     /** Get all unique groups in the current sub-tab (computed from ALL entries, not filtered). */
     private List<String> getGroupsForCurrentSubTab() {
+        // Custom tabs with real registered sections (e.g. Realm Expansion's
+        // "Expansion" tab, one section per realm) get their group bar from
+        // those sections directly, instead of the generic
+        // SUBTAB_TO_PATH_PREFIX lookup below, which only custom tabs
+        // never populate (SUBTAB_TO_PATH_PREFIX is standard-tab only) - so
+        // without this branch every custom tab's group bar is always empty.
+        if (CustomTabManager.isCustomTab(activeTopTab) && CustomTabManager.hasSubTabs(activeTopTab)) {
+            LinkedHashSet<String> customGroups = new LinkedHashSet<>();
+            for (String subTab : CustomTabManager.getCustomSubTabNames(activeTopTab)) {
+                customGroups.addAll(CustomTabManager.getCustomSubTabSections(activeTopTab, subTab));
+            }
+            return new ArrayList<>(customGroups);
+        }
+
         LinkedHashSet<String> groups = new LinkedHashSet<>();
         String subTabKey = activeTopTab + "." + activeSubTab;
         String prefix = SUBTAB_TO_PATH_PREFIX.getOrDefault(subTabKey, "");

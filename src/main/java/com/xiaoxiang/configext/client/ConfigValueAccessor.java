@@ -30,6 +30,19 @@ public final class ConfigValueAccessor {
     /** All registered paths for debugging */
     private static final List<String> ALL_PATHS = new ArrayList<>();
 
+    /**
+     * Maps an expansion mod's config path -> the root NightConfig tree that
+     * backs it (the expansion's ForgeConfigSpec.childConfig).
+     *
+     * Expansion mods don't expose their ConfigValue objects the way the base
+     * mod's ExtendedConfig does (there's no static-field-per-setting class we
+     * can reflect on), so their paths are never present in PATH_TO_VALUE.
+     * Reading/writing them instead goes straight through this map to the
+     * underlying config tree, using the same path-list get/set calls
+     * ForgeConfigSpec.ConfigValue itself uses internally.
+     */
+    private static final Map<String, com.electronwill.nightconfig.core.Config> EXPANSION_PATH_TO_ROOT = new HashMap<>();
+
     /** Whether expansion configs have been scanned */
     private static boolean expansionsScanned = false;
 
@@ -56,9 +69,20 @@ public final class ConfigValueAccessor {
     }
 
     /**
-     * Scan all registered expansion configs for ConfigValue fields.
+     * Scan all registered expansion configs for their config paths.
      * Should be called after ExpansionDiscovery has run.
      * This is called lazily on first access if not already done.
+     *
+     * Expansion specs don't give us ConfigValue objects the way ExtendedConfig
+     * does (there's no equivalent of its static fields to reflect on), so
+     * instead of trying to construct/find ConfigValue instances, this reads
+     * the expansion's live config tree directly - its ForgeConfigSpec has a
+     * "childConfig" field (a com.electronwill.nightconfig.core.Config) that
+     * ForgeConfigSpec.ConfigValue itself reads from and writes to internally
+     * via path-list get/set calls. Walking that same tree and remembering,
+     * per leaf path, which root Config to call get/set against lets every
+     * expansion path become readable and editable without needing a
+     * ConfigValue object at all.
      */
     public static void scanExpansionConfigs() {
         if (expansionsScanned) return;
@@ -69,24 +93,51 @@ public final class ConfigValueAccessor {
             if (expansion.modId.equals("xiaoxiang_config_ext")) continue;
 
             try {
-                // The expansion's spec has a values map we can traverse
-                // But we need the actual ConfigValue objects, not just paths
-                // Try to find them via the spec's values map
-                java.lang.reflect.Field valuesField = ForgeConfigSpec.class.getDeclaredField("values");
-                valuesField.setAccessible(true);
-                @SuppressWarnings("unchecked")
-                Map<List<String>, ForgeConfigSpec.ConfigValue<?>> values =
-                        (Map<List<String>, ForgeConfigSpec.ConfigValue<?>>) valuesField.get(expansion.spec);
-                if (values != null) {
-                    for (ForgeConfigSpec.ConfigValue<?> value : values.values()) {
-                        registerValue(value);
-                    }
+                java.lang.reflect.Field childConfigField = ForgeConfigSpec.class.getDeclaredField("childConfig");
+                childConfigField.setAccessible(true);
+                Object childConfig = childConfigField.get(expansion.spec);
+                if (childConfig instanceof com.electronwill.nightconfig.core.Config) {
+                    com.electronwill.nightconfig.core.Config root = (com.electronwill.nightconfig.core.Config) childConfig;
+                    scanExpansionTree(root, root, "");
                 }
             } catch (Exception e) {
-                // Fallback: try to find ConfigValue fields via reflection on the spec
-                // This works if the expansion stores them as static fields
+                // The expansion's config may not be loaded yet, or its internals
+                // may differ from what's reflected on here - its paths simply
+                // won't be individually readable/editable in that case. The tab
+                // itself stays visible regardless (CustomTabManager backs tab
+                // visibility against ExpansionConfigRegistry.getAllPaths(), a
+                // separate, independently-populated source).
             }
         }
+    }
+
+    /**
+     * Recursively walk a NightConfig tree, remembering the root config for
+     * every leaf path so it can be read/written later via path-list get/set
+     * on that same root - exactly how ForgeConfigSpec.ConfigValue does it
+     * internally (config.getOrElse(path, ...) / config.set(path, value)).
+     */
+    private static void scanExpansionTree(com.electronwill.nightconfig.core.Config root,
+                                           com.electronwill.nightconfig.core.Config node,
+                                           String prefix) {
+        for (com.electronwill.nightconfig.core.Config.Entry entry : node.entrySet()) {
+            String key = entry.getKey();
+            String fullPath = prefix.isEmpty() ? key : prefix + "." + key;
+            Object value = entry.getValue();
+            if (value instanceof com.electronwill.nightconfig.core.Config) {
+                scanExpansionTree(root, (com.electronwill.nightconfig.core.Config) value, fullPath);
+            } else {
+                if (!PATH_TO_VALUE.containsKey(fullPath) && !EXPANSION_PATH_TO_ROOT.containsKey(fullPath)) {
+                    ALL_PATHS.add(fullPath);
+                }
+                EXPANSION_PATH_TO_ROOT.put(fullPath, root);
+            }
+        }
+    }
+
+    /** Split a dotted config path into the List<String> form NightConfig's path-based get/set expect. */
+    private static List<String> splitPath(String path) {
+        return Arrays.asList(path.split("\\."));
     }
 
     /** Register a single ConfigValue in all indexes. */
@@ -147,35 +198,74 @@ public final class ConfigValueAccessor {
         return null;
     }
 
+    /** Read the current raw value for an expansion config path directly from its NightConfig tree. */
+    private static Object getExpansionRawValue(String path) {
+        com.electronwill.nightconfig.core.Config root = EXPANSION_PATH_TO_ROOT.get(path);
+        if (root == null) return null;
+        try {
+            return root.get(splitPath(path));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Write a raw value for an expansion config path directly to its NightConfig tree. */
+    private static boolean setExpansionRawValue(String path, Object value) {
+        com.electronwill.nightconfig.core.Config root = EXPANSION_PATH_TO_ROOT.get(path);
+        if (root == null) return false;
+        try {
+            root.set(splitPath(path), value);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Get the current value as a string. */
     public static String getValueString(String path) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return "???";
-        try {
-            Object v = value.get();
-            if (v instanceof Double) {
-                return String.format("%.2f", v);
+        if (value != null) {
+            try {
+                Object v = value.get();
+                if (v instanceof Double) {
+                    return String.format("%.2f", v);
+                }
+                return String.valueOf(v);
+            } catch (Exception e) {
+                return "???";
             }
-            return String.valueOf(v);
-        } catch (Exception e) {
-            return "???";
         }
+        Object v = getExpansionRawValue(path);
+        if (v == null) return "???";
+        if (v instanceof Double) {
+            return String.format("%.2f", v);
+        }
+        return String.valueOf(v);
     }
 
     /** Get the DEFAULT value as a string (the value the config was created with). */
     public static String getDefaultValueString(String path) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return "???";
-        try {
-            // ForgeConfigSpec.ConfigValue has a public getDefault() method
-            Object v = value.getDefault();
-            if (v instanceof Double) {
-                return String.format("%.2f", v);
+        if (value != null) {
+            try {
+                // ForgeConfigSpec.ConfigValue has a public getDefault() method
+                Object v = value.getDefault();
+                if (v instanceof Double) {
+                    return String.format("%.2f", v);
+                }
+                return String.valueOf(v);
+            } catch (Exception e) {
+                return getValueString(path);
             }
-            return String.valueOf(v);
-        } catch (Exception e) {
+        }
+        // Expansion paths have no separately-tracked default here (their
+        // spec's default metadata lives in a different tree than the live
+        // config values) - falling back to the current value is an honest
+        // choice rather than showing a "???" that would look broken.
+        if (EXPANSION_PATH_TO_ROOT.containsKey(path)) {
             return getValueString(path);
         }
+        return "???";
     }
 
     /** Get the default value as a double, for multiplier computation. */
@@ -192,25 +282,44 @@ public final class ConfigValueAccessor {
     @SuppressWarnings("unchecked")
     public static boolean setValueFromString(String path, String strValue) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return false;
-        try {
-            Object current = value.get();
-            if (current instanceof Integer) {
-                int v = Integer.parseInt(strValue);
-                ((ForgeConfigSpec.IntValue) value).set(v);
-            } else if (current instanceof Double) {
-                double v = Double.parseDouble(strValue);
-                ((ForgeConfigSpec.DoubleValue) value).set(v);
-            } else if (current instanceof Long) {
-                long v = Long.parseLong(strValue);
-                ((ForgeConfigSpec.LongValue) value).set(v);
-            } else if (current instanceof Boolean) {
-                boolean v = Boolean.parseBoolean(strValue);
-                ((ForgeConfigSpec.BooleanValue) value).set(v);
-            } else if (current instanceof String) {
-                ((ForgeConfigSpec.ConfigValue<String>) value).set(strValue);
+        if (value != null) {
+            try {
+                Object current = value.get();
+                if (current instanceof Integer) {
+                    int v = Integer.parseInt(strValue);
+                    ((ForgeConfigSpec.IntValue) value).set(v);
+                } else if (current instanceof Double) {
+                    double v = Double.parseDouble(strValue);
+                    ((ForgeConfigSpec.DoubleValue) value).set(v);
+                } else if (current instanceof Long) {
+                    long v = Long.parseLong(strValue);
+                    ((ForgeConfigSpec.LongValue) value).set(v);
+                } else if (current instanceof Boolean) {
+                    boolean v = Boolean.parseBoolean(strValue);
+                    ((ForgeConfigSpec.BooleanValue) value).set(v);
+                } else if (current instanceof String) {
+                    ((ForgeConfigSpec.ConfigValue<String>) value).set(strValue);
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
             }
-            return true;
+        }
+        Object current = getExpansionRawValue(path);
+        if (current == null) return false;
+        try {
+            if (current instanceof Integer) {
+                return setExpansionRawValue(path, Integer.parseInt(strValue));
+            } else if (current instanceof Double) {
+                return setExpansionRawValue(path, Double.parseDouble(strValue));
+            } else if (current instanceof Long) {
+                return setExpansionRawValue(path, Long.parseLong(strValue));
+            } else if (current instanceof Boolean) {
+                return setExpansionRawValue(path, Boolean.parseBoolean(strValue));
+            } else if (current instanceof String) {
+                return setExpansionRawValue(path, strValue);
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -219,20 +328,34 @@ public final class ConfigValueAccessor {
     /** Increment a numeric value by a step. */
     public static boolean increment(String path, double step) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return false;
-        try {
-            Object current = value.get();
-            if (current instanceof Integer) {
-                int v = (Integer) current + (int) Math.round(step);
-                ((ForgeConfigSpec.IntValue) value).set(v);
-            } else if (current instanceof Double) {
-                double v = (Double) current + step;
-                ((ForgeConfigSpec.DoubleValue) value).set(v);
-            } else if (current instanceof Long) {
-                long v = (Long) current + (long) step;
-                ((ForgeConfigSpec.LongValue) value).set(v);
+        if (value != null) {
+            try {
+                Object current = value.get();
+                if (current instanceof Integer) {
+                    int v = (Integer) current + (int) Math.round(step);
+                    ((ForgeConfigSpec.IntValue) value).set(v);
+                } else if (current instanceof Double) {
+                    double v = (Double) current + step;
+                    ((ForgeConfigSpec.DoubleValue) value).set(v);
+                } else if (current instanceof Long) {
+                    long v = (Long) current + (long) step;
+                    ((ForgeConfigSpec.LongValue) value).set(v);
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
             }
-            return true;
+        }
+        try {
+            Object current = getExpansionRawValue(path);
+            if (current instanceof Integer) {
+                return setExpansionRawValue(path, (Integer) current + (int) Math.round(step));
+            } else if (current instanceof Double) {
+                return setExpansionRawValue(path, (Double) current + step);
+            } else if (current instanceof Long) {
+                return setExpansionRawValue(path, (Long) current + (long) step);
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -241,20 +364,34 @@ public final class ConfigValueAccessor {
     /** Decrement a numeric value by a step. */
     public static boolean decrement(String path, double step) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return false;
-        try {
-            Object current = value.get();
-            if (current instanceof Integer) {
-                int v = (Integer) current - (int) Math.round(step);
-                ((ForgeConfigSpec.IntValue) value).set(v);
-            } else if (current instanceof Double) {
-                double v = (Double) current - step;
-                ((ForgeConfigSpec.DoubleValue) value).set(v);
-            } else if (current instanceof Long) {
-                long v = (Long) current - (long) step;
-                ((ForgeConfigSpec.LongValue) value).set(v);
+        if (value != null) {
+            try {
+                Object current = value.get();
+                if (current instanceof Integer) {
+                    int v = (Integer) current - (int) Math.round(step);
+                    ((ForgeConfigSpec.IntValue) value).set(v);
+                } else if (current instanceof Double) {
+                    double v = (Double) current - step;
+                    ((ForgeConfigSpec.DoubleValue) value).set(v);
+                } else if (current instanceof Long) {
+                    long v = (Long) current - (long) step;
+                    ((ForgeConfigSpec.LongValue) value).set(v);
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
             }
-            return true;
+        }
+        try {
+            Object current = getExpansionRawValue(path);
+            if (current instanceof Integer) {
+                return setExpansionRawValue(path, (Integer) current - (int) Math.round(step));
+            } else if (current instanceof Double) {
+                return setExpansionRawValue(path, (Double) current - step);
+            } else if (current instanceof Long) {
+                return setExpansionRawValue(path, (Long) current - (long) step);
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -263,32 +400,47 @@ public final class ConfigValueAccessor {
     /** Toggle a boolean value. */
     public static boolean toggle(String path) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return false;
-        try {
-            Object current = value.get();
-            if (current instanceof Boolean) {
-                ((ForgeConfigSpec.BooleanValue) value).set(!(Boolean) current);
-                return true;
-            }
-        } catch (Exception e) {}
+        if (value != null) {
+            try {
+                Object current = value.get();
+                if (current instanceof Boolean) {
+                    ((ForgeConfigSpec.BooleanValue) value).set(!(Boolean) current);
+                    return true;
+                }
+            } catch (Exception e) {}
+            return false;
+        }
+        Object current = getExpansionRawValue(path);
+        if (current instanceof Boolean) {
+            return setExpansionRawValue(path, !(Boolean) current);
+        }
         return false;
     }
 
     /** Get the type of a config value. */
     public static String getType(String path) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
-        if (value == null) return "unknown";
-        try {
-            Object v = value.get();
-            if (v instanceof Integer) return "int";
-            if (v instanceof Double) return "double";
-            if (v instanceof Long) return "long";
-            if (v instanceof Boolean) return "boolean";
-            if (v instanceof String) return "string";
-            return v.getClass().getSimpleName();
-        } catch (Exception e) {
-            return "unknown";
+        if (value != null) {
+            try {
+                Object v = value.get();
+                if (v instanceof Integer) return "int";
+                if (v instanceof Double) return "double";
+                if (v instanceof Long) return "long";
+                if (v instanceof Boolean) return "boolean";
+                if (v instanceof String) return "string";
+                return v.getClass().getSimpleName();
+            } catch (Exception e) {
+                return "unknown";
+            }
         }
+        Object v = getExpansionRawValue(path);
+        if (v == null) return "unknown";
+        if (v instanceof Integer) return "int";
+        if (v instanceof Double) return "double";
+        if (v instanceof Long) return "long";
+        if (v instanceof Boolean) return "boolean";
+        if (v instanceof String) return "string";
+        return v.getClass().getSimpleName();
     }
 
     /** Get the minimum allowed value as a String, or null if not a ranged value. */
@@ -335,7 +487,7 @@ public final class ConfigValueAccessor {
 
     /** Check if a config path exists in our mapping. */
     public static boolean exists(String path) {
-        return get(path) != null;
+        return get(path) != null || EXPANSION_PATH_TO_ROOT.containsKey(path);
     }
 
     /** Get all registered config paths (including expansion configs). */

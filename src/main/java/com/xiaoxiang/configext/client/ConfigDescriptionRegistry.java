@@ -6,13 +6,21 @@ import java.util.*;
  * Registry of detailed descriptions for every config option.
  * Used by the custom config screen to show rich tooltips and searchable metadata.
  *
- * Top-level tabs (reduced from 25+ to 6):
- *   1. Cultivation  - realms, spells, techniques, spirit roots, physiques, Dao paths
- *   2. World        - biomes, spirit veins, spirit plants, formations, loot
- *   3. NPCs         - identity, progression, NPC combat, sects
- *   4. Crafting     - alchemy, refining, pills, weapons
- *   5. System       - qi system, passive spells, effects, morality, lifespan, trials
- *   6. UI           - text size, font, colors, background, HUD settings
+ * Top-level tabs (see CustomConfigScreen.TAB_TO_SUBTABS for the authoritative list
+ * and sub-tab breakdown - this comment only summarizes it):
+ *   1. Cultivation       - realms, spells, techniques, spirit roots, physiques, Dao paths, identity
+ *   2. Spells & Combat   - spells, passive spells, weapons
+ *   3. Sects             - generation, shop pricing, life & population, tasks, departments, defense
+ *   4. NPCs              - spawns, combat tactics, AI behavior, trades
+ *   5. Beasts & Mobs     - beast cultivation, advance costs, spawns
+ *   6. World             - biome qi, spirit veins, spirit plants, loot
+ *   7. Crafting          - alchemy, refining, pills
+ *   8. Trials            - heart demon, inner world, loose immortal
+ *   9. Qi System         - qi attraction, qi shield, spirit stone ore
+ *   10. Lifespan         - aging & death
+ *   11. Effects & Morality - status effects, morality, morality bounds
+ *   12. Formations       - core max qi, qi gathering, growth, barriers, rejuvenation, harvest
+ *   13. UI               - HUD layout, colors, background, accessibility, advanced
  */
 public final class ConfigDescriptionRegistry {
 
@@ -260,72 +268,6 @@ public final class ConfigDescriptionRegistry {
             "Higher tier bags have more columns and rows, providing more inventory space.\\n" +
             "From small pouches (3x3) to vast spatial storage (9x18), storage bags are essential\\n" +
             "for cultivators who accumulate many pills, materials, and equipment.");
-        TAB_DESCRIPTIONS.put("System",
-            "The underlying mechanics that govern the cultivation world - Qi flow, passive abilities, status effects,\\n" +
-            "morality, lifespan, and trials. These systems operate behind the scenes but affect every aspect of gameplay.\\n" +
-            "\\n" +
-            "QI SYSTEM:\\n" +
-            "Qi is the fundamental energy of the cultivation world, flowing through all living things and the environment.\\n" +
-            "Qi comes in 7 attributes: None (Pure), Gold, Wood, Water, Fire, Earth, and Ice.\\n" +
-            "Each attribute has relationships with others (Water extinguishes Fire, Wood feeds Fire, Earth absorbs Water).\\n" +
-            "The Qi attraction radius controls how far a cultivator pulls in floating Qi orbs - larger = faster gathering.\\n" +
-            "Meditation bonuses boost Qi gathering speed when meditating - meditating on a meditation mat provides\\n" +
-            "10x normal absorption speed, making it the primary cultivation method.\\n" +
-            "The Qi shield absorbs incoming damage using Qi before it reaches HP - reduction % scales with realm.\\n" +
-            "Spirit Stone Ore has configurable Qi storage and regeneration rate for sustainable harvesting.\\n" +
-            "Spirit root absorption multipliers scale gathering speed based on root rarity (SSR and SR gather faster).\\n" +
-            "\\n" +
-            "PASSIVE SPELLS:\\n" +
-            "Passive spells are always-active abilities that continuously drain Qi to provide persistent effects:\\n" +
-            "  Slow Regen - Passively heals HP over time, reducing the need for food or potions.\\n" +
-            "  Bigu (Fasting) - Prevents hunger, allowing the cultivator to skip eating entirely.\\n" +
-            "    A classic cultivation ability - 'bigu' means 'avoiding grain', a sign of advanced cultivation.\\n" +
-            "  Qi Mending - Passively repairs tool and armor durability using Qi. Never need an anvil again.\\n" +
-            "  Qi Flight - Allows the cultivator to fly using Qi, with per-second Qi upkeep.\\n" +
-            "    Higher realm cultivators can fly longer due to larger Qi reserves.\\n" +
-            "  Item Attraction - Pulls dropped items toward the cultivator within a configurable radius.\\n" +
-            "    Like a magnetic pull for loot. Higher radius = collects from further away.\\n" +
-            "  Treasure Seizing - Grabs entire item stacks from a distance. More powerful than Item Attraction.\\n" +
-            "Each passive spell has a check interval (how often it ticks) and Qi cost per tick.\\n" +
-            "Higher intervals = less frequent activation = less Qi drain but slower effects.\\n" +
-            "\\n" +
-            "STATUS EFFECTS:\\n" +
-            "  Blood Berserk - A powerful combat buff that boosts speed and attack power.\\n" +
-            "    Represents a cultivator entering a battle frenzy. May have drawbacks when it wears off.\\n" +
-            "  Dao Heart Wound - A debuff from failed tribulations, reducing attack and movement speed.\\n" +
-            "    Represents the cultivator's shattered confidence after failing a heavenly trial.\\n" +
-            "    Can take a long time to recover from, both mechanically and narratively.\\n" +
-            "  Shatter Armor - Reduces armor and toughness, leaving the cultivator vulnerable to physical attacks.\\n" +
-            "  Inverse Five Elements - Inverts elemental damage and cost relationships, creating chaos.\\n" +
-            "    Fire spells become weak against Water, Water spells cost more, etc.\\n" +
-            "Each effect has configurable attribute modifier values that determine how strong the buff/debuff is.\\n" +
-            "\\n" +
-            "MORALITY SYSTEM:\\n" +
-            "The Morality System tracks a cultivator's alignment on a scale from evil (negative) to righteous (positive).\\n" +
-            "Every action has moral consequences - killing innocents lowers morality, helping others raises it.\\n" +
-            "Thresholds define when alignment labels change: below neutral min is 'Evil', above neutral max is 'Righteous'.\\n" +
-            "Morality affects two major systems:\\n" +
-            "  1. Tribulation Damage - scales with ABSOLUTE morality. Very righteous or very evil = harder tribulations.\\n" +
-            "     The heavens test those with extreme conviction more harshly.\\n" +
-            "  2. Heart Demon Trial - the boss's vitality scales with morality alignment.\\n" +
-            "     The more extreme your alignment, the stronger your inner demon.\\n" +
-            "A balanced (neutral) cultivator faces easier trials but lacks the conviction of extremes.\\n" +
-            "\\n" +
-            "LIFESPAN SYSTEM:\\n" +
-            "Lifespan determines how long a cultivator can live before dying of old age.\\n" +
-            "Bone age starts at 14-18 years at character creation and advances at a configurable rate per game day.\\n" +
-            "Near the immortal threshold, aging dramatically slows, granting near-immortality.\\n" +
-            "The ordinary death penalty determines how many years of bone age are lost on non-tribulation deaths.\\n" +
-            "At the highest realms, aging essentially stops. True Immortals cease aging entirely.\\n" +
-            "Lifespan can be extended through realm breakthroughs, Dao path bonuses, and Youth Pills.\\n" +
-            "\\n" +
-            "TRIALS:\\n" +
-            "  Heart Demon Trial - Mental confrontation against your inner demon. Vitality scales with morality.\\n" +
-            "  Inner World Trial - Dimension-based challenge with platform size, soul wound penalties, and stasis.\\n" +
-            "  Shatter Core Trial - Boss fight during Golden Core breakthrough (configured in Golden Core Dao).\\n" +
-            "  Heavenly Tribulation - Lightning strikes during realm breakthroughs (configured in Realms).\\n" +
-            "  Loose Immortal Bonuses - Per-level bonuses for each level in the Loose Immortal realm:\\n" +
-            "    body defense, cultivation efficiency, Qi recovery, melee/spell damage, max Qi, free zhenyuan, tribulation stats.");
         TAB_DESCRIPTIONS.put("UI",
             "Visual and accessibility settings for the cultivation HUD and panels. The mod displays cultivation info\\n" +
             "via an in-game HUD (top-left overlay) and a main cultivation panel (opened with G key).\\n" +
@@ -810,10 +752,6 @@ public final class ConfigDescriptionRegistry {
         // ════════════════════════════════════════════════════════════════
         //  SUB-TAB DESCRIPTIONS
         // ════════════════════════════════════════════════════════════════
-        SUBTAB_DESCRIPTIONS.put("Cultivation.General Toggles",
-            "Master on/off switches for each category of overrides.\\n" +
-            "Disable a toggle to revert that category to the original mod's hardcoded values.\\n" +
-            "Useful for troubleshooting or if you only want to override specific systems.");
         SUBTAB_DESCRIPTIONS.put("Cultivation.Realms",
             "The 12 cultivation realms are the backbone of power progression. From Mortal (no Qi) through\\n" +
             "Qi Refining, Foundation Building, Golden Core, Nascent Soul, Soul Formation, Void Refining,\\n" +
@@ -824,16 +762,6 @@ public final class ConfigDescriptionRegistry {
             "Qi Shield % determines how much incoming damage is absorbed by Qi before reaching HP.\\n" +
             "Tribulation Damage determines how much lightning hurts during realm breakthroughs.\\n" +
             "Global multipliers at the bottom allow quick scaling of all values at once.");
-        SUBTAB_DESCRIPTIONS.put("Cultivation.Spells",
-            "Spells are the primary combat and utility tools of cultivators, consuming Qi to cast.\\n" +
-            "Global multipliers affect ALL spells simultaneously - damage (how much hurt they deal),\\n" +
-            "Qi cost (how much Qi they consume), and charge time (how long they take to cast).\\n" +
-            "Individual spell overrides allow fine-tuning specific abilities:\\n" +
-            "Sword Flight (aerial movement with Qi-per-second upkeep), Void Step (air jump, dash, slow fall),\\n" +
-            "Palm Thunder (channeled lightning with Qi-per-second), Void Escape (teleport with charge ticks),\\n" +
-            "Buddha Fire Lotus (defensive formation with ready Qi requirement),\\n" +
-            "Core Self Destruct (sacrificial explosion), Sea of Overwhelming Blood (area denial),\\n" +
-            "and Glacier Burial (ice area effect with channel ticks).");
         SUBTAB_DESCRIPTIONS.put("Cultivation.Techniques",
             "Techniques are learned skills that provide passive bonuses to a cultivator's capabilities.\\n" +
             "There are 23 technique types, each boosting different attributes: Qi absorption speed,\\n" +
@@ -916,15 +844,6 @@ public final class ConfigDescriptionRegistry {
             "Growth ticks control how fast plants mature. Qi orb amounts control how much Qi\\n" +
             "Qi-producing plants generate. Spirit plants are essential for alchemy ingredients\\n" +
             "and cultivation resources.");
-        SUBTAB_DESCRIPTIONS.put("World.Formations",
-            "Formation arrays are placed structures that provide persistent area effects, powered by Formation Core blocks.\\n" +
-            "Formation types: Qi Gathering (boosts cultivation speed in area), Growth (accelerates plant growth),\\n" +
-            "Barrier (absorbs damage for sect defense), Rejuvenation (heals cultivators in range),\\n" +
-            "and Harvest (auto-collects mature plants).\\n" +
-            "Each formation type has per-tier multipliers (Low to Immortal), effect intervals,\\n" +
-            "and flag effect radius (1-16 blocks). Barrier formations use Qi-per-damage ratio -\\n" +
-            "how much Qi is consumed per point of damage blocked.\\n" +
-            "Formations are essential for sect defense and efficient cultivation farming.");
         SUBTAB_DESCRIPTIONS.put("World.Loot",
             "Chest loot settings control what cultivation-themed items appear in dungeon chests, sect treasuries,\\n" +
             "and special structures. Roll counts determine how many items appear per chest - more rolls = more items.\\n" +
@@ -934,49 +853,6 @@ public final class ConfigDescriptionRegistry {
             "Increase weights for items you want to see more often, decrease for rarer items.\\n" +
             "More rolls per chest makes loot richer overall, useful for high-reward dungeon configs.");
 
-        SUBTAB_DESCRIPTIONS.put("NPCs.Identity",
-            "When a player begins their cultivation journey, they draw an Identity from a deck of 16 backgrounds.\\n" +
-            "Each identity determines starting items and a lifespan range. The 16 identities are:\\n" +
-            "Lone Cultivator, Merchant Son, Bandit Leader, Hunter, Doctor Heir, Hermit Disciple,\\n" +
-            "Fisherman, Farmer, Abandoned Infant, General Son, Exiled Princess, Pirate,\\n" +
-            "Beast Descendant, Taoist, Monk, and Academy Student.\\n" +
-            "Martial identities (Bandit Leader, Pirate, General Son) tend to live shorter but start stronger.\\n" +
-            "Scholarly identities (Academy Student, Doctor Heir, Hermit Disciple) live longer.\\n" +
-            "Mystical identities (Taoist, Monk, Beast Descendant) have unique advantages.\\n" +
-            "The lifespan range is rolled at character creation and determines how long the cultivator\\n" +
-            "can live before needing realm breakthroughs to extend their lifespan.");
-        SUBTAB_DESCRIPTIONS.put("NPCs.Progression",
-            "Cultivation progression rules govern how cultivators advance through realms.\\n" +
-            "Bone age limits determine the maximum age to attempt certain Dao paths - if a cultivator\\n" +
-            "is too old, they cannot choose Heaven Dao, reflecting the body's decline with age.\\n" +
-            "Estimate days are shown in the UI as rough timeframes for how long each breakthrough takes.\\n" +
-            "NPC tribulation settings control how NPCs handle heavenly tribulations - whether they\\n" +
-            "survive or die during breakthrough attempts. NPC tribulation death chance determines\\n" +
-            "the probability of NPC death during tribulation, controlling how many NPCs survive\\n" +
-            "to higher realms. Gender edit settings control whether players can change gender.\\n" +
-            "Max cultivation cap limits how far NPCs can progress to prevent overpowered worlds.");
-        SUBTAB_DESCRIPTIONS.put("NPCs.NPC Combat",
-            "NPC cultivators fight using a tactical AI system with dodge mechanics, threat scanning,\\n" +
-            "and reaction timing that scales with their cultivation realm.\\n" +
-            "Dodge chance (per realm) is how likely an NPC is to dodge an incoming attack -\\n" +
-            "higher realm NPCs dodge more frequently, making them harder to hit.\\n" +
-            "Scan ticks is how often the NPC looks for threats in their vicinity -\\n" +
-            "lower values mean more responsive threat detection.\\n" +
-            "Reaction ticks is how fast the NPC responds after detecting a threat -\\n" +
-            "lower values mean faster counterattacks.\\n" +
-            "Dodge cooldown is how long after dodging before the NPC can dodge again -\\n" +
-            "preventing infinite dodging. These values create a combat difficulty curve\\n" +
-            "where higher realm NPCs are noticeably more skilled in combat.");
-        SUBTAB_DESCRIPTIONS.put("NPCs.Sects",
-            "Sects are the major social structures of the cultivation world, with 13 size tiers\\n" +
-            "from Humble Cottage (tier 0) to Grand Immortal Sect (tier 12).\\n" +
-            "Power score (0-4) determines sect strength - 0 is weakest, 4 is strongest.\\n" +
-            "Ancestor immortal chances control how likely a sect's founding ancestor achieved immortality -\\n" +
-            "higher chances mean more powerful sects with immortal backing.\\n" +
-            "Shop prices are in spirit stones: techniques, spells, and weapons each have tier-based pricing.\\n" +
-            "Sell percent is what you get back when selling items to sect shops.\\n" +
-            "Sects also have task systems, departments (Herbal, Alchemy, Refining),\\n" +
-            "ambient social interactions, defense barriers, and daily schedules for NPCs.");
 
         SUBTAB_DESCRIPTIONS.put("Crafting.Alchemy",
             "Alchemy is the art of refining pills from spiritual ingredients using an Alchemy Furnace.\\n" +
@@ -1010,94 +886,8 @@ public final class ConfigDescriptionRegistry {
             "useful for extending the window to attempt Dao path breakthroughs with age limits.\\n" +
             "Storage Bags have configurable grid dimensions per tier - higher tier bags\\n" +
             "have more columns and rows, providing more inventory space.");
-        SUBTAB_DESCRIPTIONS.put("Crafting.Weapons",
-            "Spiritual weapons are forged through the Refining system and provide combat advantages.\\n" +
-            "Global damage multiplier affects ALL weapons - increase for deadlier combat overall.\\n" +
-            "Qi cost reduction % lowers the Qi cost of spells when holding a weapon -\\n" +
-            "higher tier weapons provide more reduction, making them essential for spellcasters.\\n" +
-            "This creates a synergy between Refining and spellcasting: a well-forged weapon\\n" +
-            "not only deals more damage but also makes spells cheaper to cast.\\n" +
-            "Special effects (burn, freeze, poison) have configurable durations -\\n" +
-            "these trigger on hit and apply status effects to the target.\\n" +
-            "Burn deals fire damage over time, Freeze slows the target,\\n" +
-            "and Poison deals damage over time with reduced healing.");
 
-        SUBTAB_DESCRIPTIONS.put("System.Qi System",
-            "Qi is the fundamental energy of the cultivation world, flowing through all living things.\\n" +
-            "The Qi attraction radius controls how far a cultivator pulls in floating Qi orbs -\\n" +
-            "larger radius means faster Qi gathering from a wider area.\\n" +
-            "Meditation bonuses boost Qi gathering speed when meditating - meditating on a\\n" +
-            "meditation mat provides 10x normal absorption speed, making it the primary cultivation method.\\n" +
-            "The Qi shield absorbs incoming damage using Qi before it reaches HP -\\n" +
-            "the reduction percentage scales with realm, making higher realm cultivators much tankier.\\n" +
-            "Spirit Stone Ore has configurable Qi storage capacity and regeneration rate -\\n" +
-            "when mined, it provides Qi, and it regenerates over time for sustainable harvesting.");
-        SUBTAB_DESCRIPTIONS.put("System.Passive Spells",
-            "Passive spells are always-active abilities that continuously drain Qi to provide persistent effects.\\n" +
-            "They are essential quality-of-life abilities for cultivators:\\n" +
-            "Slow Regen - passively heals HP over time, reducing the need for food or potions.\\n" +
-            "Bigu (Fasting) - prevents hunger, allowing the cultivator to skip eating entirely.\\n" +
-            "Qi Mending - passively repairs tool and armor durability using Qi.\\n" +
-            "Qi Flight - allows the cultivator to fly using Qi, with per-second Qi upkeep.\\n" +
-            "Item Attraction - pulls dropped items toward the cultivator within a configurable radius.\\n" +
-            "Treasure Seizing - grabs entire item stacks from a distance, like a magnetic pull.\\n" +
-            "Each passive spell has a check interval (how often it ticks) and a Qi cost per tick.\\n" +
-            "Higher intervals = less frequent activation = less Qi drain but slower effects.");
-        SUBTAB_DESCRIPTIONS.put("System.Effects",
-            "Status effects are temporary conditions that can buff or debuff cultivators.\\n" +
-            "Blood Berserk - a powerful combat buff that boosts speed and attack power, representing\\n" +
-            "a cultivator entering a battle frenzy. May have drawbacks when it wears off.\\n" +
-            "Dao Heart Wound - a debuff from failed tribulations, reducing attack and movement speed.\\n" +
-            "Represents the cultivator's shattered confidence after failing a heavenly trial.\\n" +
-            "Shatter Armor - reduces armor and toughness, leaving the cultivator vulnerable to physical attacks.\\n" +
-            "Inverse Five Elements - inverts elemental damage and cost relationships, creating chaos.\\n" +
-            "Fire spells become weak against Water, Water spells cost more, etc.\\n" +
-            "Each effect has configurable attribute modifier values that determine how strong the buff/debuff is.");
-        SUBTAB_DESCRIPTIONS.put("System.Morality",
-            "The Morality System tracks a cultivator's alignment on a scale from evil (negative) to righteous (positive).\\n" +
-            "Every action has moral consequences - killing innocents lowers morality, helping others raises it.\\n" +
-            "Thresholds define when alignment labels change: below the neutral minimum is 'Evil',\\n" +
-            "above the neutral maximum is 'Righteous', and between is 'Neutral'.\\n" +
-            "Morality affects two major systems:\\n" +
-            "1. Tribulation Damage - scales with the ABSOLUTE value of morality.\\n" +
-            "   Very righteous or very evil cultivators face harder tribulations.\\n" +
-            "   This means extreme alignment is risky - the heavens test you harder.\\n" +
-            "2. Heart Demon Trial - the boss's vitality scales with your morality alignment.\\n" +
-            "   The more extreme your alignment, the stronger your inner demon.\\n" +
-            "A balanced (neutral) cultivator faces easier trials but lacks the conviction of extremes.");
-        SUBTAB_DESCRIPTIONS.put("System.Lifespan",
-            "Lifespan determines how long a cultivator can live before dying of old age.\\n" +
-            "Bone age is the cultivator's apparent age, starting at 14-18 years at character creation.\\n" +
-            "It advances at a configurable rate per game day - lower rates mean slower aging.\\n" +
-            "Near the immortal threshold, aging dramatically slows down, granting near-immortality.\\n" +
-            "The ordinary death penalty determines how many years of bone age are lost when a cultivator\\n" +
-            "dies from non-tribulation causes (combat, environmental, etc.).\\n" +
-            "At the highest realms (Loose Immortal, True Immortal), aging essentially stops.\\n" +
-            "True Immortals cease aging entirely, having achieved eternal life.\\n" +
-            "Lifespan can be extended through: realm breakthroughs (each realm grants more years),\\n" +
-            "Foundation Dao bonuses, Golden Core Dao bonuses, and Youth Pills (reduce bone age).");
-        SUBTAB_DESCRIPTIONS.put("System.Trials",
-            "Trials are the ultimate tests of a cultivator's worth, required for major realm breakthroughs.\\n" +
-            "Heart Demon Trial - a mental confrontation where the cultivator faces their inner demon.\\n" +
-            "  The demon's vitality scales with the cultivator's morality alignment -\\n" +
-            "  more extreme alignment (very righteous or very evil) = stronger demon.\\n" +
-            "  This trial tests whether the cultivator's conviction can overcome their own nature.\\n" +
-            "Inner World Trial - a dimension-based challenge where the cultivator enters an inner world.\\n" +
-            "  Platform size determines the arena dimensions. Soul wound penalties apply on failure.\\n" +
-            "  Stasis mechanics may freeze the cultivator during the trial.\\n" +
-            "Shatter Core Trial - a boss fight during Golden Core breakthrough (configured in Golden Core Dao).\\n" +
-            "Heavenly Tribulation - lightning strikes during realm breakthroughs (configured in Realms).\\n" +
-            "Loose Immortal per-level bonuses grant scaling rewards for each level in the Loose Immortal realm.");
 
-        SUBTAB_DESCRIPTIONS.put("UI.Text & Scale",
-            "Text size and scaling options for the cultivation panel and HUD.\\n" +
-            "The mod displays text in both English and Chinese, and each can be scaled independently.\\n" +
-            "Increase text size for better readability on high-resolution displays.\\n" +
-            "Decrease text size to fit more information on screen at once.\\n" +
-            "Text scaling affects: realm names, spell names, technique names, stat values,\\n" +
-            "lifespan displays, Qi amounts, and all other text in the cultivation panel.\\n" +
-            "The HUD (top-left overlay) also respects these scaling settings.\\n" +
-            "Find a balance that's readable on your screen without taking too much space.");
         SUBTAB_DESCRIPTIONS.put("UI.HUD Layout",
             "The in-game HUD displays cultivation info in the top-left corner of the screen.\\n" +
             "Adjust X position to move it left/right and Y position to move it up/down.\\n" +
@@ -1107,24 +897,6 @@ public final class ConfigDescriptionRegistry {
             "On smaller screens, reduce bar width and portrait size to avoid covering gameplay.\\n" +
             "The HUD shows: current realm and sub-stage, Qi amount, lifespan/bone age,\\n" +
             "active passive spells, and morality alignment.");
-        SUBTAB_DESCRIPTIONS.put("UI.Panel Size",
-            "The main cultivation panel is opened with the G key and shows detailed cultivation info.\\n" +
-            "Panel width and height control the dimensions of this panel.\\n" +
-            "Larger panels show more content at once - more spells, more stats, more techniques.\\n" +
-            "Smaller panels take less screen space but may require scrolling to see everything.\\n" +
-            "On smaller screens (1280x720), use smaller panel dimensions to avoid covering the game.\\n" +
-            "On larger screens (1920x1080+), larger panels provide a better overview.\\n" +
-            "The panel contains: realm info, spell grid, technique list, stat breakdown,\\n" +
-            "morality display, lifespan info, and active effects.");
-        SUBTAB_DESCRIPTIONS.put("UI.Spell Grid",
-            "The spell grid displays all learned spells in the cultivation panel.\\n" +
-            "Cell size controls how large each spell slot is - larger cells are easier to click.\\n" +
-            "Icon size controls how big the spell icon is within each cell.\\n" +
-            "Columns and rows control the grid layout - more columns = wider grid, more rows = taller.\\n" +
-            "Total visible spells = columns x rows. If you have more spells than visible slots,\\n" +
-            "the grid will scroll. Adjust these values to fit your screen and spell count.\\n" +
-            "A compact grid (small cells, many columns) shows many spells at once.\\n" +
-            "A spacious grid (large cells, fewer columns) is easier to read and click.");
         SUBTAB_DESCRIPTIONS.put("UI.Colors",
             "Full color customization for all UI elements in the cultivation panel and HUD.\\n" +
             "Use the color preset dropdown to pick from named themes instead of typing hex values:\\n" +
@@ -1237,22 +1009,6 @@ public final class ConfigDescriptionRegistry {
             "Settlement cell spawn chance controls how often sects generate in each world chunk.\\n" +
             "Per-tier spawn chances control the distribution of sect sizes - higher tiers are rarer by default.\\n" +
             "These settings shape the cultivation world's social geography.");
-        SUBTAB_DESCRIPTIONS.put("Sects.Power & Ancestors",
-            "Sect power score calculation and ancestor immortal chances.\\n" +
-            "Power score (0-4) determines a sect's overall strength and influence in the world.\\n" +
-            "Higher power sects have stronger cultivators, better resources, and more influence.\\n" +
-            "Ancestor immortal chances control how likely a sect's founding ancestor achieved immortality.\\n" +
-            "Higher chances mean more powerful sects with immortal backing - a sect with a True Immortal\\n" +
-            "ancestor is essentially unassailable by lower-realm cultivators.\\n" +
-            "These settings determine the power hierarchy of the cultivation world.");
-        SUBTAB_DESCRIPTIONS.put("Sects.Shops & Pricing",
-            "Sect shop pricing for techniques, spells, and weapons by tier.\\n" +
-            "Controls the cultivation economy within sects.\\n" +
-            "Each tier of sect sells items at different spirit stone prices.\\n" +
-            "Higher tier sects sell better items but at higher prices.\\n" +
-            "Sell percent controls what you get back when selling items to sect shops.\\n" +
-            "This creates a cultivation economy where spirit stones are the primary currency.\\n" +
-            "Adjust prices to make the economy easier (lower prices) or harder (higher prices).");
         SUBTAB_DESCRIPTIONS.put("Sects.Life & Population",
             "Sect NPC population and recruitment settings.\\n" +
             "Controls how many NPCs live in sects and how they recruit new members.\\n" +
@@ -1261,14 +1017,6 @@ public final class ConfigDescriptionRegistry {
             "Higher recruitment rates mean sects grow faster, creating more powerful sects.\\n" +
             "Lower rates mean sects remain small and exclusive.\\n" +
             "These settings determine the social density of the cultivation world.");
-        SUBTAB_DESCRIPTIONS.put("Sects.Tasks & Duties",
-            "Sect task parameters for NPC expeditions and duties.\\n" +
-            "The task system assigns expeditions and duties to sect members.\\n" +
-            "Task parameters control expedition durations and required counts.\\n" +
-            "Sect NPCs go on journeys, gather resources, and complete missions.\\n" +
-            "Longer expeditions yield more rewards but keep NPCs away longer.\\n" +
-            "Required counts determine how many items or resources must be collected.\\n" +
-            "These settings shape the daily activities of sect NPCs.");
         SUBTAB_DESCRIPTIONS.put("Sects.Departments",
             "Sect department settings for specialized operations.\\n" +
             "Each department has a specific function within the sect:\\n" +
@@ -1278,14 +1026,6 @@ public final class ConfigDescriptionRegistry {
             "Each department has work points (labor capacity), output caps (max production),\\n" +
             "and buffer targets (desired stock levels). These settings control how efficiently\\n" +
             "each department operates, affecting the sect's overall resource production.");
-        SUBTAB_DESCRIPTIONS.put("Sects.Ambient & Social",
-            "Sect ambient scenes and social behaviors that create a living world.\\n" +
-            "Spectator counts control how many NPCs observe events and gatherings.\\n" +
-            "NPC cooldowns control how often NPCs engage in social interactions.\\n" +
-            "Social interactions include conversations, gatherings, and other ambient behaviors\\n" +
-            "that make sects feel alive rather than static collections of NPCs.\\n" +
-            "These settings don't affect gameplay mechanics directly but greatly improve\\n" +
-            "the atmosphere and immersion of the cultivation world.");
         SUBTAB_DESCRIPTIONS.put("Sects.Journeys",
             "Sect journey parameters for NPC expeditions.\\n" +
             "Physical journeys send NPCs on expeditions with configurable durations and rewards.\\n" +
@@ -1362,21 +1102,6 @@ public final class ConfigDescriptionRegistry {
             "Mobs accumulate Qi and advance through beast realms, gaining power over time.\\n" +
             "This creates a world where the wilderness becomes increasingly dangerous\\n" +
             "as beasts cultivate, requiring players to clear populations regularly.");
-        SUBTAB_DESCRIPTIONS.put("Beasts & Mobs.Beast Spawns",
-            "Beast spawn settings for cultivating creatures.\\n" +
-            "Controls which mobs can cultivate and their spawn rates.\\n" +
-            "Enable cultivation for monsters (zombies, skeletons) to make hostile mobs progressively stronger.\\n" +
-            "Enable cultivation for all mobs (including passive animals) for a truly living world.\\n" +
-            "Qi density threshold sets the minimum biome Qi needed for beasts to cultivate.\\n" +
-            "This creates safe zones in Qi-poor biomes where beasts remain ordinary.");
-        SUBTAB_DESCRIPTIONS.put("Trials.Tribulations",
-            "Heavenly tribulation settings for realm breakthroughs.\\n" +
-            "Tribulations are lightning strikes that test cultivators during breakthroughs.\\n" +
-            "Interval ticks control time between each strike (20 ticks = 1 second).\\n" +
-            "Charge ticks control the warning period before lightning begins falling.\\n" +
-            "Bolt cooldown controls recovery time between waves of strikes.\\n" +
-            "The number of strikes and damage per strike scales with the realm being attempted.\\n" +
-            "Foundation Dao and Golden Core Dao paths affect strike count - Heaven Dao faces the most.");
         SUBTAB_DESCRIPTIONS.put("Trials.Heart Demon",
             "Heart Demon trial vitality multipliers by morality band.\\n" +
             "The Heart Demon is a boss that tests your morality - its strength scales with alignment.\\n" +
@@ -1385,14 +1110,6 @@ public final class ConfigDescriptionRegistry {
             "Neutral cultivators face weaker demons but lack the conviction of extremes.\\n" +
             "Vitality multipliers are configurable per morality band for fine-tuned difficulty.\\n" +
             "This trial tests whether the cultivator's resolve can overcome their own nature.");
-        SUBTAB_DESCRIPTIONS.put("Trials.Shatter Core",
-            "Shatter Core trial boss stats for Golden Core breakthrough.\\n" +
-            "This trial occurs during Golden Core breakthroughs - the cultivator must defeat a boss\\n" +
-            "to form their Golden Core. Boss stats are configurable per Dao path:\\n" +
-            "  Max Health - How much HP the boss has. Higher = longer fight.\\n" +
-            "  Regen Per Second - How fast the boss heals. Higher = must DPS faster than it regenerates.\\n" +
-            "Heaven Dao faces the strongest boss, reflecting the greater power they will receive.\\n" +
-            "This trial is one of the most dangerous moments in a cultivator's journey.");
         SUBTAB_DESCRIPTIONS.put("Trials.Loose Immortal",
             "Loose Immortal per-level bonus settings for failed ascenders.\\n" +
             "Loose Immortals gain per-level bonuses for each level achieved in the realm:\\n" +
@@ -1402,22 +1119,6 @@ public final class ConfigDescriptionRegistry {
             "These bonuses make Loose Immortals progressively stronger with each level,\\n" +
             "compensating for their failed ascension. Each level is a meaningful power increase,\\n" +
             "making Loose Immortals dangerous opponents despite not achieving True Immortal status.");
-        SUBTAB_DESCRIPTIONS.put("Qi System.Qi Density",
-            "Qi density settings for the world's spiritual energy distribution.\\n" +
-            "Player Qi consumption rate controls how quickly the player's Qi depletes when used.\\n" +
-            "Biome Qi density profiles define how much Qi is available in each biome type.\\n" +
-            "Spiritual mountains and sacred forests are Qi-rich, accelerating cultivation.\\n" +
-            "Deserts and oceans are Qi-poor, slowing cultivation to a crawl.\\n" +
-            "Each profile defines max Qi (storage), orb gain (Qi per orb), and supply per second.\\n" +
-            "Sects built in Qi-rich areas produce stronger cultivators - location matters.");
-        SUBTAB_DESCRIPTIONS.put("Qi System.Qi Absorption",
-            "Qi absorption multipliers for SSR and SR spirit roots.\\n" +
-            "Controls how efficiently top-tier spirit roots absorb Qi from the environment.\\n" +
-            "SSR (Heavenly) roots gather Qi fastest - 5-10x normal speed by default.\\n" +
-            "SR (Dual) roots gather Qi faster than normal - 1.25x normal speed.\\n" +
-            "Standard roots gather at normal speed with no multiplier.\\n" +
-            "These multipliers make spirit root rarity a significant factor in cultivation speed.\\n" +
-            "A Heavenly root cultivator will progress much faster than a standard root cultivator.");
         SUBTAB_DESCRIPTIONS.put("Qi System.Qi Shield",
             "Qi shield mechanics for damage absorption.\\n" +
             "The Qi shield absorbs incoming damage using Qi before it reaches HP.\\n" +
@@ -1426,15 +1127,6 @@ public final class ConfigDescriptionRegistry {
             "The shield depletes Qi when absorbing damage - once Qi is gone, damage goes directly to HP.\\n" +
             "This creates a dynamic where Qi management is crucial for survival in combat.\\n" +
             "A cultivator with full Qi can tank many hits, but once Qi is depleted, they become vulnerable.");
-        SUBTAB_DESCRIPTIONS.put("Qi System.Meditation",
-            "Meditation Qi recovery bonuses for the primary cultivation method.\\n" +
-            "Meditation is the primary way cultivators recover Qi and progress in cultivation.\\n" +
-            "When meditating on a meditation mat, Qi absorption is 10x faster than normal.\\n" +
-            "Meditation bonuses boost how much Qi is recovered per tick while meditating.\\n" +
-            "Higher bonuses mean faster Qi recovery, allowing more frequent spell casting.\\n" +
-            "Lower bonuses mean slower recovery, requiring more patience and planning.\\n" +
-            "These settings control the core pacing of cultivation - how long players must wait\\n" +
-            "between activities to recover their Qi.");
         SUBTAB_DESCRIPTIONS.put("Qi System.Spirit Stone Ore",
             "Spirit Stone Ore settings for sustainable Qi harvesting.\\n" +
             "Spirit Stone Ore is a minable Qi source found in the world.\\n" +
@@ -1444,24 +1136,6 @@ public final class ConfigDescriptionRegistry {
             "Low rates make ore a finite resource that must be conserved.\\n" +
             "Spirit stones are the primary currency in the cultivation world,\\n" +
             "used in sect shops and for trading. These settings control the economy's foundation.");
-        SUBTAB_DESCRIPTIONS.put("Lifespan.Lifespan Helper",
-            "Lifespan helper settings for near-immortality and death penalties.\\n" +
-            "Near-immortal threshold controls when aging dramatically slows down.\\n" +
-            "Below the threshold, aging proceeds at the normal rate.\\n" +
-            "Above it, aging crawls to a near-stop, granting near-immortality.\\n" +
-            "At the highest realms (Loose Immortal, True Immortal), aging essentially stops.\\n" +
-            "Ordinary death penalty determines how many years of bone age are lost\\n" +
-            "when a cultivator dies from non-tribulation causes (combat, environmental hazards).\\n" +
-            "Higher penalty = more years lost, making death more punishing.");
-        SUBTAB_DESCRIPTIONS.put("Lifespan.Aging",
-            "Aging settings for the bone age system.\\n" +
-            "Start bone age is the initial age at character creation (14-18 years by default).\\n" +
-            "Lower starting age gives more time before age-related restrictions kick in.\\n" +
-            "Age per day controls how fast bone age advances. Lower = slower aging, more time to cultivate.\\n" +
-            "Higher = faster aging, more urgency to break through before it's too late.\\n" +
-            "Bone age is important because Dao path choices have age limits -\\n" +
-            "Heaven Dao has a maximum bone age limit. If too old, Heaven Dao is locked.\\n" +
-            "Youth Pills can reduce bone age, extending the window for Dao path choices.");
         SUBTAB_DESCRIPTIONS.put("Effects & Morality.Status Effects",
             "Status effect values for combat buffs and debuffs.\\n" +
             "Blood Berserk - A powerful combat buff that boosts attack and movement speed.\\n" +
@@ -1481,23 +1155,6 @@ public final class ConfigDescriptionRegistry {
             "Tribulation damage scales with ABSOLUTE morality - very righteous or very evil = harder tribulations.\\n" +
             "The heavens test those with extreme conviction more harshly.\\n" +
             "Neutral cultivators face easier trials but lack the conviction of extremes.");
-        SUBTAB_DESCRIPTIONS.put("Formations.Core & Qi",
-            "Formation core max Qi by tier for formation energy storage.\\n" +
-            "Formation Cores come in 5 tiers with exponentially increasing Qi storage:\\n" +
-            "  Low (100 Qi) - Basic formations for small areas.\\n" +
-            "  Mid (1,000 Qi) - Moderate formations for Qi Refining and Foundation Building sects.\\n" +
-            "  High (10,000 Qi) - Powerful formations for Golden Core and Nascent Soul sects.\\n" +
-            "  Supreme (100,000 Qi) - Advanced formations for Soul Formation and above.\\n" +
-            "  Immortal (1,000,000 Qi) - The pinnacle, sustaining True Immortal-level formations.\\n" +
-            "Higher tier cores store more Qi, allowing formations to run longer without recharging.");
-        SUBTAB_DESCRIPTIONS.put("Formations.Gathering & Growth",
-            "Qi gathering and growth multipliers by tier for cultivation acceleration.\\n" +
-            "Qi Gathering formations boost cultivation speed for all cultivators in the area.\\n" +
-            "This is the most important formation for sects - a well-placed Qi Gathering formation\\n" +
-            "can dramatically accelerate the progress of an entire sect's cultivators.\\n" +
-            "Growth formations accelerate spirit plant growth, vital for spirit plant farming.\\n" +
-            "Per-tier multipliers control how much the boost is - higher tiers = bigger boost.\\n" +
-            "Combined, these formations create optimal conditions for cultivation and resource production.");
         SUBTAB_DESCRIPTIONS.put("Formations.Barriers",
             "Barrier formation Qi-per-damage by tier for sect defense.\\n" +
             "Barrier formations absorb damage to protect sect grounds from attack.\\n" +
@@ -1524,6 +1181,188 @@ public final class ConfigDescriptionRegistry {
             "This reduces manual farming labor, making it essential for large-scale\\n" +
             "spirit plant farming operations. Combined with Growth formations,\\n" +
             "creates a fully automated spirit plant production pipeline.");
+
+        // ════════════════════════════════════════════════════════════════
+        //  SUB-TAB DESCRIPTIONS ADDED FOR PREVIOUSLY-UNREACHABLE TOOLTIPS
+        //  Every sub-tab below is a real, live entry in CustomConfigScreen's
+        //  TAB_TO_SUBTABS map that had no matching key here, so hovering its
+        //  button showed nothing. Grounded directly in the real ExtendedConfig
+        //  fields for each path prefix.
+        // ════════════════════════════════════════════════════════════════
+        SUBTAB_DESCRIPTIONS.put("Sects.Ancestor Chances",
+            "Chance for a sect's founding ancestor to be an immortal, by sect power score.\\n" +
+            "Power 0 (weakest) through Power 4 (strongest) sects each have their own independent chance.\\n" +
+            "Higher-power sects roll a higher chance by default, since a stronger sect is more likely\\n" +
+            "to have been founded by a more accomplished cultivator.\\n" +
+            "A separate chance controls whether that immortal ancestor is specifically a Loose Immortal\\n" +
+            "rather than a True Immortal.\\n" +
+            "These settings shape how many generated sects have a legendary founder watching over them.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Shop Pricing",
+            "Sect shop pricing for techniques, spells, and weapons by tier.\\n" +
+            "Controls the cultivation economy within sects.\\n" +
+            "Each tier of sect sells items at different spirit stone prices.\\n" +
+            "Higher tier sects sell better items but at higher prices.\\n" +
+            "Sell percent controls what you get back when selling items to sect shops.\\n" +
+            "This creates a cultivation economy where spirit stones are the primary currency.\\n" +
+            "Adjust prices to make the economy easier (lower prices) or harder (higher prices).");
+        SUBTAB_DESCRIPTIONS.put("Sects.Sect Ambient",
+            "Ambient scene limits for a sect's background NPC activity.\\n" +
+            "Max scenes controls how many ambient scenes (small vignettes of NPCs interacting) can run\\n" +
+            "at once per level, and max spectators controls how many NPCs can gather to watch one.\\n" +
+            "Min/max cooldown ticks space out how often a sect can start a new ambient scene,\\n" +
+            "while the NPC cooldown keeps any one NPC from being pulled into scenes back-to-back.\\n" +
+            "These settings tune how lively a sect feels without letting ambient activity\\n" +
+            "dominate every NPC's time.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Sect Tasks",
+            "Sect task parameters for NPC expeditions and duties.\\n" +
+            "The task system assigns expeditions and duties to sect members.\\n" +
+            "Max required count caps how many items a single task can ask for, and max system\\n" +
+            "purchases limits how many purchase-type tasks a sect can have queued at once.\\n" +
+            "Expedition min/max days set how long a sect NPC is away on an expedition task.\\n" +
+            "Longer expeditions can be tuned to feel like a bigger commitment; shorter ones keep\\n" +
+            "sect members cycling back into daily sect life more quickly.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Size Tiers",
+            "Spawn chance and scaling for each of the 13 sect size tiers, from Humble Cottage up to\\n" +
+            "Grand Immortal Sect. All 13 spawn chances are relative to each other - raising one tier's\\n" +
+            "value makes it more common relative to the rest, and setting a tier to 0 removes it from\\n" +
+            "world generation entirely.\\n" +
+            "Building count multiplier controls how many extra structures larger sects get, and minimum\\n" +
+            "spacing per tier keeps bigger sects from generating too close together.\\n" +
+            "Safe tick is a stability setting - it cancels the original mod's sect NPC repair pass to\\n" +
+            "prevent a crash near sects when chunks unload, at the cost of NPCs not self-repairing.");
+        SUBTAB_DESCRIPTIONS.put("Sects.NPC Population",
+            "Global multiplier for how often wandering cultivator NPCs spawn in the world.\\n" +
+            "2.0 doubles the spawn rate, 0.5 halves it.\\n" +
+            "This is a single dial for overall cultivator population density - raise it for a busier,\\n" +
+            "more populated world, or lower it if wandering cultivators feel too frequent.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Crouch Meditation",
+            "Enables crouch-meditation - crouching and pressing G to meditate without needing a cushion.\\n" +
+            "Crouch-meditation grants the same kind of cultivation progress as cushion meditation, but\\n" +
+            "at a lower rate: its cultivation and Qi-drain multipliers both default to 3x, versus\\n" +
+            "cushion meditation's 10x, so using an actual cushion stays the more efficient choice.\\n" +
+            "This gives players a way to meditate on the move without replacing dedicated meditation.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Duty Tasks",
+            "Sect task market parameters for escrow and journey timeouts.\\n" +
+            "Max escrow stacks caps how many item stacks a task can hold in escrow at once, and max\\n" +
+            "system purchase tasks limits how many auto-generated purchase tasks a sect can post.\\n" +
+            "Journey min/max timeout ticks bound how long a task-related journey is allowed to run\\n" +
+            "before it's considered overdue.\\n" +
+            "These settings keep the sect task market from accumulating stuck or abandoned tasks.");
+        SUBTAB_DESCRIPTIONS.put("Sects.Ambient Social",
+            "Sect ambient social interaction scheduling - a second layer on top of Sect Ambient's\\n" +
+            "scene limits, controlling how the game finds and paces NPC social interactions.\\n" +
+            "Check interval controls how often the system scans for new interaction opportunities, and\\n" +
+            "max active scenes per level caps concurrent interactions the same way Sect Ambient does.\\n" +
+            "Min/max sect cooldown ticks space out how often a given sect can start a new interaction,\\n" +
+            "and pair search distance sets how far apart two NPCs can be and still be paired up.\\n" +
+            "These settings don't affect gameplay mechanics directly but shape how alive sects feel.");
+        SUBTAB_DESCRIPTIONS.put("Beasts & Mobs.Beast Advance Costs",
+            "Qi cost required for a beast to advance up each rank of beast cultivation, from Mortal\\n" +
+            "Beast through Spirit Soldier, General, Marshal, King, Emperor, and finally Spirit Lord.\\n" +
+            "Each rank costs roughly ten times the previous one by default, mirroring how demanding\\n" +
+            "cultivator realm breakthroughs become at higher stages.\\n" +
+            "Lower these to let beasts climb the ranks faster, or raise them to make a fully-ranked\\n" +
+            "beast companion or foe a much rarer sight.");
+        SUBTAB_DESCRIPTIONS.put("Beasts & Mobs.NPC Spawns",
+            "The same wandering cultivator spawn chances and realm distribution weights as the NPCs\\n" +
+            "tab's Spawns page, shown here as well since spawn behavior is just as relevant to beast\\n" +
+            "and mob balance - beasts and cultivator NPCs share the same world spawn budget.\\n" +
+            "Adjust it from either tab; both edit the exact same settings.");
+        SUBTAB_DESCRIPTIONS.put("Cultivation.Core Data",
+            "Core cultivation timing and reward constants shared across every realm.\\n" +
+            "Max time acceleration multiplier caps how fast meditation time-skip can run.\\n" +
+            "Tribulation interval and charge ticks control the pacing of tribulation events during a\\n" +
+            "breakthrough attempt, and equipped slot count sets how many equippable item slots a\\n" +
+            "cultivator has.\\n" +
+            "Zhenyuan attribute rewards control how many free stat points a character gains for a minor\\n" +
+            "sub-stage advancement versus a full major realm breakthrough.");
+        SUBTAB_DESCRIPTIONS.put("Cultivation.Golden Finger",
+            "Number of Golden Finger perks a player selects during world creation.\\n" +
+            "Golden Finger perks are the special starting advantages offered at character creation.\\n" +
+            "The default of 3 lets a new character pick three; raising it allows more powerful starts,\\n" +
+            "lowering it makes the early game harder.");
+        SUBTAB_DESCRIPTIONS.put("Effects & Morality.Morality Bounds",
+            "The minimum and maximum values a character's morality score can ever reach.\\n" +
+            "Morality drifts up or down based on a character's actions and is what the Morality tab's\\n" +
+            "alignment thresholds (neutral, righteous, evil, and their great variants) are measured\\n" +
+            "against. These bounds simply clamp how far morality can drift in either direction before\\n" +
+            "it stops changing.");
+        SUBTAB_DESCRIPTIONS.put("Formations.Core Max Qi",
+            "Maximum Qi storage capacity for formation cores, by tier: LOW, MID, HIGH, SUPREME, and\\n" +
+            "IMMORTAL.\\n" +
+            "A formation core's max Qi determines how much Qi it can bank before it needs to be\\n" +
+            "harvested or before it stops absorbing more.\\n" +
+            "Higher tiers store dramatically more by default - each tier is roughly an order of\\n" +
+            "magnitude above the last, so a formation's tier is the main lever on its usefulness.");
+        SUBTAB_DESCRIPTIONS.put("Formations.Qi Gathering",
+            "Qi gathering multiplier for Qi-gathering formations, by tier: LOW, MID, HIGH, SUPREME, and\\n" +
+            "IMMORTAL, plus a shared max multiplier cap.\\n" +
+            "These formations speed up passive Qi accumulation for cultivators meditating nearby.\\n" +
+            "Higher-tier formations gather Qi faster; the max multiplier is a ceiling that applies\\n" +
+            "across all tiers so gathering speed can never exceed a sane upper bound.");
+        SUBTAB_DESCRIPTIONS.put("Formations.Growth",
+            "Growth multiplier for Growth formations, by tier: LOW, MID, HIGH, SUPREME, and IMMORTAL.\\n" +
+            "Growth formations speed up the maturation of spirit plants planted within their range.\\n" +
+            "Higher tiers grow plants faster - the IMMORTAL tier's default 10x is five times the LOW\\n" +
+            "tier's 2x - making formation tier the main investment for a serious spirit plant farm.");
+        SUBTAB_DESCRIPTIONS.put("Formations.Formation Core",
+            "Low-level timing constants for how formation cores tick and validate themselves.\\n" +
+            "Effect interval and duration control how often and how long a formation's visual/gameplay\\n" +
+            "effect runs; the generated-array sync interval and reload-flag validation grace period\\n" +
+            "govern how formations recover their state after a chunk reload.\\n" +
+            "Growth tick interval and storage core interval pace those specific formation types, and\\n" +
+            "the farm-harvest and flag-effect-radius settings tune how Harvest formations scan for\\n" +
+            "mature crops and how far a formation flag's effect reaches.\\n" +
+            "These are tuning knobs for formation performance and responsiveness, not their core power.");
+        SUBTAB_DESCRIPTIONS.put("Lifespan.Aging & Death",
+            "Core aging constants: starting bone age, aging rate, and the penalty for dying of old age.\\n" +
+            "New characters start with a random bone age between the configured min and max.\\n" +
+            "Age per day controls normal aging speed; a separate, independently-tunable rate applies\\n" +
+            "while a character is meditating.\\n" +
+            "The near-immortal threshold marks the bone age where aging behavior changes for characters\\n" +
+            "approaching the top of the lifespan curve, and the ordinary death penalty sets how many\\n" +
+            "years of lifespan are lost on a normal (non-tribulation) death.");
+        SUBTAB_DESCRIPTIONS.put("Qi System.Qi Attraction",
+            "Base radius and meditation bonuses for how players passively draw in ambient Qi.\\n" +
+            "Attraction radius sets the base range around a player that pulls in nearby Qi.\\n" +
+            "Meditation range bonus extends that radius while meditating, and meditation efficiency\\n" +
+            "bonus increases how effectively the Qi within range is absorbed.\\n" +
+            "Together these control how quickly a meditating character refills their Qi compared to\\n" +
+            "one who is simply standing around.");
+        SUBTAB_DESCRIPTIONS.put("Trials.Inner World",
+            "Arena parameters for the Inner World trial.\\n" +
+            "Platform diameter and Y level define the size and height of the trial arena itself.\\n" +
+            "Soul wound ticks sets how long the lingering soul-wound effect lasts after the trial, and\\n" +
+            "failure health penalty percent is how much of a character's health is docked if the trial\\n" +
+            "is failed.\\n" +
+            "Time stasis duration controls how long the arena's time-freeze effect holds during the\\n" +
+            "trial sequence.");
+        SUBTAB_DESCRIPTIONS.put("UI.General Toggles",
+            "General, top-level toggles for the config extension's client-side behavior.\\n" +
+            "Currently controls whether the vanilla Minecraft difficulty button is removed from the\\n" +
+            "Create World screen - useful if you want to steer new players toward this mod's own\\n" +
+            "difficulty-relevant settings instead.");
+        SUBTAB_DESCRIPTIONS.put("UI.Status Bar",
+            "Row height, in pixels, for the status bars shown in the cultivation panel.\\n" +
+            "This is a single layout dial - raise it for taller, easier-to-read bars, or lower it to\\n" +
+            "fit more information into the same panel space.");
+        SUBTAB_DESCRIPTIONS.put("UI.Preferences",
+            "Accessibility and comfort preferences for the config screen and cultivation panel.\\n" +
+            "Reduce motion turns off tab glow and value-transition animations for players who prefer a\\n" +
+            "static UI or have motion sensitivity.\\n" +
+            "Font size percent scales config screen text up or down, and compact layout tightens entry\\n" +
+            "spacing to fit more on screen at once.\\n" +
+            "Cultivation panel tooltips toggles the explanatory hover-tooltips on the in-game character\\n" +
+            "panel's Name, Race, Realm, Morality, Bone Age, Lifespan, and stat bar fields.");
+        SUBTAB_DESCRIPTIONS.put("UI.Advanced",
+            "Advanced, opt-in UI features layered on top of the base config screen.\\n" +
+            "Notifications shows a toast when a config value changes; inline help shows a (?) icon with\\n" +
+            "extra context next to supported entries.\\n" +
+            "Per-world overrides let a config value apply only while a specific world is loaded, tab\\n" +
+            "order lets you rearrange the top-level tab buttons, and custom tabs let you group your own\\n" +
+            "chosen config paths under a tab of your own naming.\\n" +
+            "Config dependencies is the backing store for rules that show or hide one setting based on\\n" +
+            "another setting's value.");
 
         // ════════════════════════════════════════════════════════════════
         //  INDIVIDUAL CONFIG ENTRY DESCRIPTIONS
