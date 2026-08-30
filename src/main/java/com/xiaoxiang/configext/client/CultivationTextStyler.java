@@ -67,20 +67,56 @@ public class CultivationTextStyler {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\b\\d+(?:\\.\\d+)?\\b");
 
     /**
+     * Reads ExtendedConfig.CLIENT_DESC_HIGHLIGHT_INTENSITY ("full" / "reduced" /
+     * "off"), controlling how much of the styling below actually shows up -
+     * see that field's own comment. Defaults to "full" (the original, only,
+     * hardcoded behavior) if the config isn't loaded yet for any reason.
+     */
+    private static String highlightIntensity() {
+        try {
+            return com.xiaoxiang.configext.config.ExtendedConfig.CLIENT_DESC_HIGHLIGHT_INTENSITY.get();
+        } catch (Exception e) {
+            return "full";
+        }
+    }
+
+    /**
      * Style a plain text string with cultivation-themed formatting codes.
      * Returns a string with \u00A7 formatting codes inserted.
+     *
+     * "full" applies every matching keyword pattern - the original, always-on
+     * behavior, which on a sentence with several common cultivation words
+     * (e.g. "Qi required to ready the Buddha Fire Lotus spell. This is a
+     * powerful fire spell.") bolds/colors most of the sentence rather than
+     * highlighting anything in particular. "reduced" stops after the FIRST
+     * keyword match - this is what this class's own doc comment already
+     * claimed happened ("checked in order, first match wins"), which the
+     * unconditional loop below never actually did until this intensity
+     * setting was added. "off" applies no keyword styling at all.
      */
     public static String style(String text) {
         if (text == null || text.isEmpty()) return text;
 
+        String intensity = highlightIntensity();
+        if ("off".equalsIgnoreCase(intensity)) {
+            return styleNumbers(text);
+        }
+        boolean reduced = "reduced".equalsIgnoreCase(intensity);
+
         String result = text;
+        boolean styledOnce = false;
         // Apply keyword styling (case-insensitive, whole word)
         for (Map.Entry<Pattern, String> entry : KEYWORD_STYLES.entrySet()) {
+            if (reduced && styledOnce) break;
             Matcher m = entry.getKey().matcher(result);
             StringBuffer sb = new StringBuffer();
             while (m.find()) {
                 String replacement = entry.getValue() + m.group() + "\u00A7r";
                 m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+                if (reduced) {
+                    styledOnce = true;
+                    break; // only the first occurrence of this one keyword, then stop
+                }
             }
             m.appendTail(sb);
             result = sb.toString();
@@ -88,16 +124,21 @@ public class CultivationTextStyler {
 
         // Style numbers as cyan (but don't double-style numbers inside existing formatting)
         if (!result.contains("\u00A7")) {
-            Matcher nm = NUMBER_PATTERN.matcher(result);
-            StringBuffer nsb = new StringBuffer();
-            while (nm.find()) {
-                nm.appendReplacement(nsb, "\u00A7b" + nm.group() + "\u00A7r");
-            }
-            nm.appendTail(nsb);
-            result = nsb.toString();
+            result = styleNumbers(result);
         }
 
         return result;
+    }
+
+    /** Colors every bare number in the text cyan. Shared by style() and the "off" intensity. */
+    private static String styleNumbers(String text) {
+        Matcher nm = NUMBER_PATTERN.matcher(text);
+        StringBuffer nsb = new StringBuffer();
+        while (nm.find()) {
+            nm.appendReplacement(nsb, "\u00A7b" + nm.group() + "\u00A7r");
+        }
+        nm.appendTail(nsb);
+        return nsb.toString();
     }
 
     /**
@@ -109,17 +150,33 @@ public class CultivationTextStyler {
 
     /**
      * Style only the display name (lighter touch - just colorize key terms).
+     * Respects the same descHighlightIntensity setting as style() above, so
+     * turning highlighting down/off applies everywhere text goes through this
+     * class, not just descriptions.
      */
     public static String styleDisplayName(String name) {
         if (name == null || name.isEmpty()) return name;
+
+        String intensity = highlightIntensity();
+        if ("off".equalsIgnoreCase(intensity)) {
+            return name;
+        }
+        boolean reduced = "reduced".equalsIgnoreCase(intensity);
+
         // Just apply keyword styling, no number styling for display names
         String result = name;
+        boolean styledOnce = false;
         for (Map.Entry<Pattern, String> entry : KEYWORD_STYLES.entrySet()) {
+            if (reduced && styledOnce) break;
             Matcher m = entry.getKey().matcher(result);
             StringBuffer sb = new StringBuffer();
             while (m.find()) {
                 String replacement = entry.getValue() + m.group() + "\u00A7r";
                 m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+                if (reduced) {
+                    styledOnce = true;
+                    break;
+                }
             }
             m.appendTail(sb);
             result = sb.toString();

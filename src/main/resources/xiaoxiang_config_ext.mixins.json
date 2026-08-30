@@ -10,6 +10,7 @@
     "BeastCultivationHandlerMixin",
     "CultivatorRealmRollerMixin",
     "WanderingCultivatorEntityMixin",
+    "CultivatorTradesMixin",
     "BiomeQiProfileMixin",
     "SpellMixin",
     "AlchemyRankMixin",

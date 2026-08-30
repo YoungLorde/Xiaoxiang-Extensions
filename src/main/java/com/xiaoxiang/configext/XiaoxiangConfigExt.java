@@ -1,8 +1,6 @@
 package com.xiaoxiang.configext;
 
 import com.xiaoxiang.configext.config.ExtendedConfig;
-import com.xiaoxiang.configext.client.CustomConfigScreen;
-import com.xiaoxiang.configext.client.CrouchMeditationKeybind;
 import com.xiaoxiang.configext.client.PerkNetwork;
 import com.xiaoxiang.configext.api.ExpansionConfigRegistry;
 import com.xiaoxiang.configext.api.ExpansionDiscovery;
@@ -12,7 +10,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -41,6 +38,10 @@ public class XiaoxiangConfigExt {
         // Register the perk network channel
         PerkNetwork.register();
 
+        // Register the config screen's custom UI sound effects (tab hover/click,
+        // entry hover, config-open - see UiSounds' class doc)
+        com.xiaoxiang.configext.client.UiSounds.register(context.getModEventBus());
+
         // Register the extended config
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ExtendedConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ExtendedConfig.CLIENT_SPEC);
@@ -52,18 +53,23 @@ public class XiaoxiangConfigExt {
         // This runs during common setup so all mods are loaded by then
         context.getModEventBus().addListener(this::onCommonSetup);
 
-        // Register the custom config screen with search, nested tabs, color themes, and live preview
-        ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory((mc, parent) -> new CustomConfigScreen(parent)));
+        // The custom config screen (ConfigScreenHandler extension point) and the
+        // crouch-meditation keybind (RegisterKeyMappingsEvent) both reference
+        // client-only Forge types. They used to be registered directly and
+        // unconditionally right here - which runs on BOTH client and dedicated
+        // server - and that is exactly what was crashing the mod on a
+        // dedicated server. Both are now registered via
+        // @Mod.EventBusSubscriber(value = Dist.CLIENT, ...) classes instead
+        // (ClientModEvents and CrouchMeditationKeybind itself), which FML
+        // skips entirely on a dedicated server before any client-only class
+        // is ever touched. See ClientModEvents' class doc for the full
+        // explanation. Nothing needs to happen here for either of them any more.
 
         // Register event handlers for beast cultivation extension
         MinecraftForge.EVENT_BUS.register(new BeastCultivationExtensionHandler());
 
         // Register the bar-style HUD overlay
         context.getModEventBus().addListener(this::registerOverlays);
-
-        // Register the crouch-meditation keybind
-        context.getModEventBus().addListener(CrouchMeditationKeybind::register);
 
         // Register world load/unload events for per-world overrides
         MinecraftForge.EVENT_BUS.addListener(this::onWorldLoad);

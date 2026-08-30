@@ -2052,10 +2052,12 @@ public final class ExtendedConfig {
                 "Two sects must be at least (tier1 + tier2 + 2) * this value blocks apart. " +
                 "200 = two small sects need 400 blocks, two grand sects need 5200 blocks. " +
                 "Higher = sects are more spread out, lower = sects can be closer together.").defineInRange("minSpacingPerTier", 200, 50, 2000);
-        SECT_SAFE_TICK = builder.comment("Cancels the original mod's sect NPC repair tick to prevent " +
-                "ConcurrentModificationException crashes. When true (default), sect NPCs will not be " +
-                "automatically repaired, but the server won't crash when chunks unload near sects. " +
-                "Set to false only if you need sect NPC repair and don't experience crashes.").define("safeTick", true);
+        SECT_SAFE_TICK = builder.comment("Cancels the original mod's deferred sect NPC spawn/repair queue " +
+                "to prevent ConcurrentModificationException crashes. When true (default), NEW sects will " +
+                "generate empty (no NPCs ever spawn in them, not just 'unrepaired') and existing sect NPCs " +
+                "will not be automatically repaired, but the server won't crash when chunks unload near " +
+                "sects. Set to false if you want sect NPCs to actually populate and don't experience the " +
+                "crash - if you do hit it again with this off, that's the tradeoff this setting exists for.").define("safeTick", true);
         builder.pop(); // sizeTiers
 
         // ── Crouch Meditation ──
@@ -2621,6 +2623,25 @@ public final class ExtendedConfig {
     public static final ForgeConfigSpec.IntValue CLIENT_FONT_SIZE_PERCENT;
     public static final ForgeConfigSpec.BooleanValue CLIENT_COMPACT_LAYOUT;
     public static final ForgeConfigSpec.BooleanValue CLIENT_ENABLE_CULTIVATION_PANEL_TOOLTIPS;
+    // Config-screen visual theme system
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_THEME;
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_TAB_ANIMATION_STYLE;
+    public static final ForgeConfigSpec.IntValue CLIENT_UI_TAB_ANIMATION_SPEED_PERCENT;
+    public static final ForgeConfigSpec.BooleanValue CLIENT_UI_ACCENT_OVERRIDE_ENABLED;
+    public static final ForgeConfigSpec.IntValue CLIENT_UI_ACCENT_OVERRIDE_COLOR;
+    // How aggressively CultivationTextStyler bolds/colors keywords (Qi, spell,
+    // damage, realm, ...) inside entry descriptions and tooltips across the
+    // WHOLE config screen - not just this popup's own text. See that class's
+    // doc for why "full" (the old, only, hardcoded behavior) reads as
+    // over-bolded on a real description with several keywords in one sentence.
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_DESC_HIGHLIGHT_INTENSITY;
+    // Config-screen UI sound effects (tab hover/click, entry hover, config-open)
+    public static final ForgeConfigSpec.BooleanValue CLIENT_UI_SOUND_ENABLED;
+    public static final ForgeConfigSpec.IntValue CLIENT_UI_SOUND_VOLUME_PERCENT;
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_SOUND_TAB_HOVER;
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_SOUND_ENTRY_HOVER;
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_SOUND_TAB_CLICK;
+    public static final ForgeConfigSpec.ConfigValue<String> CLIENT_UI_SOUND_CONFIG_OPEN;
     public static final ForgeConfigSpec.ConfigValue<String> CLIENT_FAVORITES;
     public static final ForgeConfigSpec.ConfigValue<String> CLIENT_LOCKED_CONFIGS;
     public static final ForgeConfigSpec.ConfigValue<String> CLIENT_CONFIG_HISTORY;
@@ -2760,6 +2781,78 @@ public final class ExtendedConfig {
                 + "plus a fallback description for the Identity row before an identity has been drawn. "
                 + "Gender, Spirit Root and Physique already have tooltips from the base mod and are left untouched.")
                 .define("enableCultivationPanelTooltips", true);
+        clientBuilder.pop();
+
+        clientBuilder.comment("Config screen visual theme (the \"skin\" of the config menu itself - colors, "
+                + "borders, chrome - not the game's own UI). Independent of reduceMotion above.")
+                      .push("uiTheme");
+        CLIENT_UI_THEME = clientBuilder.comment(
+                "Which visual theme the config screen chrome uses. Valid values: classic, "
+                + "cultivation_scroll, celestial_neon, medieval_manuscript, demonic_blood, "
+                + "celestial_jade, formation_talisman, void_abyss. Unknown/empty values fall back "
+                + "to classic. Also changeable in-game from the gear icon next to the config title.")
+                .define("theme", "classic");
+        CLIENT_UI_TAB_ANIMATION_STYLE = clientBuilder.comment(
+                "Animation style played when a tab/sub-tab/group is clicked and its entries change. "
+                + "Valid values: slide (default - rows fade + slide in from the left), "
+                + "fade (rows fade in place, no slide), none (entries appear instantly).")
+                .define("tabAnimationStyle", "slide");
+        CLIENT_UI_TAB_ANIMATION_SPEED_PERCENT = clientBuilder.comment(
+                "Speed of the tab-click entrance animation as a percentage of the default duration. "
+                + "100 = default speed, 50 = twice as fast, 200 = twice as slow. Ignored (animation "
+                + "skipped entirely) when reduceMotion above is enabled or tabAnimationStyle is 'none'.")
+                .defineInRange("tabAnimationSpeedPercent", 100, 10, 400);
+        CLIENT_UI_ACCENT_OVERRIDE_ENABLED = clientBuilder.comment(
+                "If true, accentOverrideColor below replaces the current theme's primary accent color "
+                + "(tab highlights, titles) instead of using the theme's own default.")
+                .define("accentOverrideEnabled", false);
+        CLIENT_UI_ACCENT_OVERRIDE_COLOR = clientBuilder.comment(
+                "Custom primary accent color (ARGB hex, e.g. -1 = white) used when accentOverrideEnabled is true.")
+                .defineInRange("accentOverrideColor", 0xFFFFD700, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        CLIENT_DESC_HIGHLIGHT_INTENSITY = clientBuilder.comment(
+                "How much of CultivationTextStyler's automatic keyword bold/coloring (Qi, spell, damage, "
+                + "realm, and similar terms) shows up in entry descriptions and tooltips across the whole "
+                + "config screen. Valid values: full (every matching keyword styled, the original always-on "
+                + "behavior), reduced (only the single most cultivation-specific keyword per sentence is "
+                + "styled, so a sentence with several common words like \"spell\"/\"damage\" isn't wall-to-wall "
+                + "bold), off (plain text, no keyword styling at all - number coloring still applies).")
+                .define("descHighlightIntensity", "full");
+        clientBuilder.pop();
+
+        clientBuilder.comment("Config screen UI sound effects: hover/click feedback for tabs and entry "
+                + "rows, and a sound when the config screen first opens. Each of the four slots below "
+                + "takes a sound id from SoundPresets (in-game: the Sound Cycler in the theme gear popup) "
+                + "or an empty string for silence. Tab hover and entry hover are intentionally separate "
+                + "slots so they are never forced to share a sound, and click is separate from both so "
+                + "hovering and clicking never sound the same either.")
+                      .push("uiSound");
+        CLIENT_UI_SOUND_ENABLED = clientBuilder.comment(
+                "Master on/off switch for all config-screen UI sounds. When false, none of the four "
+                + "sound slots below play, regardless of their individual settings.")
+                .define("enabled", true);
+        CLIENT_UI_SOUND_VOLUME_PERCENT = clientBuilder.comment(
+                "Volume for config-screen UI sounds as a percentage (100 = full volume, 0 = silent). "
+                + "Applies on top of the enabled toggle above and the game's own master/UI volume sliders.")
+                .defineInRange("volumePercent", 60, 0, 100);
+        CLIENT_UI_SOUND_TAB_HOVER = clientBuilder.comment(
+                "Sound id played when the mouse first moves onto a main tab or sub-tab (not repeated "
+                + "while it stays hovered). Empty string = silent. Deliberately a different slot from "
+                + "entryHover below so the two can never be forced to share a sound.")
+                .define("tabHover", "");
+        CLIENT_UI_SOUND_ENTRY_HOVER = clientBuilder.comment(
+                "Sound id played when the mouse first moves onto a configurable entry row (not repeated "
+                + "while it stays hovered). Empty string = silent. Deliberately a different slot from "
+                + "tabHover above so the two can never be forced to share a sound.")
+                .define("entryHover", "");
+        CLIENT_UI_SOUND_TAB_CLICK = clientBuilder.comment(
+                "Sound id played when a main tab or sub-tab is clicked. Empty string = silent. "
+                + "Deliberately a different slot from tabHover above so clicking never sounds the same "
+                + "as hovering.")
+                .define("tabClick", "");
+        CLIENT_UI_SOUND_CONFIG_OPEN = clientBuilder.comment(
+                "Sound id played once when the config screen first opens (e.g. from the mod list's "
+                + "\"Config\" button), before any tab is shown. Empty string = silent.")
+                .define("configOpen", "");
         clientBuilder.pop();
 
         clientBuilder.comment("User favorites and locks.")

@@ -1,0 +1,66 @@
+{
+  "lasso_fast_whip": {
+    "category": "master",
+    "sounds": ["ui/lasso_fast_whip"]
+  },
+  "bonus_whip": {
+    "category": "master",
+    "sounds": ["ui/bonus_whip"]
+  },
+  "laser_game_whip": {
+    "category": "master",
+    "sounds": ["ui/laser_game_whip"]
+  },
+  "cinematic_laser_swoosh": {
+    "category": "master",
+    "sounds": ["ui/cinematic_laser_swoosh"]
+  },
+  "cinematic_whoosh_transition": {
+    "category": "master",
+    "sounds": ["ui/cinematic_whoosh_transition"]
+  },
+  "flying_fast_swoosh": {
+    "category": "master",
+    "sounds": ["ui/flying_fast_swoosh"]
+  },
+  "tape_rewind_transition": {
+    "category": "master",
+    "sounds": ["ui/tape_rewind_transition"]
+  },
+  "futuristic_metal_sweep": {
+    "category": "master",
+    "sounds": ["ui/futuristic_metal_sweep"]
+  },
+  "drone_logo_presentation": {
+    "category": "master",
+    "sounds": ["ui/drone_logo_presentation"]
+  },
+  "magic_notification_ring": {
+    "category": "master",
+    "sounds": ["ui/magic_notification_ring"]
+  },
+  "small_electric_glitch": {
+    "category": "master",
+    "sounds": ["ui/small_electric_glitch"]
+  },
+  "toy_telephone_ring": {
+    "category": "master",
+    "sounds": ["ui/toy_telephone_ring"]
+  },
+  "office_telephone_ring": {
+    "category": "master",
+    "sounds": ["ui/office_telephone_ring"]
+  },
+  "camera_autofocus": {
+    "category": "master",
+    "sounds": ["ui/camera_autofocus"]
+  },
+  "camera_lens_shutter": {
+    "category": "master",
+    "sounds": ["ui/camera_lens_shutter"]
+  },
+  "camera_long_shutter": {
+    "category": "master",
+    "sounds": ["ui/camera_long_shutter"]
+  }
+}

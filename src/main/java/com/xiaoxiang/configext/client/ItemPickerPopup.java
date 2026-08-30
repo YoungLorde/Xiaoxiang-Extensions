@@ -1164,11 +1164,11 @@ public class ItemPickerPopup {
             close();
             return true;
         }
-        // Duplicate is disabled for this release - custom identities aren't wired into
-        // the in-game origin roster yet, so creating one here would be a dead end.
-        // Clicking shows a "coming soon" notice instead of calling duplicateIdentity().
+        // 1.0.3 test build: custom identities are now wired into the in-game origin
+        // roster (IdentityDrawSamplerMixin / IdentityDrawScreenMixin), so Duplicate
+        // creates a real, selectable custom identity instead of showing a notice.
         if (isIdentityConfig && mouseX >= dupX && mouseX < dupX + dupW && mouseY >= confirmY && mouseY < confirmY + confirmH) {
-            NotificationSystem.showInfo("Custom identity duplication is coming in a future update!");
+            duplicateIdentity();
             return true;
         }
         if (isCustomIdentity && mouseX >= delX && mouseX < delX + delW && mouseY >= confirmY && mouseY < confirmY + confirmH) {
@@ -1683,7 +1683,7 @@ public class ItemPickerPopup {
             g.fill(dupX, confirmY, dupX + dupW, confirmY + confirmH, dupHover ? 0xFF204040 : 0xFF102028);
             g.renderOutline(dupX, confirmY, dupW, confirmH, dupHover ? 0xFF40A0A0 : 0xFF306080);
             if (dupHover) g.fill(dupX, confirmY, dupX + dupW, confirmY + confirmH, 0x30FFFF80);
-            g.drawCenteredString(font, "\u00A7bDuplicate \u00A78(WIP)", dupX + dupW / 2, confirmY + 5, 0xFFFFFF);
+            g.drawCenteredString(font, "\u00A7bDuplicate", dupX + dupW / 2, confirmY + 5, 0xFFFFFF);
         }
 
         if (isCustomIdentity) {

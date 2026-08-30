@@ -454,6 +454,16 @@ public final class LayoutEngine {
         while (!remaining.isEmpty() && out.size() < maxLines) {
             if (font.width(remaining) <= maxWidth) {
                 out.add(remaining);
+                // The whole remainder just fit on this line - it's fully
+                // consumed. Without clearing it here, the overflow check below
+                // saw the ORIGINAL (never-truncated) text still sitting in
+                // `remaining` and, whenever this fit happened on the very
+                // first pass (out.size() == maxLines == 1, the common case for
+                // any short one-line entry name), appended that same full text
+                // onto itself a second time - e.g. "Enable Alchemy Overrides"
+                // rendering as "Enable Alchemy Overrides Enable Alchemy
+                // Overrides". This is the exact bug players reported.
+                remaining = "";
                 break;
             }
             String head = font.plainSubstrByWidth(remaining, maxWidth);

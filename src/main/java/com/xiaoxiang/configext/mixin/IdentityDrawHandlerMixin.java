@@ -76,13 +76,29 @@ public abstract class IdentityDrawHandlerMixin {
                 LOGGER.info("[XiaoxiangConfigExt] Applying pre-world origin: identity={}, root={}, physique={}",
                         identityId, spiritRootId, physiqueId);
 
-                Identity identity = Identity.byId(identityId);
                 SpiritRoot spiritRoot = SpiritRoot.byId(spiritRootId);
                 Physique physique = Physique.byId(physiqueId);
 
-                // Check if this is a custom identity
+                // Check if this is a custom identity. Testing the identityId STRING
+                // directly (identityId.startsWith("custom_")) rather than "Identity.byId
+                // (identityId) == null" is required here: Identity.byId() never actually
+                // returns null (bytecode-confirmed - com.xiaoxiang.cultivation.cultivation
+                // .Identity.byId(String) falls back to LONE_CULTIVATOR for ANY
+                // unrecognized id string, including every "custom_..." id). The old
+                // "identity == null && ..." check below could therefore never be true, so
+                // this branch never ran, and every pre-world custom-identity origin
+                // silently kept whatever Identity.byId's fallback picked (LONE_CULTIVATOR)
+                // - both its id AND its real hardcoded starter items - completely ignoring
+                // the actual custom identity, including any starting items the player had
+                // edited for it. This is the exact bug reported: a custom identity
+                // duplicated from Lone Cultivator and edited to grant 24 Supreme Spirit
+                // Stones instead still granted the original 64 - not a coincidence, this
+                // fallback path is why. configExt$handleChooseOriginCustom below (the
+                // live/in-game re-choose path) already does this check the correct way -
+                // this mirrors it.
+                Identity identity;
                 com.xiaoxiang.configext.client.CustomIdentityManager.CustomIdentity customIdentity = null;
-                if (identity == null && identityId != null && identityId.startsWith("custom_")) {
+                if (identityId != null && identityId.startsWith("custom_")) {
                     // Look up the custom identity
                     customIdentity = com.xiaoxiang.configext.client.CustomIdentityManager.getById(identityId);
                     if (customIdentity != null) {
@@ -97,9 +113,12 @@ public abstract class IdentityDrawHandlerMixin {
                         LOGGER.warn("[XiaoxiangConfigExt] Custom identity not found: {}, defaulting to FARMER", identityId);
                         identity = Identity.FARMER;
                     }
-                } else if (identity == null) {
-                    LOGGER.warn("[XiaoxiangConfigExt] Identity not found: {}, defaulting to FARMER", identityId);
-                    identity = Identity.FARMER;
+                } else {
+                    identity = Identity.byId(identityId);
+                    if (identity == null) {
+                        LOGGER.warn("[XiaoxiangConfigExt] Identity not found: {}, defaulting to FARMER", identityId);
+                        identity = Identity.FARMER;
+                    }
                 }
                 if (spiritRoot == null || !spiritRoot.isSelectableRoot()) {
                     LOGGER.warn("[XiaoxiangConfigExt] SpiritRoot not selectable: {}, defaulting to HEAVENLY_HIDDEN", spiritRootId);

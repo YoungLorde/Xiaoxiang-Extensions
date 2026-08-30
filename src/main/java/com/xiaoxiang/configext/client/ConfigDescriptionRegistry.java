@@ -2487,10 +2487,10 @@ public final class ConfigDescriptionRegistry {
             "Cultivation", "Golden Core Dao", "Spell Multipliers");
         add("goldenCoreDao.bloodHpMult", "Golden Core Blood HP Mult", "HP multiplier for Blood Dao Golden Core.",
             "Higher = much more HP", "Lower = less HP", "Cultivation", "Golden Core Dao", "Combat");
-        add("goldenCoreDao.bloodBloodSpellDamageMult", "Blood Spell Damage Mult (Blood Dao)", "Blood spell damage multiplier for Blood Dao Golden Core. Blood spells are special spells that cost HP.",
-            "Higher = blood spells devastating", "Lower = weaker blood spells", "Cultivation", "Golden Core Dao", "Combat");
-        add("goldenCoreDao.bloodBloodSpellQiCostMult", "Blood Spell Qi Cost Mult (Blood Dao)", "Blood spell Qi cost multiplier for Blood Dao.",
-            "Higher = blood spells cost more Qi", "Lower = cheaper", "Cultivation", "Golden Core Dao", "Combat");
+        add("goldenCoreDao.bloodBloodSpellDamageMult", "Blood Spell Damage Mult (Blood Dao)", "Blood spell damage multiplier for Blood Dao Golden Core. Blood spells are special spells that cost HP. Filed under Spell Multipliers alongside Earth/Heaven's spell multipliers - previously misfiled under Combat, which put Blood Dao's own spell-scaling controls in a different group than every other Dao's.",
+            "Higher = blood spells devastating", "Lower = weaker blood spells", "Cultivation", "Golden Core Dao", "Spell Multipliers");
+        add("goldenCoreDao.bloodBloodSpellQiCostMult", "Blood Spell Qi Cost Mult (Blood Dao)", "Blood spell Qi cost multiplier for Blood Dao. Filed under Spell Multipliers alongside Earth/Heaven's spell multipliers - previously misfiled under Combat.",
+            "Higher = blood spells cost more Qi", "Lower = cheaper", "Cultivation", "Golden Core Dao", "Spell Multipliers");
         add("goldenCoreDao.tribulation.humanStrikes", "Human Dao Tribulation Strikes", "Number of tribulation lightning strikes for Human Dao Golden Core breakthrough.",
             "More strikes = harder", "Fewer = easier", "Cultivation", "Golden Core Dao", "Tribulation");
         add("goldenCoreDao.tribulation.bloodStrikes", "Blood Dao Tribulation Strikes", "Tribulation strikes for Blood Dao.",
@@ -2519,6 +2519,53 @@ public final class ConfigDescriptionRegistry {
             "Higher = harder", "Lower = easier", "Cultivation", "Golden Core Dao", "Shatter Core Trial");
         add("goldenCoreDao.shatterCoreTrial.heavenRegen", "Heaven Dao Shatter Trial Boss Regen", "Regen of Heaven Dao trial boss.",
             "Higher = very hard to kill", "Lower = easier", "Cultivation", "Golden Core Dao", "Shatter Core Trial");
+
+        // ── Golden Core Dao - previously-undescribed bonuses (ExtendedConfig.java's own
+        // "Missing GoldenCoreDao bonuses" comment) - these 20 fields had real config values
+        // but no registry entry, so they rendered with only an auto-derived generic name and
+        // no description. Descriptions below are grounded in each field's actual defineInRange
+        // default from ExtendedConfig.java (not invented), including the melee bonus's
+        // deliberately non-monotonic 0/4/2/0 spread (Blood Dao is the melee-focused path). ──
+        add("goldenCoreDao.bodyDefenseBonus.human", "Golden Core Human Body Defense Bonus", "Additional flat body defense bonus for Human Dao at Golden Core, on top of the Foundation Dao bonus.",
+            "More defense", "Less defense", "Cultivation", "Golden Core Dao", "Body Defense Bonus");
+        add("goldenCoreDao.bodyDefenseBonus.blood", "Golden Core Blood Body Defense Bonus", "Additional flat body defense bonus for Blood Dao at Golden Core.",
+            "More defense", "Less defense", "Cultivation", "Golden Core Dao", "Body Defense Bonus");
+        add("goldenCoreDao.bodyDefenseBonus.earth", "Golden Core Earth Body Defense Bonus", "Additional flat body defense bonus for Earth Dao at Golden Core. Earth Dao's defense keeps scaling up.",
+            "More defense", "Less defense", "Cultivation", "Golden Core Dao", "Body Defense Bonus");
+        add("goldenCoreDao.bodyDefenseBonus.heaven", "Golden Core Heaven Body Defense Bonus", "Additional flat body defense bonus for Heaven Dao at Golden Core. The highest of the four.",
+            "More defense", "Less defense", "Cultivation", "Golden Core Dao", "Body Defense Bonus");
+        add("goldenCoreDao.cultivationEfficiencyBonus.human", "Golden Core Human Cultivation Efficiency", "Additional cultivation efficiency bonus for Human Dao at Golden Core. Human Dao gets no extra efficiency here.",
+            "More efficiency = faster cultivation", "Less efficiency", "Cultivation", "Golden Core Dao", "Cultivation Efficiency Bonus");
+        add("goldenCoreDao.cultivationEfficiencyBonus.blood", "Golden Core Blood Cultivation Efficiency", "Additional cultivation efficiency bonus for Blood Dao at Golden Core. Blood Dao gets no extra efficiency here - its focus is combat.",
+            "More efficiency", "Less efficiency", "Cultivation", "Golden Core Dao", "Cultivation Efficiency Bonus");
+        add("goldenCoreDao.cultivationEfficiencyBonus.earth", "Golden Core Earth Cultivation Efficiency", "Additional cultivation efficiency bonus for Earth Dao at Golden Core.",
+            "More efficiency = faster cultivation", "Less efficiency", "Cultivation", "Golden Core Dao", "Cultivation Efficiency Bonus");
+        add("goldenCoreDao.cultivationEfficiencyBonus.heaven", "Golden Core Heaven Cultivation Efficiency", "Additional cultivation efficiency bonus for Heaven Dao at Golden Core. The largest of the four.",
+            "More efficiency = fastest cultivation", "Less efficiency", "Cultivation", "Golden Core Dao", "Cultivation Efficiency Bonus");
+        add("goldenCoreDao.qiRecoveryBonus.human", "Golden Core Human Qi Recovery Bonus", "Additional Qi recovery rate bonus for Human Dao at Golden Core. Human Dao gets no extra recovery here.",
+            "Faster Qi recovery", "Slower Qi recovery", "Cultivation", "Golden Core Dao", "Qi Recovery Bonus");
+        add("goldenCoreDao.qiRecoveryBonus.blood", "Golden Core Blood Qi Recovery Bonus", "Additional Qi recovery rate bonus for Blood Dao at Golden Core. Blood Dao gets no extra recovery here.",
+            "Faster Qi recovery", "Slower Qi recovery", "Cultivation", "Golden Core Dao", "Qi Recovery Bonus");
+        add("goldenCoreDao.qiRecoveryBonus.earth", "Golden Core Earth Qi Recovery Bonus", "Additional Qi recovery rate bonus for Earth Dao at Golden Core.",
+            "Faster Qi recovery", "Slower Qi recovery", "Cultivation", "Golden Core Dao", "Qi Recovery Bonus");
+        add("goldenCoreDao.qiRecoveryBonus.heaven", "Golden Core Heaven Qi Recovery Bonus", "Additional Qi recovery rate bonus for Heaven Dao at Golden Core. The fastest of the four.",
+            "Faster Qi recovery", "Slower Qi recovery", "Cultivation", "Golden Core Dao", "Qi Recovery Bonus");
+        add("goldenCoreDao.meleeDamageBonus.human", "Golden Core Human Melee Damage Bonus", "Additional flat melee damage bonus for Human Dao at Golden Core. Human Dao gets no extra melee here.",
+            "More melee damage", "Less melee damage", "Cultivation", "Golden Core Dao", "Melee Damage Bonus");
+        add("goldenCoreDao.meleeDamageBonus.blood", "Golden Core Blood Melee Damage Bonus", "Additional flat melee damage bonus for Blood Dao at Golden Core. The highest of the four - Blood Dao is the melee-focused path.",
+            "More melee damage", "Less melee damage", "Cultivation", "Golden Core Dao", "Melee Damage Bonus");
+        add("goldenCoreDao.meleeDamageBonus.earth", "Golden Core Earth Melee Damage Bonus", "Additional flat melee damage bonus for Earth Dao at Golden Core.",
+            "More melee damage", "Less melee damage", "Cultivation", "Golden Core Dao", "Melee Damage Bonus");
+        add("goldenCoreDao.meleeDamageBonus.heaven", "Golden Core Heaven Melee Damage Bonus", "Additional flat melee damage bonus for Heaven Dao at Golden Core. Heaven Dao gets no extra melee here - its focus is spellcasting.",
+            "More melee damage", "Less melee damage", "Cultivation", "Golden Core Dao", "Melee Damage Bonus");
+        add("goldenCoreDao.shatterTrialReflection.human", "Golden Core Human Shatter Trial Reflection", "Fraction of damage reflected back at the shatter core trial boss for Human Dao.",
+            "More reflection = boss hurts itself more", "Less reflection", "Cultivation", "Golden Core Dao", "Shatter Trial Reflection");
+        add("goldenCoreDao.shatterTrialReflection.blood", "Golden Core Blood Shatter Trial Reflection", "Fraction of damage reflected back at the shatter core trial boss for Blood Dao.",
+            "More reflection", "Less reflection", "Cultivation", "Golden Core Dao", "Shatter Trial Reflection");
+        add("goldenCoreDao.shatterTrialReflection.earth", "Golden Core Earth Shatter Trial Reflection", "Fraction of damage reflected back at the shatter core trial boss for Earth Dao.",
+            "More reflection", "Less reflection", "Cultivation", "Golden Core Dao", "Shatter Trial Reflection");
+        add("goldenCoreDao.shatterTrialReflection.heaven", "Golden Core Heaven Shatter Trial Reflection", "Fraction of damage reflected back at the shatter core trial boss for Heaven Dao. The highest of the four.",
+            "More reflection", "Less reflection", "Cultivation", "Golden Core Dao", "Shatter Trial Reflection");
 
         // ── Identity ──
         add("identity.lifespanMartialMin", "Martial Lifespan Min", "Minimum starting lifespan for Martial identity characters. Martial identities (like Beast Descendant, Warrior) tend to have shorter lifespans but stronger bodies.",

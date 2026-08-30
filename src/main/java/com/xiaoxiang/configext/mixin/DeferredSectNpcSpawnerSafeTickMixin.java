@@ -2,75 +2,95 @@ package com.xiaoxiang.configext.mixin;
 
 import com.xiaoxiang.configext.config.ExtendedConfig;
 import com.xiaoxiang.cultivation.worldgen.SectSettlementFeature;
-import net.minecraftforge.event.TickEvent;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Prevents ConcurrentModificationException crashes caused by the original
- * mod's DeferredSectNpcSpawner.onServerTick() — without blocking the sect
- * chest/barrel loot-filling work that shares the same method.
+ * Prevents ConcurrentModificationException-style crashes caused by the
+ * original mod's DeferredSectNpcSpawner.onServerTick() — without blocking
+ * the sect NPC spawn queue that shares the same method. This is the direct
+ * fix for "sects are empty of NPCs": the previous version of this mixin was
+ * silently disabling NPC spawning entirely, every tick, whenever the
+ * SECT_SAFE_TICK safety option was on (its default).
  *
- * Bytecode analysis of the current jar's onServerTick(TickEvent.ServerTickEvent)
- * shows it does five things in this order, every tick:
+ * Full bytecode analysis of onServerTick(TickEvent.ServerTickEvent) in the
+ * currently installed jar (javap -p -c against
+ * SectSettlementFeature$DeferredSectNpcSpawner.class) shows it does five
+ * things in this order, every tick:
  *
  *   1. Housekeeping (publish/wake/persist/hydrate/validate deferred chunk
  *      intents and tasks).
- *   2. Drain and process the deferred SECT INITIALIZATION queue — this is
- *      what calls DeferredSectInitializationTask.tryInitialize(...), which
- *      is what actually places loot into sect chests/barrels via
- *      SectSettlementFeature.fillSectContainers(...). Every call here is
- *      already individually wrapped in a try/catch by the original mod
- *      (falls back to a retry next tick on any Exception).
+ *   2. Drain and process the deferred SECT INITIALIZATION queue — calls
+ *      DeferredSectInitializationTask.tryInitialize(...), which places loot
+ *      into sect chests/barrels. Confirmed wrapped in its own
+ *      try/catch(Exception) in the original bytecode (exception table
+ *      ranges covering offsets 383-482, handler at 485: reschedules the
+ *      task and logs, does not crash).
  *   3. For every loaded ServerLevel, call
- *      SectSettlementFeature.tickSectIBackfill(ServerLevel) — NOT wrapped
- *      in any try/catch by the original mod.
- *   4. Drain and process the deferred NPC SPAWN/REPAIR queue — this is what
- *      calls DeferredNpcSpawnTask.trySpawn(...), which force-loads chunks
- *      and queries/spawns entities. Individual calls here are also wrapped
- *      in try/catch, but the queue-iteration bookkeeping around them is not.
+ *      SectSettlementFeature.tickSectIBackfill(ServerLevel). Confirmed BY
+ *      DIRECT BYTECODE READ to have NO exception table coverage anywhere in
+ *      onServerTick — the sole real, uncaught crash risk in this method.
+ *   4. Drain and process the deferred NPC SPAWN/REPAIR queue — calls
+ *      DeferredNpcSpawnTask.trySpawn(...), which force-loads chunks and
+ *      queries/spawns entities. Confirmed BY DIRECT BYTECODE READ to be
+ *      wrapped in its own try/catch(Exception) covering the trySpawn call,
+ *      the result dispatch, AND every per-result branch (exception table
+ *      ranges 846-997, handler at 1000: reschedules the task and logs,
+ *      does not crash) — i.e. this step was never actually at risk.
  *   5. Return.
  *
- * The previous version of this mixin cancelled the entire method at HEAD,
- * which also silently skipped step 2 — so freshly-generated sects never got
- * their chests/barrels filled. That is the empty-container bug reported by
- * players on new saves.
+ * An earlier version of this mixin cancelled onServerTick() at HEAD, which
+ * also silently skipped step 2 (empty chests/barrels on new saves). That was
+ * fixed by moving the cancellation point to just before step 3. But
+ * cancelling at that point still aborts everything after it in the same
+ * method call — which includes step 4, the actual NPC-spawning logic. Since
+ * step 4 is already exception-safe in the original bytecode (see above),
+ * cancelling it bought no additional safety and was the direct cause of
+ * "solo cultivators spawn fine, but no sect NPCs ever appear."
  *
- * The crash this mixin exists to prevent was always attributed (see the
- * original doc comment below, and DistanceManagerMixin's) to the NPC
- * repair/spawn logic force-loading chunks and touching the chunk ticket map
- * — i.e. steps 3 and 4, not step 2 (which only writes items into already-
- * loaded container block entities and touches no chunk-loading machinery).
+ * The correct, narrow fix: redirect only the step-3 call itself and wrap
+ * JUST that one call in try/catch, matching the original mod's own
+ * catch-and-reschedule-next-tick convention used everywhere else in this
+ * method. Steps 1, 2, and 4 always run normally and untouched — including
+ * NPC spawning. Only step 3, the one call with a genuine gap in the
+ * original mod's own exception handling, gets the safety net, and only
+ * that single level's backfill for that single tick is skipped on an
+ * exception (it retries automatically next tick, since tickSectIBackfill
+ * runs every tick for every loaded level).
  *
- * So instead of cancelling at HEAD, this mixin now injects immediately
- * before the first call to tickSectIBackfill (the start of step 3) and
- * cancels there when SECT_SAFE_TICK is enabled. Steps 1 and 2 — including
- * the loot-filling work — always run normally. Steps 3 and 4 (the actual
- * suspected crash source) are skipped exactly as before, with identical
- * protection to the previous version. require = 0 means that if a future
- * update to the original mod changes this call site so it can no longer be
- * found, this mixin silently becomes a no-op (onServerTick runs in full,
- * uncancelled) rather than failing to load — the same fail-open convention
- * the previous version of this mixin already used.
+ * require = 0 means that if a future update to the original mod changes
+ * this call site so it can no longer be found, this mixin silently becomes
+ * a no-op (tickSectIBackfill runs unprotected, exactly as it would with no
+ * mixin at all) rather than failing to load.
  */
 @Mixin(value = SectSettlementFeature.DeferredSectNpcSpawner.class, remap = false)
 public abstract class DeferredSectNpcSpawnerSafeTickMixin {
 
-    @Inject(
+    @Redirect(
         method = "onServerTick",
         at = @At(
             value = "INVOKE",
             target = "Lcom/xiaoxiang/cultivation/worldgen/SectSettlementFeature;tickSectIBackfill(Lnet/minecraft/server/level/ServerLevel;)V"
         ),
-        cancellable = true,
         remap = false,
         require = 0
     )
-    private static void configExt$cancelUnsafeNpcRepairTick(TickEvent.ServerTickEvent event, CallbackInfo ci) {
+    private static void configExt$safeTickSectIBackfill(ServerLevel level) {
         if (ExtendedConfig.SECT_SAFE_TICK.get()) {
-            ci.cancel();
+            try {
+                SectSettlementFeature.tickSectIBackfill(level);
+            } catch (Throwable t) {
+                // Swallow and let it retry next tick, matching the original
+                // mod's own catch-and-reschedule pattern for steps 2 and 4
+                // of this same method. This is the only thing SECT_SAFE_TICK
+                // now guards — it no longer touches NPC spawning at all.
+            }
+        } else {
+            // Safety net disabled: call through unprotected, exactly as the
+            // original mod does with no mixin present.
+            SectSettlementFeature.tickSectIBackfill(level);
         }
     }
 }

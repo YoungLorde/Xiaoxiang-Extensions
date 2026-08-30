@@ -10,6 +10,10 @@ import net.minecraft.client.gui.screens.Screen;
  * Renders on top of everything with a dark overlay.
  * When confirmed, calls the provided callback with the entered name and description.
  *
+ * Lifespan is intentionally NOT editable here (or shown anywhere in the identity-picking
+ * flow) - it plays no part in choosing an origin, and a custom identity simply carries
+ * over whatever lifespan range its source identity already had.
+ *
  * Features:
  * - Two fields: Name and Description (Tab to switch)
  * - Cursor positioning with mouse click
@@ -472,7 +476,7 @@ public class NameInputPopup {
                 !editingDescription ? 0xFF8080FF : (nameHover ? 0xFF404060 : 0xFF303040));
 
         // Name label
-        g.drawString(font, "\u00A7bName" + (!editingDescription ? " (editing)" : " (click to edit)"),
+        g.drawString(font, "§bName" + (!editingDescription ? " (editing)" : " (click to edit)"),
                 inputX, inputY - 10, 0xFFFFFF);
 
         // Render name text with cursor and selection
@@ -490,7 +494,7 @@ public class NameInputPopup {
                 editingDescription ? 0xFF8080FF : (descHover ? 0xFF404060 : 0xFF303040));
 
         // Description label
-        g.drawString(font, "\u00A7bDescription" + (editingDescription ? " (editing)" : " (click to edit)"),
+        g.drawString(font, "§bDescription" + (editingDescription ? " (editing)" : " (click to edit)"),
                 inputX, descY - 10, 0xFFFFFF);
 
         // Render description text with cursor and selection (wrapped)
@@ -513,13 +517,13 @@ public class NameInputPopup {
                 confirmHover ? 0xFF204020 : 0xFF102018);
         g.renderOutline(confirmX, confirmY, confirmW, confirmH,
                 confirmHover ? 0xFF40A040 : 0xFF306030);
-        g.drawCenteredString(font, "\u00A7aConfirm", confirmX + confirmW / 2, confirmY + 5, 0xFFFFFF);
+        g.drawCenteredString(font, "§aConfirm", confirmX + confirmW / 2, confirmY + 5, 0xFFFFFF);
 
         g.fill(cancelX, confirmY, cancelX + cancelW, confirmY + confirmH,
                 cancelHover ? 0xFF402020 : 0xFF201010);
         g.renderOutline(cancelX, confirmY, cancelW, confirmH,
                 cancelHover ? 0xFFA04040 : 0xFF603030);
-        g.drawCenteredString(font, "\u00A7cCancel", cancelX + cancelW / 2, confirmY + 5, 0xFFFFFF);
+        g.drawCenteredString(font, "§cCancel", cancelX + cancelW / 2, confirmY + 5, 0xFFFFFF);
     }
 
     /** Render a text field with cursor and optional selection highlighting. */

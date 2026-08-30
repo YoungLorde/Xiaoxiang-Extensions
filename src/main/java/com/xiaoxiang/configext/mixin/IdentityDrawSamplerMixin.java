@@ -30,11 +30,12 @@ import java.util.Random;
 @Mixin(value = IdentityDrawSampler.class, remap = false)
 public abstract class IdentityDrawSamplerMixin {
 
-    // Disabled for this release: custom identities aren't wired into the in-game
-    // origin roster yet (that's a planned future update, along with re-enabling the
-    // Duplicate button in ItemPickerPopup). Left as an early return rather than
-    // deleted so this work doesn't need to be redone from scratch later.
-    private static final boolean CUSTOM_IDENTITIES_IN_ROSTER_ENABLED = false;
+    // 1.0.3 test build: enabling this (together with IdentityDrawScreenMixin's copy
+    // of this flag and the Duplicate button in ItemPickerPopup) to verify the virtual-
+    // slot roster injection end to end before it ships in the named 1.0.4 release.
+    // If testing turns up a blocking issue, flip this back to false rather than
+    // deleting the work.
+    private static final boolean CUSTOM_IDENTITIES_IN_ROSTER_ENABLED = true;
 
     @Inject(method = "sampleNew", at = @At("RETURN"), cancellable = true, remap = false)
     private static void configExt$injectCustomIdentities(Random random, CallbackInfoReturnable<IdentityDrawDeck> cir) {

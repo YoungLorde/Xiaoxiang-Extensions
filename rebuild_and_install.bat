@@ -23,13 +23,22 @@ setlocal
 
 set "PROJECT_DIR=%~dp0"
 set "MODS_DIR=C:\Users\YoungLorde\AppData\Roaming\ATLauncher\instances\XiaoCultivationWorld\mods"
-set "JAR_NAME=xiaoxiang_config_ext-1.0.1.jar"
+REM Single source of truth for the version number this script cares about -
+REM JAR_NAME and the versions\ archive folder below both derive from this one
+REM value, so bumping a release only means changing this ONE line here (plus
+REM mod_version in gradle.properties, which is what the build itself reads).
+set "VERSION=1.0.4"
+set "JAR_NAME=xiaoxiang_config_ext-%VERSION%.jar"
 set "LOG_FILE=%PROJECT_DIR%build_log.txt"
 REM Where Realm Expansion keeps its own compile-time copy of this mod's jar -
 REM see the note above. Kept as a separate variable so it's obvious this is
 REM just a courtesy copy step, not a shared build - the two mods stay fully
 REM separate projects either way.
 set "REALM_EXPANSION_LIBS=%PROJECT_DIR%..\XiaoxiangRealmExpansion\libs"
+REM Every successful build also gets archived here, one folder per version,
+REM so past releases stay on hand for reference without digging through
+REM build\ (which gradlew clean wipes on every run).
+set "VERSIONS_DIR=%PROJECT_DIR%versions\%VERSION%"
 
 set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.20.8-hotspot"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
@@ -60,6 +69,10 @@ if not "%GRADLE_EXIT%"=="0" (
 set "BUILT_JAR=%PROJECT_DIR%build\libs\%JAR_NAME%"
 if not exist "%BUILT_JAR%" (
     echo ==^> Build succeeded but expected jar not found at: %BUILT_JAR%
+    echo ==^> If you just bumped mod_version in gradle.properties, edit VERSION
+    echo ==^> near the top of this file to match the new version number - this
+    echo ==^> is the exact trap that made the 1.0.2 rebuild silently install
+    echo ==^> nothing the first time, so it's worth double-checking here.
     goto :end
 )
 
@@ -73,6 +86,11 @@ if exist "%REALM_EXPANSION_LIBS%" (
 ) else (
     echo ==^> ^(Realm Expansion folder not found - skipping its jar refresh, no problem if you don't have it.^)
 )
+
+echo ==^> Archiving a copy into versions\%VERSION%\ for future reference ...
+if not exist "%VERSIONS_DIR%" mkdir "%VERSIONS_DIR%"
+copy /y "%BUILT_JAR%" "%VERSIONS_DIR%\%JAR_NAME%" >nul
+echo ==^> Done: %VERSIONS_DIR%\%JAR_NAME%
 
 echo ==^> Done. %JAR_NAME% is installed. Fully restart Minecraft to pick it up.
 

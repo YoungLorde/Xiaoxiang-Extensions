@@ -28,7 +28,22 @@ import org.lwjgl.glfw.GLFW;
  *
  * When the key is released, the player stops crouching, or the player moves,
  * crouch-meditation ends.
+ *
+ * DEDICATED-SERVER-CRASH FIX: register(RegisterKeyMappingsEvent) used to be
+ * wired up via a plain context.getModEventBus().addListener(...) call in
+ * XiaoxiangConfigExt's constructor, which runs on BOTH client and dedicated
+ * server. RegisterKeyMappingsEvent lives in Forge's client-only
+ * net.minecraftforge.client.event package, so registering a listener for it
+ * unconditionally from common code is the same class of bug that was
+ * crashing the mod on a dedicated server via ConfigScreenHandler (see
+ * ClientModEvents' class doc for the full explanation) - just a second
+ * instance of it. The class-level @Mod.EventBusSubscriber(value =
+ * Dist.CLIENT, ...) annotation below is the fix: FML checks it during mod
+ * discovery and skips this class entirely on a dedicated server, before it
+ * is ever classloaded there, exactly like the nested ClientHandler class
+ * below already (correctly) did for the FORGE-bus tick event.
  */
+@Mod.EventBusSubscriber(modid = XiaoxiangConfigExt.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CrouchMeditationKeybind {
 
     public static final String CATEGORY = "key.categories.xiaoxiang_cultivation";
@@ -37,6 +52,7 @@ public class CrouchMeditationKeybind {
 
     private static boolean wasCrouchMeditating = false;
 
+    @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         CROUCH_MEDITATE = new KeyMapping(
                 "key.xiaoxiang_config_ext.crouch_meditate",

@@ -160,6 +160,18 @@ public class CustomIdentityManager {
     }
 
     /**
+     * Strips this store's two structural delimiters ("~" the field separator,
+     * "|" the entry separator) out of free-typed player text before it's written
+     * into the config string. Neither character is escaped anywhere else in this
+     * class, so leaving one in would silently corrupt field alignment for this
+     * entry (a stray "~") or splice two entries into garbage (a stray "|").
+     */
+    private static String sanitizeField(String value) {
+        if (value == null) return "";
+        return value.replace("~", "").replace("|", "");
+    }
+
+    /**
      * Add a new custom identity to the config.
      */
     public static void addCustomIdentity(String baseId, String displayName,
@@ -171,7 +183,17 @@ public class CustomIdentityManager {
         String identitiesStr = ExtendedConfig.IDENTITY_CUSTOM_IDENTITIES.get();
         if (identitiesStr == null) identitiesStr = "";
         String desc = description != null ? description : "";
-        String newIdentityEntry = customId + "~" + displayName + "~" + minLifespan + "," + maxLifespan + "~" + desc;
+        // Sanitize: displayName/description are free-typed player text and can contain
+        // "~" (this entry's own field separator) or "|" (the separator between whole
+        // entries). Either one shifts every field after it during loadAll()'s split -
+        // most visibly, a "~" inside the name silently pushes the minLifespan,maxLifespan
+        // field out of position, so parsing falls through to the 100-120 defaults
+        // (matches the reported "some custom identities are missing their lifespan").
+        // Stripping both here, at the one place entries are ever written, keeps the
+        // stored format unambiguous without touching the (already-correct) parser.
+        String safeDisplayName = sanitizeField(displayName);
+        desc = sanitizeField(desc);
+        String newIdentityEntry = customId + "~" + safeDisplayName + "~" + minLifespan + "," + maxLifespan + "~" + desc;
         if (!identitiesStr.isEmpty()) identitiesStr += "|";
         identitiesStr += newIdentityEntry;
         ExtendedConfig.IDENTITY_CUSTOM_IDENTITIES.set(identitiesStr);

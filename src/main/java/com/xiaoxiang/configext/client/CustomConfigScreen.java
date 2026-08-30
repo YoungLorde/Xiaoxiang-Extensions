@@ -89,6 +89,11 @@ public class CustomConfigScreen extends Screen {
     private final DropdownEnumPopup dropdownEnum = new DropdownEnumPopup();
     private final MultiLineEditor multiLineEditor = new MultiLineEditor();
 
+    // Config screen visual theme system: "config for the config" gear panel
+    private final ThemeSettingsPopup themeSettings = new ThemeSettingsPopup();
+    private int[] themeButtonRect = new int[4];
+    private int[] gearButtonRect = new int[4];
+
     // Batch 13: Minimap navigation
     private final MinimapNav minimapNav = new MinimapNav();
 
@@ -799,6 +804,12 @@ public class CustomConfigScreen extends Screen {
         itemPicker.setDeleteCallback((customId) -> {
             refreshEntries();
         });
+
+        // UI-sound trigger wiring (config-open, tab/entry hover, tab click)
+        // removed for now - set aside for a later pass (targeted ~1.0.9).
+        // UiSoundHelper itself, UiSounds' registered sound events,
+        // SoundPresets, sounds.json and the .ogg assets are all left
+        // untouched on disk; only the call sites that fed them were removed.
     }
 
     /** Convert an identity ID to a display name (e.g., "academy_student" -> "Academy Student"). */
@@ -857,6 +868,8 @@ public class CustomConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        // Load the config screen's own visual theme (see Theme.java / ThemeSettingsPopup)
+        Theme.loadFromConfig();
         // Load tooltip memory from config on first open
         loadTooltipMemory();
         // Load custom tabs, tab order, and config dependencies
@@ -938,8 +951,32 @@ public class CustomConfigScreen extends Screen {
      * tooltip) with three slightly different loops. Everything now comes out of one
      * computation, so the bars can never disagree about where a button is.
      */
+    /**
+     * The sub-tab names for a given TOP tab, whichever kind it is. Standard
+     * tabs (Cultivation, Crafting, ...) come from the hand-built
+     * TAB_TO_SUBTABS map, same as always. A custom tab (Realm Expansion's
+     * "Expansion" tab, or any future one registered with a real subTabs
+     * structure - see CustomTabManager.addCustomTab's 3-arg overload) gets
+     * its sub-tab names from CustomTabManager instead. A custom tab with no
+     * subTabs structure (a player's hand-built flat tab) still returns an
+     * empty list here exactly like before - this only changes behavior for
+     * tabs that actually declared real sub-tabs.
+     *
+     * Every place that used to read TAB_TO_SUBTABS.getOrDefault(activeTopTab, ...)
+     * or .get(activeTopTab) to find the CURRENT tab's own sub-tabs goes through
+     * this now, so the sub-tab bar, its click handling, keyboard shortcuts, and
+     * the default-sub-tab-on-tab-click logic all agree on the same list instead
+     * of three of them silently seeing an empty list for custom tabs.
+     */
+    private static List<String> subTabNamesFor(String tabName) {
+        if (CustomTabManager.hasSubTabs(tabName)) {
+            return CustomTabManager.getCustomSubTabNames(tabName);
+        }
+        return TAB_TO_SUBTABS.getOrDefault(tabName, List.of());
+    }
+
     private void rebuildSubTabButtons() {
-        List<String> subTabs = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+        List<String> subTabs = subTabNamesFor(activeTopTab);
         subTabBar = LayoutEngine.layoutFixedButtons(subTabs, 8, topTabRowsEndY + 4,
                 getButtonBarMaxRight(), SUBTAB_WIDTH, SUBTAB_HEIGHT, 3, 2);
 
@@ -1152,6 +1189,31 @@ public class CustomConfigScreen extends Screen {
 
     /** Reset only configs belonging to the current tab/sub-tab scope. */
     private void resetCurrentTabConfigs() {
+        // Custom tabs (e.g. Realm Expansion) have no entry in SUBTAB_TO_PATH_PREFIX
+        // or TAB_TO_SUBTABS below - those two maps are standard-tab-only, hand-built
+        // for the base mod's own config layout. Without this branch, "Reset Tab" on
+        // a custom tab fell all the way through to the "no sub-tab prefixes found"
+        // case and reset nothing at all. CustomTabManager.getCustomTabPaths() is the
+        // same source refreshEntriesInternal() already uses to decide which config
+        // paths belong to a custom tab in the first place, so this resets exactly
+        // what's actually shown on screen for it.
+        if (CustomTabManager.isCustomTab(activeTopTab)) {
+            int count = 0;
+            for (String customPrefix : CustomTabManager.getCustomTabPaths(activeTopTab)) {
+                for (String path : ConfigValueAccessor.getAllPaths()) {
+                    if (path.startsWith(customPrefix + ".") || path.equals(customPrefix)) {
+                        String defaultVal = ConfigValueAccessor.getDefaultValueString(path);
+                        if (defaultVal != null) {
+                            ConfigValueAccessor.setValueFromString(path, defaultVal);
+                            count++;
+                        }
+                    }
+                }
+            }
+            refreshEntries();
+            return;
+        }
+
         // Determine the path prefix for the current scope
         String scope = activeSubTab != null && !activeSubTab.isEmpty()
                 ? activeTopTab + "." + activeSubTab
@@ -1273,8 +1335,15 @@ public class CustomConfigScreen extends Screen {
             // Show entries for current tab/sub-tab
             // Check if this is a custom tab
             if (CustomTabManager.isCustomTab(activeTopTab)) {
-                // Custom tab: aggregate entries from all path prefixes
-                List<String> customPaths = CustomTabManager.getCustomTabPaths(activeTopTab);
+                // Custom tab: aggregate entries from all path prefixes - scoped to
+                // just the active sub-tab's own prefixes when the tab has real
+                // sub-tabs (see subTabNamesFor()), so a second future sub-tab
+                // doesn't show every other sub-tab's entries mixed in. A
+                // hand-built flat custom tab (no subTabs structure) keeps using
+                // every one of its prefixes, exactly as before.
+                List<String> customPaths = CustomTabManager.hasSubTabs(activeTopTab)
+                        ? CustomTabManager.getCustomSubTabPrefixes(activeTopTab, activeSubTab)
+                        : CustomTabManager.getCustomTabPaths(activeTopTab);
                 for (String path : ConfigValueAccessor.getAllPaths()) {
                     boolean belongs = false;
                     String group = "";
@@ -1340,7 +1409,17 @@ public class CustomConfigScreen extends Screen {
 
                 if (activeSubTab.equals("General") && path.startsWith("general.")) {
                     belongs = true;
-                    group = "";
+                    // The "general." config category is ~30 flat, ungrouped entries -
+                    // mostly "enableXOverrides" master-switch booleans that all share
+                    // the same "Enable ___ Overrides" naming template. Left completely
+                    // ungrouped (as this used to force group="" unconditionally), they
+                    // render as one long wall of near-identical-looking rows with no
+                    // visual separation - confusing to scan, and exactly what players
+                    // have reported as things "repeating themselves." Splitting them
+                    // into two labeled, collapsible groups fixes that without touching
+                    // any of the underlying config keys or values.
+                    String afterGeneral = path.substring("general.".length());
+                    group = afterGeneral.startsWith("enable") ? "General Toggles" : "Global Settings";
                 }
 
                 if (belongs) {
@@ -1401,6 +1480,19 @@ public class CustomConfigScreen extends Screen {
                 int gComp = a.group.compareToIgnoreCase(b.group);
                 if (gComp != 0) return gComp;
             }
+            // Within a group, Foundation Dao / Golden Core Dao entries sort in Human,
+            // Blood, Earth, Heaven tier order rather than falling through to alphabetical
+            // (see getDaoTierOrder's doc comment for why). Deliberately checked AFTER
+            // group-matching above, not before it like realm order is - realm order is
+            // meant to reorganize a whole sub-tab around breakthrough progression across
+            // groups, but Dao tier is only meant to fix ordering *inside* one group (e.g.
+            // "Lifespan Bonuses" should read Human/Blood/Earth/Heaven internally, not pull
+            // every group's Human entry to the top of the whole tab).
+            int aDaoOrder = getDaoTierOrder(a.configPath);
+            int bDaoOrder = getDaoTierOrder(b.configPath);
+            if (aDaoOrder != -1 || bDaoOrder != -1) {
+                if (aDaoOrder != bDaoOrder) return Integer.compare(aDaoOrder, bDaoOrder);
+            }
             return a.getDisplayName().compareToIgnoreCase(b.getDisplayName());
         });
     }
@@ -1409,6 +1501,9 @@ public class CustomConfigScreen extends Screen {
      * Add custom identity entries to the filtered entries list.
      * Each custom identity shows as an entry with its display name and an
      * "Item Picker" button for editing starting items, plus a "Delete" button.
+     * Just identity + item, by design - lifespan isn't shown or editable here (it
+     * plays no part in choosing an origin), and there is no separate name/description
+     * editor; renaming happens by duplicating again with a new name.
      */
     private void addCustomIdentityEntries(List<DisplayEntry> entries) {
         for (CustomIdentityManager.CustomIdentity ci : CustomIdentityManager.loadAll()) {
@@ -1458,6 +1553,42 @@ public class CustomConfigScreen extends Screen {
         if (last.equals("deltaPeak")) return 4;
         // Global multipliers go at the end of their category
         if (last.equals("globalMultiplier")) return 100;
+        return -1;
+    }
+
+    /**
+     * Human/Blood/Earth/Heaven Dao-tier order for Foundation Dao and Golden Core
+     * Dao entries, mirroring getRealmOrder() above. Player-reported bug: within a
+     * group (e.g. "Lifespan Bonuses"), the source declares these four fields in
+     * Human, Blood, Earth, Heaven order (already the intended weakest-to-strongest
+     * / breakthrough order - confirmed against ExtendedConfig.java's own field
+     * order and its monotonically-increasing defaults for lifespan/body-defense),
+     * but the fallback sort below is alphabetical by display name, which renders
+     * them as Blood, Earth, Heaven, Human instead. This gives those four a fixed
+     * rank so they sort by Dao tier instead of falling through to alphabetical.
+     *
+     * Matched by a case-insensitive PREFIX on the path's last segment (not exact
+     * equality) because the four Daos don't always share one bare key name -
+     * "human"/"blood"/"earth"/"heaven" (lifespanBonus, bodyDefense, ...),
+     * "humanStrikes"/"bloodStrikes"/... (goldenCoreDao.tribulation), and
+     * "earthSpellDamageMult"/"heavenSpellDamageMult" (spellMultipliers, which
+     * currently has no human/blood variant - a real content gap, not something
+     * this sort can invent) all need to resolve to the same rank per Dao.
+     *
+     * Deliberately scoped to foundationDao.* and goldenCoreDao.* only - the same
+     * "human"/"blood"/"earth"/"heaven" prefixes appear elsewhere in the config
+     * (e.g. world-gen biome names) with no such tier relationship, and forcing
+     * this order on them would be a fabricated ordering, not a real bug fix.
+     */
+    private static int getDaoTierOrder(String path) {
+        if (!path.startsWith("foundationDao.") && !path.startsWith("goldenCoreDao.")) return -1;
+        String[] parts = path.split("\\.");
+        if (parts.length < 2) return -1;
+        String last = parts[parts.length - 1].toLowerCase();
+        if (last.startsWith("human")) return 0;
+        if (last.startsWith("blood")) return 1;
+        if (last.startsWith("earth")) return 2;
+        if (last.startsWith("heaven")) return 3;
         return -1;
     }
 
@@ -1527,12 +1658,15 @@ public class CustomConfigScreen extends Screen {
         // SUBTAB_TO_PATH_PREFIX lookup below, which only custom tabs
         // never populate (SUBTAB_TO_PATH_PREFIX is standard-tab only) - so
         // without this branch every custom tab's group bar is always empty.
+        //
+        // Scoped to the ACTIVE sub-tab only (activeSubTab, set by clicking the
+        // real sub-tab bar now built for these tabs - see subTabNamesFor()),
+        // not aggregated across every sub-tab the tab has. With one sub-tab
+        // (today's "Realm Layering") this is no different from before, but it's
+        // what makes a second, future sub-tab show only ITS OWN groups instead
+        // of every sub-tab's sections bleeding together in one group bar.
         if (CustomTabManager.isCustomTab(activeTopTab) && CustomTabManager.hasSubTabs(activeTopTab)) {
-            LinkedHashSet<String> customGroups = new LinkedHashSet<>();
-            for (String subTab : CustomTabManager.getCustomSubTabNames(activeTopTab)) {
-                customGroups.addAll(CustomTabManager.getCustomSubTabSections(activeTopTab, subTab));
-            }
-            return new ArrayList<>(customGroups);
+            return CustomTabManager.getCustomSubTabSections(activeTopTab, activeSubTab);
         }
 
         LinkedHashSet<String> groups = new LinkedHashSet<>();
@@ -1560,7 +1694,11 @@ public class CustomConfigScreen extends Screen {
 
             if (activeSubTab.equals("General") && path.startsWith("general.")) {
                 belongs = true;
-                group = "";
+                // Mirror the same grouping refreshEntriesInternal() now uses, so the
+                // group-filter bar offers "General Toggles" / "Global Settings" and
+                // clicking one actually matches what's shown in the list below it.
+                String afterGeneral = path.substring("general.".length());
+                group = afterGeneral.startsWith("enable") ? "General Toggles" : "Global Settings";
             }
 
             // No special case for Qi System - normal prefix matching handles sub-tabs
@@ -1593,6 +1731,13 @@ public class CustomConfigScreen extends Screen {
         // AnimationState for a hover/entrance value below reads this frame's delta.
         anim.beginFrame(isReduceMotion());
 
+        // The real mouse position, captured before anything below possibly
+        // overwrites the mouseX/mouseY parameters (see the modal-popup guard
+        // just past the early-return block) - the popups themselves still need
+        // the real position even when the background doesn't.
+        final int realMouseX = mouseX;
+        final int realMouseY = mouseY;
+
         // ══════════════════════════════════════════════════════════════════
         //  POPUP MODE: When item picker or name input is open, render
         //  ONLY the popup on a dark background. No tabs, no entries.
@@ -1623,6 +1768,23 @@ public class CustomConfigScreen extends Screen {
             return;
         }
 
+        // A modal popup (color wheel, dropdown, multi-line editor, or the
+        // "config for the config" panel) floats on top and blocks clicks to
+        // everything beneath it, but the background tabs/entries below were
+        // still computing their own hover state from the live mouse position
+        // even while one of these covered the screen - moving the mouse over
+        // the popup was visibly hovering rows/tabs behind it. Push the mouse
+        // position off-screen for the rest of this method (all of "NORMAL
+        // MODE" below, including the entry list, tabs, and pinned tooltips)
+        // whenever any of these is open, so nothing back there can register a
+        // hover. The popups are rendered on top further down using
+        // realMouseX/realMouseY (captured above, before this reassignment),
+        // so their own controls keep responding normally.
+        if (colorWheel.isOpen() || dropdownEnum.isOpen() || multiLineEditor.isOpen() || themeSettings.isOpen()) {
+            mouseX = -10000;
+            mouseY = -10000;
+        }
+
         // ══════════════════════════════════════════════════════════════════
         //  NORMAL MODE: Full screen rendering with window outline
         // ══════════════════════════════════════════════════════════════════
@@ -1631,18 +1793,75 @@ public class CustomConfigScreen extends Screen {
         this.renderBackground(g);
 
         // ── Main config UI window outline and background ──
-        int winX = 2;
-        int winY = 2;
-        int winW = this.width - 4;
-        int winH = this.height - 4;
+        // True edge-to-edge fill: this.width/this.height are Minecraft's own
+        // computed GUI-space resolution for whatever the player's window size
+        // and GUI Scale currently are, and Minecraft recomputes them (and
+        // re-runs init()) on every resize - so this already tracks any
+        // resolution automatically without this screen doing anything extra.
+        // Previously inset by 2px on every side; now flush against all four
+        // screen edges so nothing shows through around the panel.
+        int winX = 0;
+        int winY = 0;
+        int winW = this.width;
+        int winH = this.height;
         // Window background
         g.fill(winX, winY, winX + winW, winY + winH, Theme.BACKGROUND);
-        // Double border outline
-        g.renderOutline(winX, winY, winW, winH, Theme.WINDOW_BORDER);
-        g.renderOutline(winX + 1, winY + 1, winW - 2, winH - 2, Theme.WINDOW_BORDER_DIM);
+        // Themed frame - base double-line outline plus each theme's own structural
+        // border treatment (see ThemeFrameRenderer's class doc: this is the direct
+        // fix for "different theme means the UI has slightly different changes to
+        // its structure... the box outlines", not just a recolor).
+        ThemeFrameRenderer.drawFrame(g, winX, winY, winW, winH);
 
         // Title - bold gold, positioned at top-left to avoid overlap with search bar
-        g.drawString(this.font, "\u00A7e\u00A7lXiaoxiang Config Extension", 8, 4, 0xFFFFFF);
+        // No drop shadow: the screen's own title is bold (already double-drawn 1px
+        // apart to fake bold), and the default shadow compounded with that into the
+        // same smudged look reported against other bold/title text in this mod.
+        g.drawString(this.font, "\u00A7e\u00A7lXiaoxiang Config Extension", 8, 4, 0xFFFFFF, false);
+
+        // \u2500\u2500 Theme cycle button + "config for the config" gear button (top-right) \u2500\u2500
+        // Two small buttons: the left one cycles to the next visual theme on click (a
+        // quick one-click switcher), the right one (gear) opens ThemeSettingsPopup for
+        // theme selection, the custom accent override, and tab-click animation settings.
+        {
+            // Plain ASCII label rather than a unicode icon glyph - this mod's own help-icon
+            // convention elsewhere in this file is a plain "?" (see helpIcon above), and
+            // Minecraft's default font's actual glyph coverage can't be bytecode-verified
+            // in this environment, so an unverified unicode symbol risks rendering as a
+            // missing-glyph box in-game.
+            String themeLabel = "Theme: " + Theme.current.displayName;
+            int themeW = this.font.width(themeLabel) + 8;
+            int gearW = this.font.width("Cfg") + 10;
+            int gearX = this.width - 8 - gearW;
+            int themeX = gearX - 4 - themeW;
+            int btnY = 4;
+            int btnH = 14;
+
+            boolean themeHover = mouseX >= themeX && mouseX < themeX + themeW && mouseY >= btnY && mouseY < btnY + btnH;
+            float themeGlow = anim.hover("titlebar:theme", themeHover);
+            g.fill(themeX, btnY, themeX + themeW, btnY + btnH, Theme.lerp(Theme.UTIL_BG, Theme.UTIL_BG_HOVER, themeGlow));
+            g.renderOutline(themeX, btnY, themeW, btnH, Theme.lerp(Theme.UTIL_BORDER, Theme.UTIL_BORDER_HOVER, themeGlow));
+            g.drawString(this.font, themeLabel, themeX + 4, btnY + 3, Theme.lerp(Theme.UTIL_TEXT, Theme.TEXT_PRIMARY, themeGlow));
+            themeButtonRect = new int[]{themeX, btnY, themeW, btnH};
+
+            boolean gearHover = mouseX >= gearX && mouseX < gearX + gearW && mouseY >= btnY && mouseY < btnY + btnH;
+            float gearGlow = anim.hover("titlebar:gear", gearHover);
+            g.fill(gearX, btnY, gearX + gearW, btnY + btnH, Theme.lerp(Theme.UTIL_BG, Theme.UTIL_BG_HOVER, gearGlow));
+            g.renderOutline(gearX, btnY, gearW, btnH, Theme.lerp(Theme.UTIL_BORDER, Theme.UTIL_BORDER_HOVER, gearGlow));
+            g.drawCenteredString(this.font, "Cfg", gearX + gearW / 2, btnY + 3, Theme.lerp(Theme.UTIL_TEXT, Theme.TEXT_PRIMARY, gearGlow));
+            gearButtonRect = new int[]{gearX, btnY, gearW, btnH};
+
+            // this.font.split(...) -> List<FormattedCharSequence> is the exact tooltip-build
+            // pattern already proven to compile elsewhere in this file (see the inline-help
+            // tooltip above, and renderEntryTooltip()'s g.renderTooltip(this.font, tooltip, x, y)
+            // call) - used here rather than a single-Component overload this file has never
+            // actually called, since the real GuiGraphics/Forge jars aren't available in this
+            // environment to bytecode-verify that overload exists.
+            if (themeHover) {
+                g.renderTooltip(this.font, this.font.split(Component.literal("Click to switch to the next theme"), 200), (int) mouseX, (int) mouseY);
+            } else if (gearHover) {
+                g.renderTooltip(this.font, this.font.split(Component.literal("Config menu settings (theme, accent color, tab animation)"), 200), (int) mouseX, (int) mouseY);
+            }
+        }
 
         // Search box - centered, below title
         searchBox.render(g, mouseX, mouseY, partialTick);
@@ -1666,8 +1885,19 @@ public class CustomConfigScreen extends Screen {
         minimapNav.setPosition(this.width - 130, this.height - 160, 120, 122);
         // scrollOffset is a ROW index into the shared layout (rows include group
         // headers), so translate it back to an ENTRY index for the nav readout.
+        // MinimapNav's tab->subtabs map is only ever the raw standard-tab-only
+        // TAB_TO_SUBTABS field, so a custom tab with real sub-tabs (e.g. Realm
+        // Expansion) always showed 0 sub-tabs in the Nav panel. Feeding it a
+        // merged copy (standard tabs unchanged, custom tabs filled in via
+        // subTabNamesFor()) fixes that without touching MinimapNav itself.
+        Map<String, List<String>> navSubTabs = new LinkedHashMap<>(TAB_TO_SUBTABS);
+        for (String navTab : CustomTabManager.getTabOrder()) {
+            if (CustomTabManager.hasSubTabs(navTab)) {
+                navSubTabs.put(navTab, CustomTabManager.getCustomSubTabNames(navTab));
+            }
+        }
         minimapNav.render(g, this.font, activeTopTab, activeSubTab,
-            new ArrayList<>(CustomTabManager.getTabOrder()), TAB_TO_SUBTABS,
+            new ArrayList<>(CustomTabManager.getTabOrder()), navSubTabs,
             layout().firstVisibleEntryIndex(scrollOffset), filteredEntries.size(), mouseX, mouseY);
 
         // ── Custom render top-level tabs and sub-tabs ──
@@ -1738,12 +1968,21 @@ public class CustomConfigScreen extends Screen {
                         Theme.withAlpha(row.collapsed ? Theme.TEXT_FAINT : Theme.ACCENT, appear));
 
                 String headerTitle = arrow + " " + row.group;
+                // Drop shadow follows the same "important vs. de-emphasized" split as the
+                // colour: HEADER_TEXT (expanded, prominent) keeps Minecraft's default text
+                // shadow, TEXT_MUTED (collapsed) turns it off. A dark 1px shadow copy behind
+                // an already-dim colour reads as a smudged double image rather than helping
+                // legibility - this is one concrete piece of the "shadow effect... two layers"
+                // problem reported against the muted/faint text tiers. Shadow is off here
+                // unconditionally now (not just while collapsed) - titles/headers get the
+                // same crisp treatment as body text, per direct follow-up feedback.
                 g.drawString(this.font, headerTitle, entryX + slide + 7, barY + 3,
-                        Theme.textAlpha(row.collapsed ? Theme.TEXT_MUTED : Theme.HEADER_TEXT, appear));
+                        Theme.textAlpha(row.collapsed ? Theme.TEXT_MUTED : Theme.HEADER_TEXT, appear),
+                        false);
                 String countLabel = "(" + row.groupCount + ")";
                 g.drawString(this.font, countLabel,
                         entryX + slide + 7 + this.font.width(headerTitle) + 6, barY + 3,
-                        Theme.textAlpha(Theme.TEXT_FAINT, appear));
+                        Theme.textAlpha(Theme.TEXT_FAINT, appear), false);
 
                 // Group blurb, drawn into space the row already reserved for it.
                 if (row.descLines > 0) {
@@ -1756,7 +1995,7 @@ public class CustomConfigScreen extends Screen {
                         for (int li = 0; li < blurbLines.size(); li++) {
                             g.drawString(this.font, blurbLines.get(li), entryX + slide + 9,
                                     barY + barH + 1 + li * LayoutEngine.LINE_H,
-                                    Theme.textAlpha(Theme.TEXT_FAINT, appear));
+                                    Theme.textAlpha(Theme.TEXT_FAINT, appear), false);
                         }
                     }
                 }
@@ -1770,6 +2009,8 @@ public class CustomConfigScreen extends Screen {
             boolean rowHover = mouseX >= entryX && mouseX < entryWidth && mouseY >= y && mouseY < y + rowH;
             boolean rowSelected = (i == selectedEntryIdx);
             if (rowHover) HoverSoundHelper.playHoverSound(HoverSoundHelper.SoundType.ITEM, i);
+            // Custom entry-hover UI sound removed for now (set aside for ~1.0.9) -
+            // see the constructor's comment above for the full note.
 
             // Entry background with hover/selection effect
             int bgColor = (i % 2 == 0) ? Theme.ROW_BG_EVEN : Theme.ROW_BG_ODD;
@@ -1877,7 +2118,10 @@ public class CustomConfigScreen extends Screen {
                     drawHighlightedText(g, this.font, lineText, entryNameX, lineY,
                         nameColor, searchBox.getValue().toLowerCase(), 0xFF30C0FF);
                 } else {
-                    g.drawString(this.font, lineText, entryNameX, lineY, nameColor);
+                    // No drop shadow (see the description fix above) - bold entry names are
+                    // already drawn twice 1px apart to fake bold, and the default shadow
+                    // compounds with that into the same smudged look reported against titles.
+                    g.drawString(this.font, lineText, entryNameX, lineY, nameColor, false);
                 }
             }
 
@@ -1889,11 +2133,16 @@ public class CustomConfigScreen extends Screen {
             if (row.descLines > 0) {
                 desc = LayoutEngine.ellipsize(this.font, desc, rowLayout.descBudget);
                 int descColor = Theme.textAlpha(Theme.TEXT_MUTED, appear);
+                // No drop shadow here (see the group-header comment above): entry
+                // descriptions are the exact "master switch for X and Y overrides"-style
+                // sentences that were reported as only legible on hover. Minecraft's
+                // default shadow behind TEXT_MUTED's already-modest contrast is what turns
+                // ordinary description text into a smudgy double-image at rest.
                 if (!searchBox.getValue().isBlank()) {
                     drawHighlightedText(g, this.font, desc, entryX + slide + LayoutEngine.DESC_INDENT, descY,
                         descColor, searchBox.getValue().toLowerCase(), 0xFF30A0E0);
                 } else {
-                    g.drawString(this.font, desc, entryX + slide + LayoutEngine.DESC_INDENT, descY, descColor);
+                    g.drawString(this.font, desc, entryX + slide + LayoutEngine.DESC_INDENT, descY, descColor, false);
                 }
             }
 
@@ -1935,7 +2184,6 @@ public class CustomConfigScreen extends Screen {
                         entry.configPath.split("\\.")[1]);
                 if (valStr == null) valStr = "";
             }
-
             if (type.equals("boolean")) {
                 // Toggle button with hover enlargement
                 boolean current = valStr.equals("true");
@@ -1948,11 +2196,23 @@ public class CustomConfigScreen extends Screen {
                 // Hover enlargement
                 int exp = hovered ? 2 : 0;
                 int tbx = btnX - exp, tby = btnY - exp, tbw = btnW + exp * 2, tbh = btnH + exp * 2;
-                int toggleBg = current ? 0xFF205020 : 0xFF502020;
-                if (hovered) toggleBg |= 0x30FFFFFF;
+                // SUCCESS_BG/ERROR_BG are intentionally fixed (universal affordance colors,
+                // see Theme.java's class doc) rather than theme-tinted, so the pill's own
+                // text stays a fixed near-white for guaranteed contrast against them too -
+                // Theme.TEXT_PRIMARY would go dark-ink on a light theme and vanish here.
+                int toggleBg = current ? Theme.SUCCESS_BG : Theme.ERROR_BG;
+                if (hovered) toggleBg = Theme.lerp(toggleBg, 0xFFFFFFFF, 0.15f);
                 g.fill(tbx, tby, tbx + tbw, tby + tbh, toggleBg);
-                g.renderOutline(tbx, tby, tbw, tbh, hovered ? 0xFFFFD700 : 0xFF808080);
-                g.drawCenteredString(this.font, label, tbx + tbw / 2, tby + 5, 0xFFFFFF);
+                g.renderOutline(tbx, tby, tbw, tbh, hovered ? Theme.ACCENT : Theme.UTIL_BORDER);
+                g.drawCenteredString(this.font, label, tbx + tbw / 2, tby + 5, 0xFFFFFFFF);
+                // Modified-value indicator - boolean entries never had this, unlike
+                // every numeric entry (which shows the same gold dot). Every entry
+                // type should be able to show "this differs from default," Expansion
+                // tab's booleans included, so this isn't scoped to any one tab.
+                String boolDefaultVal = ConfigValueAccessor.getDefaultValueString(entry.configPath);
+                if (boolDefaultVal != null && !valStr.equals(boolDefaultVal)) {
+                    g.fill(btnX - 6, btnY, btnX - 4, btnY + 4, Theme.ACCENT);
+                }
             } else if (!type.equals("unknown")) {
                 // Check if this is a color config
                 boolean isColor = entry.configPath.contains("color") || entry.configPath.contains("Color") ||
@@ -1983,19 +2243,19 @@ public class CustomConfigScreen extends Screen {
 
                     // Previous button (<<)
                     boolean prevHover = mouseX >= prevX && mouseX < prevX + prevW && mouseY >= swatchY && mouseY < swatchY + swatchH;
-                    int prevBg = prevHover ? 0xFF404060 : 0xFF303040;
+                    int prevBg = prevHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG;
                     g.fill(prevX, swatchY, prevX + prevW, swatchY + swatchH, prevBg);
-                    g.renderOutline(prevX, swatchY, prevW, swatchH, 0xFF606080);
-                    g.drawCenteredString(this.font, "\u00AB", prevX + prevW / 2, swatchY + 4, 0xFFFFFF);
+                    g.renderOutline(prevX, swatchY, prevW, swatchH, prevHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
+                    g.drawCenteredString(this.font, "\u00AB", prevX + prevW / 2, swatchY + 4, Theme.TEXT_PRIMARY);
 
                     // Color swatch
                     boolean swatchHover = mouseX >= swatchX && mouseX < swatchX + swatchW && mouseY >= swatchY && mouseY < swatchY + swatchH;
                     g.fill(swatchX, swatchY, swatchX + swatchW, swatchY + swatchH, currentColor);
-                    g.renderOutline(swatchX, swatchY, swatchW, swatchH, swatchHover ? 0xFFFFFFFF : 0xFF808080);
+                    g.renderOutline(swatchX, swatchY, swatchW, swatchH, swatchHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
 
                     // Preset name display
-                    g.fill(nameX, swatchY, nameX + nameW, swatchY + swatchH, 0xFF303040);
-                    g.renderOutline(nameX, swatchY, nameW, swatchH, 0xFF606080);
+                    g.fill(nameX, swatchY, nameX + nameW, swatchY + swatchH, Theme.UTIL_BG);
+                    g.renderOutline(nameX, swatchY, nameW, swatchH, Theme.UTIL_BORDER);
                     String presetDisplayName = presetName;
                     if (this.font.width(presetDisplayName) > nameW - 4) {
                         while (this.font.width(presetDisplayName + "...") > nameW - 4 && presetDisplayName.length() > 0) {
@@ -2003,18 +2263,18 @@ public class CustomConfigScreen extends Screen {
                         }
                         presetDisplayName = presetDisplayName + "...";
                     }
-                    g.drawString(this.font, presetDisplayName, nameX + 2, swatchY + 4, 0xFFFFFF);
+                    g.drawString(this.font, presetDisplayName, nameX + 2, swatchY + 4, Theme.TEXT_PRIMARY);
 
                     // Next button (>>)
                     boolean cycleHover = mouseX >= cycleX && mouseX < cycleX + cycleW && mouseY >= swatchY && mouseY < swatchY + swatchH;
-                    int cycleBg = cycleHover ? 0xFF404060 : 0xFF303040;
+                    int cycleBg = cycleHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG;
                     g.fill(cycleX, swatchY, cycleX + cycleW, swatchY + swatchH, cycleBg);
-                    g.renderOutline(cycleX, swatchY, cycleW, swatchH, 0xFF606080);
-                    g.drawCenteredString(this.font, "\u00BB", cycleX + cycleW / 2, swatchY + 4, 0xFFFFFF);
+                    g.renderOutline(cycleX, swatchY, cycleW, swatchH, cycleHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
+                    g.drawCenteredString(this.font, "\u00BB", cycleX + cycleW / 2, swatchY + 4, Theme.TEXT_PRIMARY);
 
                     // Hex value display below swatch
                     String hexVal = String.format("#%08X", currentColor);
-                    g.drawString(this.font, hexVal, swatchX, swatchY + swatchH + 1, 0x888888);
+                    g.drawString(this.font, hexVal, swatchX, swatchY + swatchH + 1, Theme.TEXT_FAINT);
                 } else {
                     // Check if this is a starting items config (string type with items path)
                     boolean isItemsConfig = type.equals("string") &&
@@ -2032,17 +2292,17 @@ public class CustomConfigScreen extends Screen {
                                 mouseY >= pickBtnY && mouseY < pickBtnY + pickBtnH;
                         int pExp = pickHover ? 2 : 0;
                         int pX = pickBtnX - pExp, pY = pickBtnY - pExp, pW = pickBtnW + pExp * 2, pH = pickBtnH + pExp * 2;
-                        int pickBg = pickHover ? 0xFF2A4868 : 0xFF181820;
+                        int pickBg = pickHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG;
                         g.fill(pX, pY, pX + pW, pY + pH, pickBg);
-                        g.renderOutline(pX, pY, pW, pH, pickHover ? 0xFF80B0FF : 0xFF404060);
-                        if (pickHover) g.fill(pX, pY, pX + pW, pY + pH, 0x30FFFF80);
-                        g.drawCenteredString(this.font, pickHover ? "\u00A7l\u00A7bPick Items" : "\u00A7bPick Items", pX + pW / 2, pY + 4, 0xFFFFFF);
+                        g.renderOutline(pX, pY, pW, pH, pickHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
+                        if (pickHover) g.fill(pX, pY, pX + pW, pY + pH, Theme.setAlpha(Theme.ACCENT_HOVER, 0x30));
+                        g.drawCenteredString(this.font, pickHover ? "\u00A7l\u00A7bPick Items" : "\u00A7bPick Items", pX + pW / 2, pY + 4, Theme.TEXT_PRIMARY);
                         // Show item count below
                         int itemCount = 0;
                         if (valStr != null && !valStr.isEmpty()) {
                             itemCount = valStr.split(";").length;
                         }
-                        g.drawString(this.font, itemCount + " items", pickBtnX, pickBtnY + pickBtnH + 1, 0x888888);
+                        g.drawString(this.font, itemCount + " items", pickBtnX, pickBtnY + pickBtnH + 1, Theme.TEXT_FAINT);
                     } else {
                         // ── Regular numeric/string value with - and + buttons (hover enlargement) ──
                         int minusX = entryWidth - 180;
@@ -2057,18 +2317,18 @@ public class CustomConfigScreen extends Screen {
                         // Hover enlargement for minus button
                         int mExp = minusHover ? 2 : 0;
                         int mX = minusX - mExp, mY = btnY - mExp, mW = 20 + mExp * 2, mH = btnH + mExp * 2;
-                        int minusBg = minusHover ? 0xFF503060 : 0xFF303040;
+                        int minusBg = minusHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG;
                         g.fill(mX, mY, mX + mW, mY + mH, minusBg);
-                        g.renderOutline(mX, mY, mW, mH, minusHover ? 0xFFFFA0FF : 0xFF606080);
-                        g.drawCenteredString(this.font, minusHover ? "\u00A7l-" : "-", mX + mW / 2, mY + 4, minusHover ? 0xFFFFA0FF : 0xFFFFFF);
+                        g.renderOutline(mX, mY, mW, mH, minusHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
+                        g.drawCenteredString(this.font, minusHover ? "\u00A7l-" : "-", mX + mW / 2, mY + 4, minusHover ? Theme.ACCENT_HOVER : Theme.TEXT_PRIMARY);
 
                         // Hover enlargement for plus button
                         int pExp = plusHover ? 2 : 0;
                         int pX = plusX - pExp, pY = btnY - pExp, pW = 20 + pExp * 2, pH = btnH + pExp * 2;
-                        int plusBg = plusHover ? 0xFF503060 : 0xFF303040;
+                        int plusBg = plusHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG;
                         g.fill(pX, pY, pX + pW, pY + pH, plusBg);
-                        g.renderOutline(pX, pY, pW, pH, plusHover ? 0xFFFFA0FF : 0xFF606080);
-                        g.drawCenteredString(this.font, plusHover ? "\u00A7l+" : "+", pX + pW / 2, pY + 4, plusHover ? 0xFFFFA0FF : 0xFFFFFF);
+                        g.renderOutline(pX, pY, pW, pH, plusHover ? Theme.UTIL_BORDER_HOVER : Theme.UTIL_BORDER);
+                        g.drawCenteredString(this.font, plusHover ? "\u00A7l+" : "+", pX + pW / 2, pY + 4, plusHover ? Theme.ACCENT_HOVER : Theme.TEXT_PRIMARY);
 
                         // Value display (formatted with commas, truncated if too long)
                         String displayVal = formatConfigValue(valStr, type, entry.configPath);
@@ -2091,19 +2351,19 @@ public class CustomConfigScreen extends Screen {
                         String defaultVal = ConfigValueAccessor.getDefaultValueString(entry.configPath);
                         boolean isModified = !valStr.equals(defaultVal);
                         // overMax already computed above for the red left-border accent
-                        int valColor = overMax ? 0xFFE34234 : (isModified ? 0xFFFFD700 : 0x55FF55);
+                        int valColor = overMax ? Theme.ERROR : (isModified ? Theme.ACCENT : Theme.SUCCESS);
                         g.drawCenteredString(this.font, displayVal, valX + 60, btnY + 4, valColor);
 
                         // Config diff indicator dot (yellow = modified, red = over max)
                         if (isModified || overMax) {
-                            int dotColor = overMax ? 0xFFE34234 : 0xFFFFD700;
+                            int dotColor = overMax ? Theme.ERROR : Theme.ACCENT;
                             g.fill(valX + 60 - 2, btnY + 2, valX + 60, btnY + 4, dotColor);
                         }
                     }
                 }
             } else {
                 // Unknown type - just show value
-                g.drawCenteredString(this.font, valStr, entryWidth - 80, y + 6, 0x55FF55);
+                g.drawCenteredString(this.font, valStr, entryWidth - 80, y + 6, Theme.SUCCESS);
             }
 
             // Hover tooltip with full description (only when hovering the left part)
@@ -2148,7 +2408,9 @@ public class CustomConfigScreen extends Screen {
             ? "\u00A7eShowing " + filteredEntries.size() + " of " + getTotalConfigCount() + " settings"
             : "\u00A7e" + filteredEntries.size() + " settings";
         int settingsW = this.font.width(settingsText.replaceAll("\u00A7.", ""));
-        g.drawString(this.font, settingsText, this.width - settingsW - 8, 12, 0xFFAA00);
+        // y moved from 12 to 20: the new theme/gear buttons at the top-right (y=4-18,
+        // same right-aligned corner) would otherwise overlap this text.
+        g.drawString(this.font, settingsText, this.width - settingsW - 8, 20, 0xFFAA00);
 
         // Modifier key hint for numeric entries (updated scheme)
         g.drawCenteredString(this.font, "\u00A7eCtrl:x1  Ctrl+C:x0.01  Ctrl+Shift:x10  Shift:x100  Ctrl+Shift+C:x1000  Alt:x100000  |  Ctrl+Z:Undo  Ctrl+Y:Redo",
@@ -2185,6 +2447,12 @@ public class CustomConfigScreen extends Screen {
         // third (which even wrapped to gx = 24 instead of gx = 8), so a wrapped group
         // button could be painted in one place and clicked in another.
         if (!searchMode && groupBar != null) {
+            // A custom tab's group chips use the amethyst scheme too - the same
+            // "these runs are the main sub-tabs, I guess" cinnabar/maroon color
+            // every standard tab's group bar uses, made distinct here so a
+            // custom tab reads as its own mod's tab at every tier, not just its
+            // top-level button.
+            boolean isCustomGroupBar = CustomTabManager.isCustomTab(activeTopTab);
             for (int gi = 0; gi < groupBar.size(); gi++) {
                 int[] r = groupBar.rects.get(gi);
                 String label = groupBar.labels.get(gi);
@@ -2196,31 +2464,34 @@ public class CustomConfigScreen extends Screen {
                 int exp = anim.hoverExpand(grpGlow, 2);
                 int gx = r[0] - exp, gy = r[1] - exp, gw = r[2] + exp * 2, gh = r[3] + exp * 2;
 
-                int grpBg = grpActive
-                        ? Theme.ACCENT3_BG_ACTIVE
-                        : Theme.lerp(Theme.ACCENT3_BG, Theme.ACCENT3_BG_HOVER, grpGlow);
-                int grpBorder = grpActive
-                        ? Theme.ACCENT3_BORDER_ON
-                        : Theme.lerp(Theme.ACCENT3_BORDER, Theme.ACCENT3, grpGlow);
+                int grpBg = isCustomGroupBar
+                        ? (grpActive ? Theme.CUSTOM_ACCENT_BG_ACTIVE : Theme.lerp(Theme.CUSTOM_ACCENT_BG, Theme.CUSTOM_ACCENT_BG_HOVER, grpGlow))
+                        : (grpActive ? Theme.ACCENT3_BG_ACTIVE : Theme.lerp(Theme.ACCENT3_BG, Theme.ACCENT3_BG_HOVER, grpGlow));
+                int grpBorder = isCustomGroupBar
+                        ? (grpActive ? Theme.CUSTOM_ACCENT_BORDER_ON : Theme.lerp(Theme.CUSTOM_ACCENT_BORDER, Theme.CUSTOM_ACCENT, grpGlow))
+                        : (grpActive ? Theme.ACCENT3_BORDER_ON : Theme.lerp(Theme.ACCENT3_BORDER, Theme.ACCENT3, grpGlow));
                 g.fill(gx, gy, gx + gw, gy + gh, grpBg);
                 g.renderOutline(gx, gy, gw, gh, grpBorder);
                 if (grpGlow > 0.01f) {
-                    g.fill(gx, gy, gx + gw, gy + gh, Theme.withAlpha(0x30FF8040, grpGlow));
+                    g.fill(gx, gy, gx + gw, gy + gh, Theme.withAlpha(isCustomGroupBar ? 0x30C0A0FF : 0x30FF8040, grpGlow));
                 }
-                int grpText = Theme.lerp(Theme.ACCENT3, Theme.ACCENT3_HOVER, grpGlow);
+                int grpText = isCustomGroupBar
+                        ? Theme.lerp(Theme.CUSTOM_ACCENT, Theme.CUSTOM_ACCENT_HOVER, grpGlow)
+                        : Theme.lerp(Theme.ACCENT3, Theme.ACCENT3_HOVER, grpGlow);
                 if (isAll) {
                     g.drawCenteredString(this.font, label, gx + gw / 2, gy + 4, grpText);
                 } else {
                     g.drawString(this.font, label, gx + 4, gy + 4, grpText);
                 }
                 // 3rd-level group chips: a small cycling bagua trigram mark in the
-                // corner (cinnabar/vermillion, matching this tier's existing color) -
-                // distinct from the flame/taiji motifs used by the two tab tiers above,
-                // since these chips are much smaller than a full tab.
+                // corner (cinnabar/vermillion, matching this tier's existing color,
+                // or amethyst for a custom tab) - distinct from the flame/taiji
+                // motifs used by the two tab tiers above, since these chips are
+                // much smaller than a full tab.
                 if (grpActive && !isReduceMotion()) {
-                    drawBreathingGlow(g, gx, gy, gw, gh, 0xFFFF8060);
+                    drawBreathingGlow(g, gx, gy, gw, gh, isCustomGroupBar ? Theme.CUSTOM_ACCENT : 0xFFFF8060);
                     if (gw >= 16 && gh >= 10) {
-                        drawTrigramMark(g, gx + 2, gy + 1, 0xFFFFB090);
+                        drawTrigramMark(g, gx + 2, gy + 1, isCustomGroupBar ? 0xFFE0D0FF : 0xFFFFB090);
                     }
                 }
             }
@@ -2275,17 +2546,27 @@ public class CustomConfigScreen extends Screen {
         renderNotifications(g);
 
         // ── Batch 12 popups (render on top, without darkening) ──
+        // realMouseX/realMouseY (the true mouse position, captured at the top of
+        // this method before it was pushed off-screen for the background) is used
+        // here so each popup's own hover/controls keep responding normally.
         if (colorWheel.isOpen()) {
             g.fill(0, 0, this.width, this.height, 0x80000000);
-            colorWheel.render(g, this.width, this.height, mouseX, mouseY, this.font);
+            colorWheel.render(g, this.width, this.height, realMouseX, realMouseY, this.font);
         }
         if (dropdownEnum.isOpen()) {
             g.fill(0, 0, this.width, this.height, 0x80000000);
-            dropdownEnum.render(g, this.width, this.height, mouseX, mouseY, this.font);
+            dropdownEnum.render(g, this.width, this.height, realMouseX, realMouseY, this.font);
         }
         if (multiLineEditor.isOpen()) {
             g.fill(0, 0, this.width, this.height, 0x80000000);
-            multiLineEditor.render(g, mouseX, mouseY, this.font);
+            multiLineEditor.render(g, realMouseX, realMouseY, this.font);
+        }
+        // "Config for the config" panel - rendered last, on top of everything, without
+        // darkening the screen underneath so a theme click shows its effect immediately
+        // on the tabs/entries visible around the popup's edges.
+        if (themeSettings.isOpen()) {
+            g.fill(0, 0, this.width, this.height, 0x60000000);
+            themeSettings.render(g, this.width, this.height, realMouseX, realMouseY, this.font);
         }
     }
 
@@ -2389,6 +2670,12 @@ public class CustomConfigScreen extends Screen {
                 return String.format("%,.2f", val);
             }
         } catch (NumberFormatException e) { /* fall through */ }
+        if (type.equals("enum")) {
+            // Enum constant names are SCREAMING_SNAKE_CASE by Java convention
+            // (e.g. "STANDARD_10") - not worth a full prettifier, just make the
+            // underscores readable as spaces.
+            return valStr.replace('_', ' ');
+        }
         return valStr;
     }
 
@@ -2472,11 +2759,11 @@ public class CustomConfigScreen extends Screen {
             int fw = this.font.width(filterNames[i]) + 6;
             boolean active = activeFilter == filterValues[i];
             boolean hover = mouseX >= filterX && mouseX < filterX + fw && mouseY >= filterY && mouseY < filterY + 12;
-            int bg = active ? 0xFF4060A0 : (hover ? 0xFF303050 : 0xFF202030);
+            int bg = active ? Theme.ACCENT2_BG_ACTIVE : (hover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG);
             g.fill(filterX, filterY, filterX + fw, filterY + 12, bg);
-            g.renderOutline(filterX, filterY, fw, 12, active ? 0xFF80A0FF : 0xFF404060);
+            g.renderOutline(filterX, filterY, fw, 12, active ? Theme.ACCENT2 : Theme.UTIL_BORDER);
             g.drawString(this.font, (active ? "\u00A7l" : "") + filterNames[i], filterX + 3, filterY + 2,
-                active ? 0xFFFFFF : 0xFFA0A0A0);
+                active ? Theme.TEXT_PRIMARY : Theme.TEXT_MUTED);
             filterX += fw + 2;
         }
         // Global search toggle
@@ -2484,10 +2771,10 @@ public class CustomConfigScreen extends Screen {
         String gsLabel = globalSearch ? "\u00A7aGlobal" : "\u00A77Tab";
         int gsW = this.font.width(gsLabel.replaceAll("\u00A7.", "")) + 8;
         boolean gsHover = mouseX >= gsX && mouseX < gsX + gsW && mouseY >= filterY && mouseY < filterY + 12;
-        int gsBg = globalSearch ? 0xFF205020 : (gsHover ? 0xFF303050 : 0xFF202030);
+        int gsBg = globalSearch ? Theme.UTIL_ON_BG : (gsHover ? Theme.UTIL_BG_HOVER : Theme.UTIL_BG);
         g.fill(gsX, filterY, gsX + gsW, filterY + 12, gsBg);
-        g.renderOutline(gsX, filterY, gsW, 12, globalSearch ? 0xFF40C040 : 0xFF404060);
-        g.drawString(this.font, gsLabel, gsX + 4, filterY + 2, 0xFFFFFF);
+        g.renderOutline(gsX, filterY, gsW, 12, globalSearch ? Theme.UTIL_ON_BORDER : Theme.UTIL_BORDER);
+        g.drawString(this.font, gsLabel, gsX + 4, filterY + 2, Theme.TEXT_PRIMARY);
     }
 
     /**
@@ -2981,6 +3268,8 @@ public class CustomConfigScreen extends Screen {
             String tabName = topTabNames.get(i);
             boolean isActive = tabName.equals(activeTopTab);
             boolean isHover = mouseX >= rect[0] && mouseX < rect[0] + rect[2] && mouseY >= rect[1] && mouseY < rect[1] + rect[3];
+            // Main-tab hover UI sound removed for now (set aside for ~1.0.9) - see
+            // the constructor's comment near the top of this file for the full note.
 
             // Calculate search glow for top-level tab (count matches across all sub-tabs)
             float topGlow = 0f;
@@ -3017,9 +3306,17 @@ public class CustomConfigScreen extends Screen {
             int rw = rect[2] + expand * 2;
             int rh = rect[3] + expand * 2;
 
-            // Golden color scheme
-            int bg = isActive ? Theme.ACCENT_BG_ACTIVE : Theme.lerp(Theme.ACCENT_BG, Theme.ACCENT_BG_HOVER, tabGlow);
-            int outline = isActive ? Theme.ACCENT : Theme.lerp(Theme.ACCENT_DIM, Theme.ACCENT_HOVER, tabGlow);
+            // Golden color scheme for standard tabs - a custom tab (a different
+            // mod's tab, e.g. Realm Expansion's "Expansion") gets the amethyst
+            // scheme instead, same animations, just a visually distinct identity
+            // from the base mod's own tabs.
+            boolean isCustomTabBtn = CustomTabManager.isCustomTab(tabName);
+            int bg = isCustomTabBtn
+                    ? (isActive ? Theme.CUSTOM_ACCENT_BG_ACTIVE : Theme.lerp(Theme.CUSTOM_ACCENT_BG, Theme.CUSTOM_ACCENT_BG_HOVER, tabGlow))
+                    : (isActive ? Theme.ACCENT_BG_ACTIVE : Theme.lerp(Theme.ACCENT_BG, Theme.ACCENT_BG_HOVER, tabGlow));
+            int outline = isCustomTabBtn
+                    ? (isActive ? Theme.CUSTOM_ACCENT : Theme.lerp(Theme.CUSTOM_ACCENT_DIM, Theme.CUSTOM_ACCENT_HOVER, tabGlow))
+                    : (isActive ? Theme.ACCENT : Theme.lerp(Theme.ACCENT_DIM, Theme.ACCENT_HOVER, tabGlow));
             g.fill(rx, ry, rx + rw, ry + rh, bg);
 
             // Search glow overlay for top-level tabs
@@ -3050,22 +3347,35 @@ public class CustomConfigScreen extends Screen {
             g.drawCenteredString(this.font, "\u00A7l\u00A70" + label, textX - 1, textY, 0xFF000000);
             g.drawCenteredString(this.font, "\u00A7l\u00A70" + label, textX, textY + 1, 0xFF000000);
             g.drawCenteredString(this.font, "\u00A7l\u00A70" + label, textX, textY - 1, 0xFF000000);
-            // Main golden text on top
-            int goldColor = isActive ? Theme.ACCENT_HOVER : Theme.lerp(Theme.ACCENT, Theme.ACCENT_HOVER, tabGlow);
+            // Main golden text on top (amethyst for a custom tab)
+            int goldColor = isCustomTabBtn
+                    ? (isActive ? Theme.CUSTOM_ACCENT_HOVER : Theme.lerp(Theme.CUSTOM_ACCENT, Theme.CUSTOM_ACCENT_HOVER, tabGlow))
+                    : (isActive ? Theme.ACCENT_HOVER : Theme.lerp(Theme.ACCENT, Theme.ACCENT_HOVER, tabGlow));
             g.drawCenteredString(this.font, "\u00A7l" + label, textX, textY, goldColor);
 
             // Continuous animation for active top tab: flames rising off the bottom
             // edge (like a brazier at a sect gate) with embers drifting above, plus
-            // the existing breathing glow.
+            // the existing breathing glow. Same animation calls for a custom tab,
+            // just amethyst (176,128,255) instead of gold (255,100,20)/(255,200,90).
             if (isActive && !isReduceMotion()) {
-                drawBreathingGlow(g, rx, ry, rw, rh, 0xFFFFD700);
-                drawFlameBorder(g, rx, ry, rw, rh, 255, 100, 20, 900, Math.max(3, rw / 14));
-                drawEmbers(g, rx, ry, rw, rh, 255, 200, 90, 2400, 3);
+                if (isCustomTabBtn) {
+                    drawBreathingGlow(g, rx, ry, rw, rh, Theme.CUSTOM_ACCENT);
+                    drawFlameBorder(g, rx, ry, rw, rh, 176, 128, 255, 900, Math.max(3, rw / 14));
+                    drawEmbers(g, rx, ry, rw, rh, 200, 160, 255, 2400, 3);
+                } else {
+                    drawBreathingGlow(g, rx, ry, rw, rh, 0xFFFFD700);
+                    drawFlameBorder(g, rx, ry, rw, rh, 255, 100, 20, 900, Math.max(3, rw / 14));
+                    drawEmbers(g, rx, ry, rw, rh, 255, 200, 90, 2400, 3);
+                }
             }
         }
 
         // ── Sub-tabs (indented, with hover enlargement + search glow) ──
-        List<String> subTabNames = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+        List<String> subTabNames = subTabNamesFor(activeTopTab);
+        // A custom tab's sub-tab bar uses the amethyst scheme instead of jade,
+        // same as its top-level tab button - one consistent distinct color
+        // across a custom tab's whole navigation, not just the top button.
+        boolean isCustomSubTabBar = CustomTabManager.isCustomTab(activeTopTab);
         String searchQuery = searchBox.getValue();
         boolean hasSearch = !searchQuery.isBlank();
         String lowerQuery = hasSearch ? searchQuery.toLowerCase() : "";
@@ -3075,6 +3385,8 @@ public class CustomConfigScreen extends Screen {
             String subName = subTabNames.get(i);
             boolean isActive = subName.equals(activeSubTab);
             boolean isHover = mouseX >= rect[0] && mouseX < rect[0] + rect[2] && mouseY >= rect[1] && mouseY < rect[1] + rect[3];
+            // Sub-tab hover UI sound removed for now (set aside for ~1.0.9) - see
+            // the constructor's comment near the top of this file for the full note.
 
             // Calculate search glow intensity for this sub-tab
             // glow = 0 (no match) to 1.0 (perfect match)
@@ -3111,7 +3423,9 @@ public class CustomConfigScreen extends Screen {
             int rw = rect[2] + expand * 2;
             int rh = rect[3] + expand * 2;
 
-            int bg = isActive ? Theme.ACCENT2_BG_ACTIVE : Theme.lerp(Theme.ACCENT2_BG, Theme.ACCENT2_BG_HOVER, subGlow);
+            int bg = isCustomSubTabBar
+                    ? (isActive ? Theme.CUSTOM_ACCENT_BG_ACTIVE : Theme.lerp(Theme.CUSTOM_ACCENT_BG, Theme.CUSTOM_ACCENT_BG_HOVER, subGlow))
+                    : (isActive ? Theme.ACCENT2_BG_ACTIVE : Theme.lerp(Theme.ACCENT2_BG, Theme.ACCENT2_BG_HOVER, subGlow));
             g.fill(rx, ry, rx + rw, ry + rh, bg);
 
             // Search glow overlay - brighter outline + inner glow when matches found
@@ -3127,9 +3441,11 @@ public class CustomConfigScreen extends Screen {
                 int innerGlowAlpha = (int)(glowIntensity * 60);
                 g.fill(rx, ry, rx + rw, ry + rh, (innerGlowAlpha << 24) | (glowR << 16) | (glowG << 8) | glowB);
             } else if (isActive) {
-                outlineColor = Theme.ACCENT2;
+                outlineColor = isCustomSubTabBar ? Theme.CUSTOM_ACCENT : Theme.ACCENT2;
             } else {
-                outlineColor = Theme.lerp(Theme.PANEL_BORDER, Theme.ACCENT2_HOVER, subGlow);
+                outlineColor = isCustomSubTabBar
+                        ? Theme.lerp(Theme.PANEL_BORDER, Theme.CUSTOM_ACCENT_HOVER, subGlow)
+                        : Theme.lerp(Theme.PANEL_BORDER, Theme.ACCENT2_HOVER, subGlow);
             }
             g.renderOutline(rx, ry, rw, rh, outlineColor);
             if (subGlow > 0.01f) g.fill(rx, ry, rx + rw, ry + rh, Theme.withAlpha(0x30FFFF80, subGlow));
@@ -3152,7 +3468,9 @@ public class CustomConfigScreen extends Screen {
             } else if (isActive) {
                 textColor = Theme.TEXT_PRIMARY;
             } else {
-                textColor = Theme.lerp(Theme.TEXT_PRIMARY, Theme.ACCENT2_HOVER, subGlow);
+                textColor = isCustomSubTabBar
+                        ? Theme.lerp(Theme.TEXT_PRIMARY, Theme.CUSTOM_ACCENT_HOVER, subGlow)
+                        : Theme.lerp(Theme.TEXT_PRIMARY, Theme.ACCENT2_HOVER, subGlow);
             }
             g.drawCenteredString(this.font, label, rx + rw / 2, ry + (rh - 8) / 2, textColor);
 
@@ -3173,12 +3491,16 @@ public class CustomConfigScreen extends Screen {
             // existing breathing glow - deliberately different from the top tab's
             // flames so each tier reads as its own motif rather than a recolor.
             if (isActive && !isReduceMotion()) {
-                drawBreathingGlow(g, rx, ry, rw, rh, 0xFF30A040);
+                drawBreathingGlow(g, rx, ry, rw, rh, isCustomSubTabBar ? Theme.CUSTOM_ACCENT : 0xFF30A040);
                 int medallionRadius = Math.max(3, Math.min(7, (rh - 4) / 2));
                 if (rw > medallionRadius * 2 + 20) {
                     int medCx = rx + rw - medallionRadius - 3;
                     int medCy = ry + rh - medallionRadius - 2;
-                    drawTaijiMedallion(g, medCx, medCy, medallionRadius, 0xFFEFFFEF, 0xFF0E3A1E);
+                    if (isCustomSubTabBar) {
+                        drawTaijiMedallion(g, medCx, medCy, medallionRadius, 0xFFF5EFFF, 0xFF2E1F45);
+                    } else {
+                        drawTaijiMedallion(g, medCx, medCy, medallionRadius, 0xFFEFFFEF, 0xFF0E3A1E);
+                    }
                 }
             }
         }
@@ -3191,8 +3513,15 @@ public class CustomConfigScreen extends Screen {
      */
     private void drawHighlightedText(GuiGraphics g, Font font, String text, int x, int y,
                                       int baseColor, String lowerQuery, int highlightColor) {
+        drawHighlightedText(g, font, text, x, y, baseColor, lowerQuery, highlightColor, false);
+    }
+
+    /** @param dropShadow off by default (see the overload above) - passed through explicitly
+     *  wherever a caller wants Minecraft's default text shadow instead (none currently do). */
+    private void drawHighlightedText(GuiGraphics g, Font font, String text, int x, int y,
+                                      int baseColor, String lowerQuery, int highlightColor, boolean dropShadow) {
         if (lowerQuery.isEmpty()) {
-            g.drawString(font, text, x, y, baseColor);
+            g.drawString(font, text, x, y, baseColor, dropShadow);
             return;
         }
         // Strip formatting codes for matching purposes
@@ -3216,14 +3545,14 @@ public class CustomConfigScreen extends Screen {
             if (isMatch) {
                 // Draw the entire matched portion as bold highlighted text
                 String matched = stripped.substring(stripIdx, stripIdx + lowerQuery.length());
-                g.drawString(font, "\u00A7l" + matched, drawX, y, highlightColor);
+                g.drawString(font, "\u00A7l" + matched, drawX, y, highlightColor, dropShadow);
                 // Advance by the BOLD width (bold is 1px wider per character)
                 drawX += font.width("\u00A7l" + matched);
                 stripIdx += lowerQuery.length();
                 textIdx += lowerQuery.length();
             } else {
                 // Draw single character in base color
-                g.drawString(font, String.valueOf(c), drawX, y, baseColor);
+                g.drawString(font, String.valueOf(c), drawX, y, baseColor, dropShadow);
                 drawX += font.width(String.valueOf(c));
                 textIdx++;
                 stripIdx++;
@@ -3580,7 +3909,7 @@ public class CustomConfigScreen extends Screen {
 
         // Check sub-tabs (use tracked rects)
         if (currentHoverKey == null) {
-            List<String> subTabs = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+            List<String> subTabs = subTabNamesFor(activeTopTab);
             for (int i = 0; i < subTabRects.size() && i < subTabs.size(); i++) {
                 int[] rect = subTabRects.get(i);
                 String sub = subTabs.get(i);
@@ -3811,7 +4140,7 @@ public class CustomConfigScreen extends Screen {
             titleStr = titleStr.substring(0, titleStr.length() - 1);
         }
         if (!titleStr.equals(pt.title)) titleStr += "\u2026";
-        g.drawString(this.font, "\u00A7e\u00A7l" + titleStr, pt.x + 4, pt.y + 4, 0xFFFFFF);
+        g.drawString(this.font, "\u00A7e\u00A7l" + titleStr, pt.x + 4, pt.y + 4, 0xFFFFFF, false);
 
         // Close button [X]
         int closeX = pt.x + winW - 14;
@@ -4156,6 +4485,23 @@ public class CustomConfigScreen extends Screen {
             multiLineEditor.mouseClicked(mouseX, mouseY, button);
             return true;
         }
+        // "Config for the config" panel takes priority over everything below while open
+        if (themeSettings.isOpen()) {
+            themeSettings.mouseClicked(mouseX, mouseY, button, this.width, this.height);
+            return true;
+        }
+
+        // Title-bar theme cycle + gear buttons
+        if (mouseX >= themeButtonRect[0] && mouseX < themeButtonRect[0] + themeButtonRect[2]
+                && mouseY >= themeButtonRect[1] && mouseY < themeButtonRect[1] + themeButtonRect[3]) {
+            Theme.applyTheme(Theme.current.next());
+            return true;
+        }
+        if (mouseX >= gearButtonRect[0] && mouseX < gearButtonRect[0] + gearButtonRect[2]
+                && mouseY >= gearButtonRect[1] && mouseY < gearButtonRect[1] + gearButtonRect[3]) {
+            themeSettings.open();
+            return true;
+        }
 
         // Minimap nav panel (bottom-right corner) - consume clicks that land on it so
         // they don't also register as a click on whatever entry row/button is underneath.
@@ -4287,14 +4633,16 @@ public class CustomConfigScreen extends Screen {
                     return true;
                 }
                 activeTopTab = tabName;
-                if (CustomTabManager.isCustomTab(tabName)) {
-                    // Custom tab: show all entries from its path prefixes
+                List<String> defaultSubs = subTabNamesFor(activeTopTab);
+                if (!defaultSubs.isEmpty()) {
+                    // Standard tab, or a custom tab with a real sub-tab structure
+                    // (e.g. Realm Expansion's "Realm Layering") - default to its
+                    // first sub-tab, same as every standard tab already does.
+                    activeSubTab = defaultSubs.get(0);
+                } else if (CustomTabManager.isCustomTab(tabName)) {
+                    // Hand-built flat custom tab with no sub-tab structure - show
+                    // all entries from its path prefixes, same as before.
                     activeSubTab = "All";
-                } else {
-                    List<String> subs = TAB_TO_SUBTABS.get(activeTopTab);
-                    if (!subs.isEmpty()) {
-                        activeSubTab = subs.get(0);
-                    }
                 }
                 activeGroup = "";
                 // Exit search mode but keep the text in the search box
@@ -4303,12 +4651,13 @@ public class CustomConfigScreen extends Screen {
                 scrollOffset = 0;
                 rebuildSubTabButtons();
                 refreshEntries();
+                // Tab-click UI sound removed for now (set aside for ~1.0.9).
                 return true;
             }
         }
 
         // ── Check sub-tab clicks (custom rendered) ──
-        List<String> subTabNames = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+        List<String> subTabNames = subTabNamesFor(activeTopTab);
         for (int i = 0; i < subTabRects.size() && i < subTabNames.size(); i++) {
             int[] rect = subTabRects.get(i);
             if (mouseX >= rect[0] && mouseX < rect[0] + rect[2] && mouseY >= rect[1] && mouseY < rect[1] + rect[3]) {
@@ -4318,6 +4667,7 @@ public class CustomConfigScreen extends Screen {
                 searchMode = false;
                 scrollOffset = 0;
                 refreshEntries();
+                // Tab-click UI sound removed for now (set aside for ~1.0.9).
                 return true;
             }
         }
@@ -4374,17 +4724,28 @@ public class CustomConfigScreen extends Screen {
             int y = row.y - ly.pixelOffset(scrollOffset);
             int rowH = row.height;
             String type = ConfigValueAccessor.getType(entry.configPath);
+            // Custom identity virtual rows (startingItems) have no backing
+            // ConfigValue, so ConfigValueAccessor.getType() always returns "unknown" for
+            // them - render() flips this locally to "string" so its "Pick Items" button
+            // draws, but this click handler used to fetch its own fresh (still "unknown")
+            // type and never applied the same flip, so isItemsConfig below was always
+            // false for these rows and "Pick Items" was an unclickable dead button despite
+            // rendering correctly. Mirrors render()'s flip.
+            if (type.equals("unknown") && entry.configPath.startsWith("identity.custom_") && entry.configPath.contains(".startingItems")) {
+                type = "string";
+            }
 
             // Determine entry category for click handling
             boolean isBoolean = type.equals("boolean");
-            boolean isNumeric = !type.equals("boolean") && !type.equals("unknown") && !type.equals("string");
+            boolean isEnum = type.equals("enum");
+            boolean isNumeric = !type.equals("boolean") && !type.equals("unknown") && !type.equals("string") && !isEnum;
             boolean isColor = isNumeric && (entry.configPath.contains("color") || entry.configPath.contains("Color") ||
                               (entry.configPath.startsWith("client.colors.") && type.equals("int")));
             boolean isItemsConfig = type.equals("string") &&
                     (entry.configPath.contains("startingItems") || entry.configPath.contains(".items") ||
                      entry.configPath.startsWith("identity.custom_") ||
                      entry.configPath.startsWith("identity.custom."));
-            boolean isSelectable = isNumeric && !isColor; // Only plain numeric entries are selectable
+            boolean isSelectable = (isNumeric && !isColor) || isEnum; // Plain numeric AND enum entries are selectable
 
             // ── Handle control clicks FIRST (before row selection) ──
 
@@ -4454,6 +4815,38 @@ public class CustomConfigScreen extends Screen {
                     return true;
                 }
                 // Items config rows are NOT selectable - don't select the row
+            } else if (isEnum) {
+                // Enum entries (e.g. Realm Expansion's LayerPreset): a fixed
+                // picklist, not a free-form number, so - / + step through the
+                // declared constants in order (same button positions as a
+                // numeric entry) and clicking the value opens the full
+                // dropdown, same as clicking a color swatch opens the color
+                // wheel. Row click still selects it for Ctrl+scroll cycling,
+                // matching every other steppable entry type.
+                int minusX = entryWidth - 180;
+                int plusX = entryWidth - 30;
+                int btnY = y + 3;
+                int btnH = 16;
+                if (mouseX >= minusX && mouseX < minusX + 20 && mouseY >= btnY && mouseY < btnY + btnH) {
+                    ConfigValueAccessor.decrement(entry.configPath, 1);
+                    flashValueChange(entry.configPath);
+                    return true;
+                }
+                if (mouseX >= plusX && mouseX < plusX + 20 && mouseY >= btnY && mouseY < btnY + btnH) {
+                    ConfigValueAccessor.increment(entry.configPath, 1);
+                    flashValueChange(entry.configPath);
+                    return true;
+                }
+                int valX = entryWidth - 160;
+                if (mouseX >= valX && mouseX < valX + 120 && mouseY >= btnY && mouseY < btnY + btnH) {
+                    dropdownEnum.open(entry.configPath, ConfigValueAccessor.getEnumOptions(entry.configPath),
+                            ConfigValueAccessor.getValueString(entry.configPath));
+                    return true;
+                }
+                if (mouseX >= entryX && mouseX < entryWidth && mouseY >= y && mouseY < y + rowH) {
+                    selectedEntryIdx = (selectedEntryIdx == i) ? -1 : i;
+                    return true;
+                }
             } else if (isNumeric) {
                 // Regular numeric: - and + buttons, checked BEFORE row selection
                 int minusX = entryWidth - 180;
@@ -4536,6 +4929,9 @@ public class CustomConfigScreen extends Screen {
         if (colorWheel.isOpen()) {
             return colorWheel.mouseDragged(mouseX, mouseY, button);
         }
+        if (themeSettings.isOpen()) {
+            return themeSettings.mouseDragged(mouseX, mouseY, button);
+        }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -4548,11 +4944,20 @@ public class CustomConfigScreen extends Screen {
         if (colorWheel.isOpen()) {
             colorWheel.mouseReleased(mouseX, mouseY, button);
         }
+        if (themeSettings.isOpen()) {
+            themeSettings.mouseReleased(mouseX, mouseY, button);
+        }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        // Config-for-the-config popup scroll takes top priority - it renders
+        // above everything else (pose.translate z=2000), so its own scrollable
+        // content must intercept the wheel before any layer beneath it does.
+        if (themeSettings.isOpen()) {
+            return themeSettings.mouseScrolled(mouseX, mouseY, delta);
+        }
         // Batch 12 popup scroll
         if (dropdownEnum.isOpen()) {
             return dropdownEnum.mouseScrolled(mouseX, mouseY, delta);
@@ -4691,6 +5096,10 @@ public class CustomConfigScreen extends Screen {
             if (keyCode == 256) dropdownEnum.close();
             return true;
         }
+        if (themeSettings.isOpen()) {
+            if (keyCode == 256) themeSettings.close();
+            return true;
+        }
         if (multiLineEditor.isOpen()) {
             return multiLineEditor.keyPressed(keyCode, scanCode, modifiers);
         }
@@ -4738,7 +5147,7 @@ public class CustomConfigScreen extends Screen {
                 topTabs.removeIf(name -> !TAB_TO_SUBTABS.containsKey(name) && !CustomTabManager.isCustomTab(name));
                 if (tabIdx < topTabs.size()) {
                     activeTopTab = topTabs.get(tabIdx);
-                    List<String> subs = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+                    List<String> subs = subTabNamesFor(activeTopTab);
                     if (!subs.isEmpty()) activeSubTab = subs.get(0);
                     else if (CustomTabManager.isCustomTab(activeTopTab)) activeSubTab = "All";
                     activeGroup = "";
@@ -4751,7 +5160,7 @@ public class CustomConfigScreen extends Screen {
             }
             // Arrow up/down to cycle sub-tabs
             if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_UP || keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN) {
-                List<String> subTabs = TAB_TO_SUBTABS.getOrDefault(activeTopTab, List.of());
+                List<String> subTabs = subTabNamesFor(activeTopTab);
                 if (!subTabs.isEmpty()) {
                     int curIdx = subTabs.indexOf(activeSubTab);
                     int newIdx = keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN

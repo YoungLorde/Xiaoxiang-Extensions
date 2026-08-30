@@ -1,9 +1,12 @@
 package com.xiaoxiang.configext.mixin;
 
+import com.xiaoxiang.configext.client.CustomIdentityManager;
 import com.xiaoxiang.configext.config.ExtendedConfig;
 import com.xiaoxiang.cultivation.client.screen.CultivationScreen;
 import com.xiaoxiang.cultivation.cultivation.CultivationCapability;
 import com.xiaoxiang.cultivation.cultivation.CultivationData;
+import com.xiaoxiang.cultivation.cultivation.Identity;
+import com.xiaoxiang.cultivation.cultivation.sect.SectRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,7 +16,9 @@ import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +74,26 @@ import java.util.List;
  * this mixin suppresses itself whenever a popup is open to avoid painting on top of one.
  *
  * Guarded by ExtendedConfig.CLIENT_ENABLE_CULTIVATION_PANEL_TOOLTIPS.
+ *
+ * ── Custom identity name/description fix (configExt$formatCustomIdentityValue /
+ * configExt$redirectIdentityDescriptionKey below) ──
+ *
+ * Separately from the tooltip gap-filling above: once an identity IS chosen, this
+ * screen's Identity row (both its plain field text AND the first line of its own
+ * tooltip) is built by the original mod's own private formatIdentityValue(CultivationData)
+ * method, and the tooltip's second line (the description) is built inline in render()
+ * (SRG m_88315_) via Identity.byId(data.getIdentityId()).descriptionKey(). Both go
+ * through Identity.byId(String) - bytecode-confirmed (javap on Identity.class) to NEVER
+ * return null, falling back to LONE_CULTIVATOR for any unrecognized id string, including
+ * every "custom_..." id a duplicated identity ever gets. Verified end-to-end against the
+ * actual installed jar's lang file (assets/xiaoxiang_cultivation/lang/en_us.json):
+ * "identity.xiaoxiang_cultivation.lone_cultivator" = "Fallen Rogue Cultivator", with a
+ * description reading "Already touched cultivation, but lacks resources..." - i.e. this
+ * screen was showing that exact fixed name+description for EVERY custom identity, no
+ * matter which one was actually chosen or what the player named/described it as. This is
+ * the root cause of the reported "it's giving me the identity of the original duplicate
+ * I made" - it isn't actually re-showing a specific old duplicate, it's always showing
+ * Lone Cultivator's real flavor text, unconditionally, for any custom id.
  */
 @Mixin(CultivationScreen.class)
 public abstract class CultivationScreenTooltipMixin {
@@ -185,6 +210,80 @@ public abstract class CultivationScreenTooltipMixin {
             gfx.renderComponentTooltip(font, lines, mouseX, mouseY);
         } catch (Throwable ignored) {
             // Tooltips are purely cosmetic - never break the screen over them.
+        }
+    }
+
+    /**
+     * Overrides formatIdentityValue's result (the Identity row's field text, and the
+     * first line of its tooltip - both draw through this one method, verified via
+     * javap: render() calls formatIdentityValue(data) at the exact bytecode offset that
+     * builds the tooltip's name line) for a custom identity, substituting the custom
+     * identity's own display name in place of whatever Identity.byId's LONE_CULTIVATOR
+     * fallback would otherwise show. Every guard here mirrors a branch the ORIGINAL
+     * method itself checks first (soul reaper display, sect role display, no identity
+     * chosen yet) so this never fires when one of those should legitimately take
+     * priority - it only replaces the final "show the origin identity's real name"
+     * fallthrough case.
+     */
+    @Inject(method = "formatIdentityValue", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private void configExt$formatCustomIdentityValue(CultivationData data, CallbackInfoReturnable<Component> cir) {
+        try {
+            if (data == null) return;
+            if (!data.hasChosenIdentity()) return; // original shows "?" - untouched
+            if (data.isSoulReaperIdentity()) return; // soul reaper display takes priority - untouched
+            if (data.hasSectDisplay()) {
+                SectRole role = SectRole.byId(data.getSectRoleId());
+                if (role != null && role != SectRole.NONE) return; // sect role display takes priority - untouched
+            }
+            String identityId = data.getIdentityId();
+            if (identityId == null || !identityId.startsWith("custom_")) return; // real base identity - untouched
+
+            CustomIdentityManager.CustomIdentity custom = CustomIdentityManager.getById(identityId);
+            if (custom == null) return; // stale/unknown custom id - let the original's LONE_CULTIVATOR fallback show
+
+            String name = custom.displayName != null && !custom.displayName.isEmpty() ? custom.displayName : custom.id;
+            cir.setReturnValue(Component.literal(name));
+        } catch (Exception e) {
+            // fall through to the original
+        }
+    }
+
+    /**
+     * Redirects Identity.descriptionKey() - called EXACTLY ONCE in the whole compiled
+     * class (bytecode-verified via javap: a single invokevirtual call site, inside
+     * render()/m_88315_, immediately feeding the tooltip's description line), so this
+     * redirect is unambiguous with no ordinal needed and no risk of hitting an unrelated
+     * call site elsewhere in this large method.
+     *
+     * For a custom identity, this returns the player's own free-typed description text
+     * directly in place of a real translation key. That works because
+     * Component.translatable(...) (the very next call the original method makes with
+     * this return value) falls back to rendering an unmapped key verbatim when no lang
+     * entry matches it - standard, documented Minecraft i18n behavior - and an arbitrary
+     * player-typed sentence is never going to collide with a real translation key.
+     */
+    @Redirect(method = "render",
+            at = @At(value = "INVOKE",
+                    target = "Lcom/xiaoxiang/cultivation/cultivation/Identity;descriptionKey()Ljava/lang/String;"),
+            require = 0)
+    private String configExt$redirectIdentityDescriptionKey(Identity identity) {
+        try {
+            Minecraft mc = Minecraft.getInstance();
+            LocalPlayer player = mc.player;
+            if (player == null) return identity.descriptionKey();
+            CultivationData data = configExt$data(player);
+            if (data == null) return identity.descriptionKey();
+
+            String identityId = data.getIdentityId();
+            if (identityId == null || !identityId.startsWith("custom_")) return identity.descriptionKey();
+
+            CustomIdentityManager.CustomIdentity custom = CustomIdentityManager.getById(identityId);
+            if (custom == null || custom.description == null || custom.description.isEmpty()) {
+                return identity.descriptionKey();
+            }
+            return custom.description;
+        } catch (Exception e) {
+            return identity.descriptionKey();
         }
     }
 

@@ -15,11 +15,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.network.PacketDistributor;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.logging.LogUtils;
@@ -43,16 +45,15 @@ public abstract class IdentityDrawScreenMixin {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    // Disabled for this release: custom identities aren't wired into the in-game
-    // origin roster yet (planned future update, along with re-enabling the Duplicate
-    // button in ItemPickerPopup and IdentityDrawSamplerMixin's deck injection). Both
+    // 1.0.3 test build: enabling this (together with IdentityDrawSamplerMixin's copy
+    // of this flag and the Duplicate button in ItemPickerPopup) to verify the virtual-
+    // slot roster injection end to end before it ships in the named 1.0.4 release.
     // configExt$shiftSelectionWithCustom and configExt$currentCustomIdentity below
-    // check this flag and bail out immediately when it's false, which in turn keeps
-    // every other hook in this file (selectedIdentity, the render overlay, both
-    // confirm-button hooks) inert too, since they all gate on
-    // configExt$currentCustomIdentity() returning non-null. Left as a flag rather
-    // than deleted so this work doesn't need to be redone from scratch later.
-    private static final boolean CUSTOM_IDENTITIES_IN_ROSTER_ENABLED = false;
+    // check this flag; every other hook in this file (selectedIdentity, the render
+    // overlay, both confirm-button hooks) is inert unless
+    // configExt$currentCustomIdentity() returns non-null. If testing turns up a
+    // blocking issue, flip this back to false rather than deleting the work.
+    private static final boolean CUSTOM_IDENTITIES_IN_ROSTER_ENABLED = true;
 
     @Inject(method = "init", at = @At("TAIL"))
     private void configExt$addGoldenFingerButton(CallbackInfo ci) {
@@ -217,108 +218,81 @@ public abstract class IdentityDrawScreenMixin {
     }
 
     /**
-     * Inject into the main render method to draw custom identity name, lifespan, and
-     * description overlays. The original mod uses descriptionKey()/id()/lifespanRange()
-     * from the carrier BASE identity, so without this a custom identity's card would
-     * show the base identity's own name/lifespan/description instead of the custom
-     * identity's actual (possibly user-edited) values. We inject at TAIL of render to
-     * paint corrected values directly over the card.
+     * Redirects the two Component.translatable(...) calls inside renderIdentityCard that
+     * build the name and description shown on the real Identity card, substituting the
+     * custom identity's own (free-typed) text when the browsed slot is a virtual custom
+     * identity, instead of the carrier base identity's translated name/description.
+     *
+     * This replaces the old TAIL-of-render overlay approach (previously
+     * configExt$renderCustomDescription), which drew a SECOND, separately-positioned box
+     * of text approximated from a reflective field-scan for a "Layout"-named instance
+     * field. That scan could never succeed: renderIdentityCard(GuiGraphics, Layout, int,
+     * int) receives its real, per-frame Layout as a PARAMETER, not a stored field
+     * (confirmed via javap disassembly - IdentityDrawScreen$Layout is only ever
+     * constructed fresh inside the private layout() method and passed down, never
+     * assigned to a field). The overlay therefore always fell back to a guessed
+     * on-screen position, producing the reported "horrendous" result: the user's custom
+     * text floating in the wrong place while the real card, underneath, simultaneously
+     * still showed the carrier identity's own name and description.
+     *
+     * Redirecting the exact calls that produce that text is a strict improvement: the
+     * custom identity's name/description now render through the SAME drawSmallCentered /
+     * drawWrappedScaled calls, at the SAME verified pixel offsets, in the SAME style, as
+     * every real identity already uses - so there is nothing left to align, and nothing
+     * left to duplicate.
+     *
+     * ordinal is scoped to calls of this exact target method within renderIdentityCard
+     * only (verified via javap - the method makes 4 Component.translatable(...) calls
+     * total: the "IDENTITY" section label at ordinal 0, the name at ordinal 1, the
+     * description at ordinal 2, and the starter-items label at ordinal 3). Only 1 and 2
+     * are touched here; the section label and starter-items label are left alone for
+     * every selection, custom or not.
+     *
+     * remap = false with the SRG name (m_237115_) matches this project's established
+     * convention for @Redirect/@ModifyArg targets that are genuine vanilla methods
+     * (see BloodBerserkEffectMixin) - this call site is Component.translatable itself,
+     * not anything owned by the cultivation mod.
      */
-    @Inject(method = "render", at = @At("TAIL"))
-    private void configExt$renderCustomDescription(GuiGraphics g, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    @Redirect(method = "renderIdentityCard",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/network/chat/Component;m_237115_(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;",
+                    ordinal = 1),
+            remap = false, require = 0)
+    private MutableComponent configExt$redirectIdentityCardName(String key) {
+        if (!CUSTOM_IDENTITIES_IN_ROSTER_ENABLED) return Component.translatable(key);
         try {
             IdentityDrawScreen self = (IdentityDrawScreen) (Object) this;
+            com.xiaoxiang.configext.client.CustomIdentityManager.CustomIdentity custom = configExt$currentCustomIdentity(self);
+            if (custom == null) return Component.translatable(key);
 
-            com.xiaoxiang.configext.client.CustomIdentityManager.CustomIdentity customIdentity =
-                    configExt$currentCustomIdentity(self);
-            if (customIdentity == null) return;
-
-            // Find the identity card position by looking for the Layout field in the screen
-            // The screen stores a Layout object that has the card positions
-            Screen screen = (Screen) (Object) self;
-            int screenW = screen.width;
-            int screenH = screen.height;
-
-            // The identity card is typically in the left-center area of the screen
-            // Approximate position based on standard IdentityDrawScreen layout
-            int cardW = Math.min(220, screenW / 3);
-            int cardH = Math.min(300, screenH - 80);
-            int cardX = (screenW / 2 - cardW) / 2 - 20; // Left of center
-            int cardY = (screenH - cardH) / 2;
-
-            // Try to find the actual layout via reflection for more accurate positioning
-            for (java.lang.reflect.Field f : self.getClass().getDeclaredFields()) {
-                if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) continue;
-                f.setAccessible(true);
-                Object layoutObj = f.get(self);
-                if (layoutObj == null || layoutObj.getClass().getName().contains("Layout")) {
-                    if (layoutObj != null) {
-                        // Found the Layout object - extract card position from it
-                        for (java.lang.reflect.Field lf : layoutObj.getClass().getDeclaredFields()) {
-                            lf.setAccessible(true);
-                            String lname = lf.getName().toLowerCase();
-                            if (lname.contains("identity") && lname.contains("x")) {
-                                try { cardX = lf.getInt(layoutObj); } catch (Exception e) { }
-                            } else if (lname.contains("identity") && lname.contains("y")) {
-                                try { cardY = lf.getInt(layoutObj); } catch (Exception e) { }
-                            } else if (lname.contains("identity") && lname.contains("w")) {
-                                try { cardW = lf.getInt(layoutObj); } catch (Exception e) { }
-                            } else if (lname.contains("identity") && lname.contains("h")) {
-                                try { cardH = lf.getInt(layoutObj); } catch (Exception e) { }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-
-            net.minecraft.client.gui.Font font = Minecraft.getInstance().font;
-
-            // Overlay the custom identity's own name + lifespan near the top of the
-            // card, replacing what would otherwise be the carrier base identity's name
-            // and lifespan range (selectedIdentity() returns the base identity so the
-            // rest of the original UI keeps working - see configExt$selectedIdentityWithCustom).
-            int nameY = cardY + 6;
-            int nameX = cardX + 8;
-            int nameW = cardW - 16;
-            String nameLine = "\u00A7e\u00A7l" + customIdentity.displayName + " \u00A77(Custom)";
-            String lifespanLine = "\u00A77Lifespan: " + Math.min(customIdentity.minLifespan, customIdentity.maxLifespan)
-                    + "\u2013" + Math.max(customIdentity.minLifespan, customIdentity.maxLifespan);
-            g.fill(nameX - 2, nameY - 2, nameX + nameW + 2, nameY + 2 * font.lineHeight + 4, 0x80000000);
-            g.drawString(font, nameLine, nameX, nameY, 0xFFFFFF);
-            g.drawString(font, lifespanLine, nameX, nameY + font.lineHeight + 2, 0xFFFFFF);
-
-            // Draw the custom description at the bottom of the identity card, if any.
-            if (customIdentity.description != null && !customIdentity.description.isEmpty()) {
-                int descY = cardY + cardH - 40;
-                int descX = cardX + 8;
-                int descW = cardW - 16;
-
-                // Draw a semi-transparent background for the description
-                g.fill(descX - 2, descY - 2, descX + descW + 2, descY + 30, 0x80000000);
-
-                // Word-wrap and draw the description
-                String[] words = customIdentity.description.split(" ");
-                StringBuilder line = new StringBuilder();
-                int lineY = descY;
-                int lineH = font.lineHeight;
-                for (String word : words) {
-                    String testLine = line.isEmpty() ? word : line + " " + word;
-                    if (font.width(testLine) > descW) {
-                        g.drawString(font, "\u00A7a" + line.toString(), descX, lineY, 0xFFFFFF);
-                        lineY += lineH;
-                        if (lineY >= descY + 28) break;
-                        line = new StringBuilder(word);
-                    } else {
-                        line = new StringBuilder(testLine);
-                    }
-                }
-                if (!line.isEmpty() && lineY < descY + 28) {
-                    g.drawString(font, "\u00A7a" + line.toString(), descX, lineY, 0xFFFFFF);
-                }
-            }
+            // Just the name - lifespan isn't shown here (or anywhere in the origin-choosing
+            // flow at all; it plays no part in the actual choice, same as real identities
+            // never show it on this card either).
+            String name = custom.displayName != null && !custom.displayName.isEmpty()
+                    ? custom.displayName : custom.id;
+            return Component.literal(name);
         } catch (Exception e) {
-            // Silently ignore - overlay rendering is non-critical
+            return Component.translatable(key);
+        }
+    }
+
+    @Redirect(method = "renderIdentityCard",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/network/chat/Component;m_237115_(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;",
+                    ordinal = 2),
+            remap = false, require = 0)
+    private MutableComponent configExt$redirectIdentityCardDescription(String key) {
+        if (!CUSTOM_IDENTITIES_IN_ROSTER_ENABLED) return Component.translatable(key);
+        try {
+            IdentityDrawScreen self = (IdentityDrawScreen) (Object) this;
+            com.xiaoxiang.configext.client.CustomIdentityManager.CustomIdentity custom = configExt$currentCustomIdentity(self);
+            if (custom == null) return Component.translatable(key);
+            if (custom.description == null || custom.description.isEmpty()) {
+                return Component.literal(""); // no user-written description - blank, not the carrier's
+            }
+            return Component.literal(custom.description);
+        } catch (Exception e) {
+            return Component.translatable(key);
         }
     }
 

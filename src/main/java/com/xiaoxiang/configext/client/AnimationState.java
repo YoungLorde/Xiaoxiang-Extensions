@@ -1,5 +1,7 @@
 package com.xiaoxiang.configext.client;
 
+import com.xiaoxiang.configext.config.ExtendedConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,6 +89,92 @@ public final class AnimationState {
         hoverProgress.clear();
     }
 
+    /**
+     * User-configurable tab-click animation, set from the config screen's own
+     * "config for the config" gear panel (ThemeSettingsPopup) and persisted to
+     * ExtendedConfig.CLIENT_UI_TAB_ANIMATION_STYLE / _SPEED_PERCENT. "slide" is
+     * the original fade+slide behavior below, "fade" keeps the fade but never
+     * slides horizontally, and "none" skips the entrance animation entirely
+     * (rows/chrome appear at full progress immediately) - independent of, and
+     * layered on top of, the existing reduceMotion accessibility toggle.
+     */
+    private String tabAnimationStyle() {
+        try {
+            String s = ExtendedConfig.CLIENT_UI_TAB_ANIMATION_STYLE.get();
+            return s == null ? "slide" : s;
+        } catch (Exception e) {
+            return "slide"; // config not loaded yet (e.g. very first frame) - default behavior
+        }
+    }
+
+    /** The user's speed setting, clamped to the range ExtendedConfig itself enforces (10-400). */
+    private int speedPercent() {
+        int percent = 100;
+        try {
+            percent = ExtendedConfig.CLIENT_UI_TAB_ANIMATION_SPEED_PERCENT.get();
+        } catch (Exception e) { /* default to 100% */ }
+        if (percent < 10) percent = 10;
+        if (percent > 400) percent = 400;
+        return percent;
+    }
+
+    /**
+     * Per-theme-family pacing on top of the user's own speed slider - e.g.
+     * SERENE (Immortal Jade Court) plays noticeably slower than PULSE_FAST
+     * (Celestial Neon) even at the same 100% speed setting, matching each
+     * family's intended "feel" (see Theme.AnimFamily's doc comment). The
+     * user's speed setting is still the outer multiplier applied afterward
+     * in effectiveTransitionMs()/effectiveRowStaggerMs() - this only sets
+     * each family's own baseline before that.
+     */
+    private float familyDurationMultiplier() {
+        switch (currentFamily()) {
+            case FLOWING: return 1.15f;
+            case PULSE_FAST: return 0.65f;
+            case STEADY: return 1.5f;
+            case ERRATIC: return 0.85f;
+            case SERENE: return 2.0f;
+            case DRIFT: return 1.3f;
+            case FORMATION:
+            case STANDARD:
+            default: return 1.0f;
+        }
+    }
+
+    private float familyStaggerMultiplier() {
+        switch (currentFamily()) {
+            case STEADY: return 1.2f;
+            case PULSE_FAST: return 0.8f;
+            case FORMATION: return 1.8f; // strong per-row cascade - formation array assembling piece by piece
+            case DRIFT: return 0.6f; // rows fade in closer together, not staggered far apart
+            case FLOWING:
+            case ERRATIC:
+            case SERENE:
+            case STANDARD:
+            default: return 1.0f;
+        }
+    }
+
+    /** Effective transition duration after applying the user's speed setting (100% = TRANSITION_MS) and the active theme's own pacing family. */
+    private long effectiveTransitionMs() {
+        long ms = (long) (TRANSITION_MS * familyDurationMultiplier()) * speedPercent() / 100L;
+        return ms < 1L ? 1L : ms;
+    }
+
+    /**
+     * Effective per-row stagger after applying the user's speed setting and the
+     * active theme's own pacing family. Fixed at ROW_STAGGER_MS regardless of
+     * speed used to be the actual bug behind "the speed slider doesn't seem to
+     * do anything": for a full page of rows the stagger (up to 24 rows *
+     * ROW_STAGGER_MS) dominates the total time far more than the single-row
+     * fade duration does, so scaling only the fade and not the stagger left the
+     * speed setting's effect barely perceptible. Both now scale together.
+     */
+    private long effectiveRowStaggerMs() {
+        long ms = (long) (ROW_STAGGER_MS * familyStaggerMultiplier()) * speedPercent() / 100L;
+        return ms < 0L ? 0L : ms;
+    }
+
     /** Begin (or restart) the entry-list entrance animation. */
     public void startTransition() {
         transitionStartMs = System.currentTimeMillis();
@@ -95,7 +183,8 @@ public final class AnimationState {
     /** True while the entrance animation is still playing. */
     public boolean isTransitioning() {
         if (reduceMotion || transitionStartMs == 0L) return false;
-        return System.currentTimeMillis() - transitionStartMs < TRANSITION_MS + ROW_STAGGER_MS * 24L;
+        if ("none".equals(tabAnimationStyle())) return false;
+        return System.currentTimeMillis() - transitionStartMs < effectiveTransitionMs() + effectiveRowStaggerMs() * 24L;
     }
 
     /**
@@ -105,29 +194,84 @@ public final class AnimationState {
      */
     public float rowProgress(int visibleIndex) {
         if (reduceMotion || transitionStartMs == 0L) return 1.0f;
+        if ("none".equals(tabAnimationStyle())) return 1.0f;
         int idx = visibleIndex;
         if (idx < 0) idx = 0;
         if (idx > 24) idx = 24; // cap the stagger so long lists still finish promptly
-        long elapsed = System.currentTimeMillis() - transitionStartMs - idx * ROW_STAGGER_MS;
+        long duration = effectiveTransitionMs();
+        long elapsed = System.currentTimeMillis() - transitionStartMs - idx * effectiveRowStaggerMs();
         if (elapsed <= 0L) return 0.0f;
-        if (elapsed >= TRANSITION_MS) return 1.0f;
-        return easeOutCubic(elapsed / (float) TRANSITION_MS);
+        if (elapsed >= duration) return 1.0f;
+        return familyEase(elapsed / (float) duration);
     }
 
     /** Overall (non-staggered) entrance progress, for chrome that fades as a whole. */
     public float transitionProgress() {
         if (reduceMotion || transitionStartMs == 0L) return 1.0f;
+        if ("none".equals(tabAnimationStyle())) return 1.0f;
+        long duration = effectiveTransitionMs();
         long elapsed = System.currentTimeMillis() - transitionStartMs;
         if (elapsed <= 0L) return 0.0f;
-        if (elapsed >= TRANSITION_MS) return 1.0f;
-        return easeOutCubic(elapsed / (float) TRANSITION_MS);
+        if (elapsed >= duration) return 1.0f;
+        return familyEase(elapsed / (float) duration);
     }
 
     /** Horizontal offset (px) for a row at the given entrance progress. */
     public int slideOffset(float progress) {
         if (progress >= 1.0f) return 0;
+        if (!"slide".equals(tabAnimationStyle())) return 0; // "fade" and "none" never slide
+        // DRIFT is "pure fade, no slide" by design (see Theme.AnimFamily's doc) even
+        // when the user's own style setting is "slide" - it overrides the slide axis
+        // specifically, the same way "none" overrides the whole animation above.
+        if (currentFamily() == Theme.AnimFamily.DRIFT) return 0;
         int px = (int) ((1.0f - progress) * ROW_SLIDE_PX);
         return px;
+    }
+
+    /**
+     * Which animation "feel" is currently active - read from the active theme
+     * (see Theme.AnimFamily's doc comment). Wrapped in its own try/catch, same
+     * defensive pattern as tabAnimationStyle()/speedPercent() above, since
+     * Theme.current can theoretically be read before the theme system finishes
+     * loading (e.g. the very first frame of the very first screen open).
+     */
+    private Theme.AnimFamily currentFamily() {
+        try {
+            Theme.AnimFamily f = Theme.current.animFamily;
+            return f == null ? Theme.AnimFamily.STANDARD : f;
+        } catch (Exception e) {
+            return Theme.AnimFamily.STANDARD;
+        }
+    }
+
+    /**
+     * Per-theme-family easing curve, dispatched from rowProgress()/
+     * transitionProgress() instead of always calling easeOutCubic() directly.
+     * This is the direct answer to "different themes gonna have different
+     * animations... spacey feel, futuristic, old school, medieval..." - each
+     * family gets a genuinely different motion curve, not just a recolored
+     * version of the same cubic ease everything used to share. Clamped to a
+     * bounded range (not strictly [0,1] - ERRATIC's slight overshoot is the
+     * point) so a family's curve can never hand back a wildly out-of-range
+     * value; downstream consumers (Theme.textAlpha, Theme.lerp) already clamp
+     * their own inputs too, so this is defense in depth, not the only guard.
+     */
+    private float familyEase(float t) {
+        float eased;
+        switch (currentFamily()) {
+            case FLOWING: eased = easeOutQuad(t); break;
+            case STEADY: eased = easeOutQuad(t) * 0.94f + t * 0.06f; break; // slightly less snap than FLOWING
+            case ERRATIC: eased = easeOutBack(t); break;
+            case SERENE: eased = easeInOutSine(t); break;
+            case DRIFT: eased = easeOutSine(t); break;
+            case PULSE_FAST:
+            case FORMATION:
+            case STANDARD:
+            default: eased = easeOutCubic(t); break;
+        }
+        if (eased < -0.2f) eased = -0.2f;
+        if (eased > 1.2f) eased = 1.2f;
+        return eased;
     }
 
     /** Number of pixels a widget grows by on each side at the given hover progress. */
@@ -141,6 +285,45 @@ public final class AnimationState {
         if (t >= 1.0f) return 1.0f;
         float inv = 1.0f - t;
         return 1.0f - inv * inv * inv;
+    }
+
+    /** Gentler ease-out than the cubic above - used by the FLOWING theme family (ink settling onto paper). */
+    public static float easeOutQuad(float t) {
+        if (t <= 0.0f) return 0.0f;
+        if (t >= 1.0f) return 1.0f;
+        float inv = 1.0f - t;
+        return 1.0f - inv * inv;
+    }
+
+    /** Smooth sine ease-out - used by the DRIFT theme family (fading into being, no snap at all). */
+    public static float easeOutSine(float t) {
+        if (t <= 0.0f) return 0.0f;
+        if (t >= 1.0f) return 1.0f;
+        return (float) Math.sin(t * (Math.PI / 2.0));
+    }
+
+    /** Symmetric sine ease-in-out - used by the SERENE theme family (very gentle both ends, minimal motion). */
+    public static float easeInOutSine(float t) {
+        if (t <= 0.0f) return 0.0f;
+        if (t >= 1.0f) return 1.0f;
+        return (float) (-(Math.cos(Math.PI * t) - 1.0) / 2.0);
+    }
+
+    /**
+     * Ease-out-back: overshoots past 1.0 before settling, the standard
+     * "back" easing formula (constant below is the conventional c1 = 1.70158
+     * used by every ease-out-back reference implementation - not tuned by
+     * hand). Used by the ERRATIC theme family (Demonic Blood) for a slight
+     * unstable snap. familyEase() clamps its result to [-0.2, 1.2] so the
+     * overshoot this produces stays bounded.
+     */
+    public static float easeOutBack(float t) {
+        if (t <= 0.0f) return 0.0f;
+        if (t >= 1.0f) return 1.0f;
+        float c1 = 1.70158f;
+        float c3 = c1 + 1.0f;
+        float x = t - 1.0f;
+        return 1.0f + c3 * x * x * x + c1 * x * x;
     }
 
     /** Smooth 0..1 ping-pong, handy for breathing/pulsing accents. */

@@ -78,16 +78,78 @@ public class ExpansionDiscovery {
                     if (spec instanceof ForgeConfigSpec) {
                         ExpansionConfigRegistry.register(modId, modInfo.getDisplayName(), (ForgeConfigSpec) spec);
                         count++;
+                        continue;
                     }
                 }
             } catch (Exception e) {
                 // Not an expansion mod, skip
+            }
+
+            // Tier 3: zero-effort auto-adoption for "Xiao"-branded mods. Neither of the
+            // two opt-in mechanisms above require any relationship to this mod's name -
+            // they work for any mod at all, as long as it explicitly implements the
+            // interface or exposes that one specially-named method. This tier is the
+            // opposite: it requires NO code changes whatsoever in the other mod, but
+            // only fires for mods whose ID or display name contains "xiao" - the
+            // signature the user established for "this is one of ours." Most Forge
+            // mods keep their ForgeConfigSpec in a plain static field somewhere on
+            // their main @Mod class (commonly named SPEC, COMMON_SPEC, etc., but the
+            // exact name varies project to project) - so instead of requiring a
+            // specific method name, this just looks for ANY static field of type
+            // ForgeConfigSpec on that class and uses whichever one it finds first.
+            if (isXiaoxiangBranded(modId, modInfo.getDisplayName())) {
+                try {
+                    ForgeConfigSpec spec = findStaticForgeConfigSpecField(modInstance.getClass());
+                    if (spec != null) {
+                        ExpansionConfigRegistry.register(modId, modInfo.getDisplayName(), spec);
+                        count++;
+                        LOGGER.info("[XiaoxiangConfigExt] Auto-adopted Xiao-branded mod '{}' via its own "
+                                + "static ForgeConfigSpec field - no integration code needed on its side.", modId);
+                    }
+                } catch (Exception e) {
+                    LOGGER.debug("[XiaoxiangConfigExt] Mod '{}' looks Xiao-branded but no usable "
+                            + "ForgeConfigSpec field was found on its main class: {}", modId, e.getMessage());
+                }
             }
         }
 
         if (count > 0) {
             LOGGER.info("[XiaoxiangConfigExt] Auto-discovered and registered {} expansion mod(s).", count);
         }
+    }
+
+    /**
+     * Whether a mod counts as "Xiao"-branded for the purposes of Tier 3 auto-adoption -
+     * its mod ID or display name contains "xiao" (case-insensitive), matching either
+     * the "xiaoxiang_" mod ID convention or a display name like "Xiaoxiang Realm
+     * Expansion" even if some future mod's ID doesn't happen to start with it.
+     */
+    private static boolean isXiaoxiangBranded(String modId, String displayName) {
+        if (modId != null && modId.toLowerCase(java.util.Locale.ROOT).contains("xiao")) return true;
+        return displayName != null && displayName.toLowerCase(java.util.Locale.ROOT).contains("xiao");
+    }
+
+    /**
+     * Look for a static field of type ForgeConfigSpec on the given class (not its
+     * superclasses - a mod's own @Mod class is where this is almost always declared
+     * directly). Returns the first one found with a non-null value, or null if none.
+     */
+    private static ForgeConfigSpec findStaticForgeConfigSpecField(Class<?> clazz) {
+        for (java.lang.reflect.Field f : clazz.getDeclaredFields()) {
+            if (ForgeConfigSpec.class.isAssignableFrom(f.getType())
+                    && java.lang.reflect.Modifier.isStatic(f.getModifiers())) {
+                try {
+                    f.setAccessible(true);
+                    Object value = f.get(null);
+                    if (value instanceof ForgeConfigSpec) {
+                        return (ForgeConfigSpec) value;
+                    }
+                } catch (Exception ignored) {
+                    // Inaccessible or unreadable - try the next candidate field.
+                }
+            }
+        }
+        return null;
     }
 
     private static Method findStaticMethod(Class<?> clazz, String name) {

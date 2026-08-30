@@ -3,6 +3,8 @@ package com.xiaoxiang.configext.client;
 import com.xiaoxiang.configext.api.ExpansionConfigRegistry;
 import com.xiaoxiang.configext.config.ExtendedConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -20,6 +22,8 @@ import java.util.*;
  * last segment, then by all segments in any order.
  */
 public final class ConfigValueAccessor {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /** Maps config path -> ForgeConfigSpec.ConfigValue */
     private static final Map<String, ForgeConfigSpec.ConfigValue<?>> PATH_TO_VALUE = new HashMap<>();
@@ -42,6 +46,19 @@ public final class ConfigValueAccessor {
      * ForgeConfigSpec.ConfigValue itself uses internally.
      */
     private static final Map<String, com.electronwill.nightconfig.core.Config> EXPANSION_PATH_TO_ROOT = new HashMap<>();
+
+    /**
+     * Maps an expansion mod's config path -> its actual typed
+     * ForgeConfigSpec.ConfigValue, when reflection can find one (mirrors the
+     * same "values" field reflection ExpansionConfigRegistry.extractConfigPaths
+     * already uses). EXPANSION_PATH_TO_ROOT above only ever sees the raw
+     * NightConfig-backed value (a String for an EnumValue, since NightConfig
+     * has no concept of a Java enum) - going through the real typed
+     * ConfigValue instead is what lets get/getType/set/increment/decrement
+     * treat an expansion's enum settings exactly like the base mod's own,
+     * instead of silently no-oping on them.
+     */
+    private static final Map<String, ForgeConfigSpec.ConfigValue<?>> EXPANSION_PATH_TO_VALUE = new HashMap<>();
 
     /** Whether expansion configs have been scanned */
     private static boolean expansionsScanned = false;
@@ -107,7 +124,58 @@ public final class ConfigValueAccessor {
                 // itself stays visible regardless (CustomTabManager backs tab
                 // visibility against ExpansionConfigRegistry.getAllPaths(), a
                 // separate, independently-populated source).
+                //
+                // This used to fail completely silently - no log line at all -
+                // which is exactly how a real reflection break (a Forge/NightConfig
+                // internal field getting renamed, say) could sit unnoticed while
+                // every expansion path quietly stopped being individually
+                // readable/writable. Logging it means the next time something in
+                // this reflection breaks, it shows up in latest.log instead of
+                // just looking like a mysteriously unresponsive config screen.
+                LOGGER.warn("[XiaoxiangConfigExt] Could not walk '{}' expansion's raw NightConfig tree "
+                        + "(childConfig reflection failed): {}", expansion.modId, e.toString());
             }
+
+            // Also grab the expansion's real typed ConfigValue objects, the same
+            // way ExpansionConfigRegistry.extractConfigPaths already does via the
+            // spec's private "values" map - see EXPANSION_PATH_TO_VALUE's javadoc
+            // for why this matters (enum support, mainly).
+            int beforeCount = EXPANSION_PATH_TO_VALUE.size();
+            try {
+                java.lang.reflect.Field valuesField = ForgeConfigSpec.class.getDeclaredField("values");
+                valuesField.setAccessible(true);
+                Object rawValues = valuesField.get(expansion.spec);
+                if (rawValues instanceof Map) {
+                    for (Object entryObj : ((Map<?, ?>) rawValues).entrySet()) {
+                        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) entryObj;
+                        Object keyPathObj = entry.getKey();
+                        Object valueObj = entry.getValue();
+                        if (keyPathObj instanceof List && valueObj instanceof ForgeConfigSpec.ConfigValue) {
+                            // String.join's List overload needs Iterable<? extends
+                            // CharSequence>, which a plain List<?> can't statically
+                            // satisfy even though every element is really a String
+                            // at runtime (ForgeConfigSpec's "values" map key type is
+                            // List<String>, erased to List by this reflection). Same
+                            // unchecked-cast pattern ExpansionConfigRegistry.extractConfigPaths
+                            // already uses for this exact map.
+                            @SuppressWarnings("unchecked")
+                            List<String> keyPath = (List<String>) keyPathObj;
+                            String fullPath = String.join(".", keyPath);
+                            EXPANSION_PATH_TO_VALUE.put(fullPath, (ForgeConfigSpec.ConfigValue<?>) valueObj);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Same reasoning as above - this expansion's paths just stay on
+                // the raw NightConfig fallback for reading/writing instead, which
+                // means no enum support for this expansion's dropdown/preset-style
+                // settings. Also now logged rather than silent, same as above.
+                LOGGER.warn("[XiaoxiangConfigExt] Could not read '{}' expansion's typed ConfigValue map "
+                        + "(values-field reflection failed) - its enum settings will fall back to raw "
+                        + "string reads with no dropdown/+-/- support: {}", expansion.modId, e.toString());
+            }
+            LOGGER.info("[XiaoxiangConfigExt] Indexed {} typed ConfigValue(s) for expansion '{}'.",
+                    EXPANSION_PATH_TO_VALUE.size() - beforeCount, expansion.modId);
         }
     }
 
@@ -161,6 +229,13 @@ public final class ConfigValueAccessor {
     public static ForgeConfigSpec.ConfigValue<?> get(String path) {
         // Exact match
         ForgeConfigSpec.ConfigValue<?> result = PATH_TO_VALUE.get(path);
+        if (result != null) return result;
+
+        // Exact match against a registered expansion mod's own typed ConfigValue.
+        // Checked before the fuzzy PATH_TO_VALUE matching below so an expansion's
+        // path (always fully-qualified already) can't accidentally get fuzzy-matched
+        // against an unrelated base-mod field that happens to share a last segment.
+        result = EXPANSION_PATH_TO_VALUE.get(path);
         if (result != null) return result;
 
         // Try: the key might be the last segment only
@@ -230,6 +305,9 @@ public final class ConfigValueAccessor {
                 if (v instanceof Double) {
                     return String.format("%.2f", v);
                 }
+                if (v instanceof Enum) {
+                    return ((Enum<?>) v).name();
+                }
                 return String.valueOf(v);
             } catch (Exception e) {
                 return "???";
@@ -239,6 +317,9 @@ public final class ConfigValueAccessor {
         if (v == null) return "???";
         if (v instanceof Double) {
             return String.format("%.2f", v);
+        }
+        if (v instanceof Enum) {
+            return ((Enum<?>) v).name();
         }
         return String.valueOf(v);
     }
@@ -252,6 +333,9 @@ public final class ConfigValueAccessor {
                 Object v = value.getDefault();
                 if (v instanceof Double) {
                     return String.format("%.2f", v);
+                }
+                if (v instanceof Enum) {
+                    return ((Enum<?>) v).name();
                 }
                 return String.valueOf(v);
             } catch (Exception e) {
@@ -297,6 +381,10 @@ public final class ConfigValueAccessor {
                 } else if (current instanceof Boolean) {
                     boolean v = Boolean.parseBoolean(strValue);
                     ((ForgeConfigSpec.BooleanValue) value).set(v);
+                } else if (current instanceof Enum) {
+                    Object matched = matchEnumConstant((Enum<?>) current, strValue);
+                    if (matched == null) return false;
+                    ((ForgeConfigSpec.ConfigValue<Object>) value).set(matched);
                 } else if (current instanceof String) {
                     ((ForgeConfigSpec.ConfigValue<String>) value).set(strValue);
                 }
@@ -325,6 +413,40 @@ public final class ConfigValueAccessor {
         }
     }
 
+    /**
+     * Match a string against an enum's constants - exact name first (what
+     * DropdownEnumPopup and every internally-generated value always pass),
+     * then case-insensitive as a forgiving fallback. Returns null if nothing
+     * matches, e.g. a stale value left over from a since-renamed constant.
+     */
+    private static Object matchEnumConstant(Enum<?> sample, String strValue) {
+        Object[] constants = sample.getClass().getEnumConstants();
+        for (Object c : constants) {
+            if (((Enum<?>) c).name().equals(strValue)) return c;
+        }
+        for (Object c : constants) {
+            if (((Enum<?>) c).name().equalsIgnoreCase(strValue)) return c;
+        }
+        return null;
+    }
+
+    /**
+     * Step an enum value forward/backward through its declared constants,
+     * wrapping around at either end. Used by the +/- buttons and Ctrl+scroll
+     * on "enum" type entries (see CustomConfigScreen) - a dropdown pick isn't
+     * the only way these should be changeable, per the same click/scroll
+     * conventions every other entry type in the screen already supports.
+     */
+    @SuppressWarnings("unchecked")
+    private static boolean cycleEnumValue(ForgeConfigSpec.ConfigValue<?> value, Enum<?> current, int direction) {
+        Object[] constants = current.getClass().getEnumConstants();
+        if (constants.length == 0) return false;
+        int idx = current.ordinal() + direction;
+        idx = ((idx % constants.length) + constants.length) % constants.length;
+        ((ForgeConfigSpec.ConfigValue<Object>) value).set(constants[idx]);
+        return true;
+    }
+
     /** Increment a numeric value by a step. */
     public static boolean increment(String path, double step) {
         ForgeConfigSpec.ConfigValue<?> value = get(path);
@@ -340,6 +462,8 @@ public final class ConfigValueAccessor {
                 } else if (current instanceof Long) {
                     long v = (Long) current + (long) step;
                     ((ForgeConfigSpec.LongValue) value).set(v);
+                } else if (current instanceof Enum) {
+                    return cycleEnumValue(value, (Enum<?>) current, 1);
                 }
                 return true;
             } catch (Exception e) {
@@ -376,6 +500,8 @@ public final class ConfigValueAccessor {
                 } else if (current instanceof Long) {
                     long v = (Long) current - (long) step;
                     ((ForgeConfigSpec.LongValue) value).set(v);
+                } else if (current instanceof Enum) {
+                    return cycleEnumValue(value, (Enum<?>) current, -1);
                 }
                 return true;
             } catch (Exception e) {
@@ -427,6 +553,7 @@ public final class ConfigValueAccessor {
                 if (v instanceof Double) return "double";
                 if (v instanceof Long) return "long";
                 if (v instanceof Boolean) return "boolean";
+                if (v instanceof Enum) return "enum";
                 if (v instanceof String) return "string";
                 return v.getClass().getSimpleName();
             } catch (Exception e) {
@@ -439,8 +566,32 @@ public final class ConfigValueAccessor {
         if (v instanceof Double) return "double";
         if (v instanceof Long) return "long";
         if (v instanceof Boolean) return "boolean";
+        if (v instanceof Enum) return "enum";
         if (v instanceof String) return "string";
         return v.getClass().getSimpleName();
+    }
+
+    /**
+     * Get the list of valid option names for an "enum" type entry (see getType),
+     * in declaration order. Returns an empty list if the path isn't an enum, or
+     * if no typed ConfigValue could be resolved for it (a raw-NightConfig-only
+     * expansion path has no Class to enumerate constants from).
+     */
+    public static List<String> getEnumOptions(String path) {
+        ForgeConfigSpec.ConfigValue<?> value = get(path);
+        if (value == null) return java.util.Collections.emptyList();
+        try {
+            Object v = value.get();
+            if (!(v instanceof Enum)) return java.util.Collections.emptyList();
+            Object[] constants = v.getClass().getEnumConstants();
+            List<String> names = new ArrayList<>();
+            for (Object c : constants) {
+                names.add(((Enum<?>) c).name());
+            }
+            return names;
+        } catch (Exception e) {
+            return java.util.Collections.emptyList();
+        }
     }
 
     /** Get the minimum allowed value as a String, or null if not a ranged value. */
