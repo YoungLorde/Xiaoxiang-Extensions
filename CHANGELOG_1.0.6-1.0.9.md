@@ -1,6 +1,6 @@
-# Xiaoxiang Config Extension 1.0.6 – 1.0.9
+# Xiaoxiang Config Extension 1.0.5 – 1.0.9
 
-*Versions 1.0.6, 1.0.7, and 1.0.8 were internal iterations with no separate published changelog — this note covers everything that changed since 1.0.5, all rolled into this 1.0.9 release.*
+*Versions 1.0.5, 1.0.6, 1.0.7, and 1.0.8 were internal iterations with no separate published changelog — this note covers everything that changed since 1.0.5, all rolled into this 1.0.9 release.*
 
 ## Compatibility — updated for Xiaoxiang Cultivation World 0.1.1479
 
