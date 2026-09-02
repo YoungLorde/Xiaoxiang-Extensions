@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(WanderingCultivatorEntity.class)
 public abstract class WanderingCultivatorSpawnMixin {
 
-    @Inject(method = "checkCultivatorSpawnRules", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "checkCultivatorSpawnRules", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$fixSuperflatSpawn(EntityType<WanderingCultivatorEntity> entity,
                                                      ServerLevelAccessor level,
                                                      MobSpawnType spawnType,

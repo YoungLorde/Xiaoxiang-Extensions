@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = HeartDemonTrialProfile.class, remap = false)
 public abstract class HeartDemonTrialProfileMixin {
 
-    @Inject(method = "vitalityMultiplier", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "vitalityMultiplier", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$vitalityMultiplier(CallbackInfoReturnable<Float> cir) {
         if (!ExtendedConfig.ENABLE_TRIAL_OVERRIDES.get()) return;
         HeartDemonTrialProfile self = (HeartDemonTrialProfile) (Object) this;

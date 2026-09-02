@@ -20,7 +20,7 @@ public abstract class LifespanHelperMixin {
     /**
      * Override the near-immortal check to use config threshold.
      */
-    @Inject(method = "isNearImmortal", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "isNearImmortal", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$isNearImmortal(CultivationData data, CallbackInfoReturnable<Boolean> cir) {
         if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) return;
         int threshold = ExtendedConfig.LIFESPAN_NEAR_IMMORTAL_THRESHOLD.get();
@@ -32,7 +32,7 @@ public abstract class LifespanHelperMixin {
     /**
      * Override the ordinary death penalty to use config value.
      */
-    @Inject(method = "applyOrdinaryDeathPenalty", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "applyOrdinaryDeathPenalty", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$applyOrdinaryDeathPenalty(CultivationData data, CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) return;
         int configPenalty = ExtendedConfig.LIFESPAN_ORDINARY_DEATH_PENALTY_YEARS.get();
@@ -41,5 +41,25 @@ public abstract class LifespanHelperMixin {
         int currentResult = cir.getReturnValue();
         int adjusted = currentResult + 1 - configPenalty;
         if (adjusted != currentResult) cir.setReturnValue(adjusted);
+    }
+
+    /**
+     * LIFESPAN_GLOBAL_MULTIPLIER (added 2026-09-01).
+     *
+     * lifespanCap(CultivationData) computes its result from several
+     * non-constant sources (realm.baseLifespan(), FoundationDao/GoldenCoreDao
+     * bonuses, mortal lifespan minus death penalty, etc.) - there is no
+     * single literal to @ModifyConstant. Instead this scales the whole
+     * computed result at @At("RETURN"), the same structural pattern already
+     * used elsewhere in this project for similar "many contributing terms,
+     * one overall scale" fields.
+     */
+    @Inject(method = "lifespanCap", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
+    private static void configExt$globalMultiplier(CultivationData data, CallbackInfoReturnable<Integer> cir) {
+        if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) return;
+        double mult = ExtendedConfig.LIFESPAN_GLOBAL_MULTIPLIER.get();
+        if (mult == 1.0) return;
+        int scaled = Math.max(0, (int) Math.round(cir.getReturnValue() * mult));
+        if (scaled != cir.getReturnValue()) cir.setReturnValue(scaled);
     }
 }

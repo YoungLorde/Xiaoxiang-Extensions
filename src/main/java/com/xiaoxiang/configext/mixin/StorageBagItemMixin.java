@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(StorageBagItem.class)
 public abstract class StorageBagItemMixin {
 
-    @Inject(method = "columsFor", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "columsFor", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$columsFor(ItemTier tier, CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_PILL_OVERRIDES.get()) {
             return;
@@ -29,7 +29,7 @@ public abstract class StorageBagItemMixin {
         cir.setReturnValue(val);
     }
 
-    @Inject(method = "rowsFor", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "rowsFor", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$rowsFor(ItemTier tier, CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_PILL_OVERRIDES.get()) {
             return;

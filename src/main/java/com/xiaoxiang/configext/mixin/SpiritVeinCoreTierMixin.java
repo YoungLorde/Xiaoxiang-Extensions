@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpiritVeinCoreTier.class)
 public abstract class SpiritVeinCoreTierMixin {
 
-    @Inject(method = "maxQi", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "maxQi", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$maxQi(CallbackInfoReturnable<Long> cir) {
         if (!ExtendedConfig.ENABLE_SPIRIT_VEIN_OVERRIDES.get()) {
             return;
@@ -34,7 +34,7 @@ public abstract class SpiritVeinCoreTierMixin {
         cir.setReturnValue(val);
     }
 
-    @Inject(method = "orbGain", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "orbGain", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$orbGain(CallbackInfoReturnable<Long> cir) {
         if (!ExtendedConfig.ENABLE_SPIRIT_VEIN_OVERRIDES.get()) {
             return;
@@ -55,7 +55,7 @@ public abstract class SpiritVeinCoreTierMixin {
         cir.setReturnValue(val);
     }
 
-    @Inject(method = "supplyPerSecond", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "supplyPerSecond", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$supplyPerSecond(CallbackInfoReturnable<Long> cir) {
         if (!ExtendedConfig.ENABLE_SPIRIT_VEIN_OVERRIDES.get()) {
             return;

@@ -49,6 +49,97 @@ public final class ExtendedConfig {
     public static final ForgeConfigSpec.BooleanValue ENABLE_EFFECT_OVERRIDES;
     public static final ForgeConfigSpec.BooleanValue ENABLE_MORALITY_OVERRIDES;
     public static final ForgeConfigSpec.BooleanValue ENABLE_LIFESPAN_OVERRIDES;
+    // New in base mod 0.1.1479: the Talisman glyph-crafting system (166 new classes).
+    // Only 2 of its ~110 candidate tunable constants are wired so far (see
+    // TalismanCompilerMixin) - this toggle covers everything wired for that system,
+    // present and future waves alike, same convention as every other ENABLE_*_OVERRIDES.
+    public static final ForgeConfigSpec.BooleanValue ENABLE_TALISMAN_OVERRIDES;
+    public static final ForgeConfigSpec.DoubleValue TALISMAN_DEFAULT_EXPLOSION_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue TALISMAN_MAX_EXPLOSION_RADIUS;
+    // Wave 2 (2026-09-02): 82 distinct per-glyph Qi cost fields, wired via
+    // TalismanGlyphCatalogMixin - see CONFIG_AUDIT.md for the full derivation.
+    public static final ForgeConfigSpec.IntValue TALISMAN_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_FIREBALL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_EXPLOSION_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DAMAGE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DESTRUCTION_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SPLIT_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DIVINE_SENSE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_ANTI_AIR_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_LIGHTNING_ARC_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_LIGHTNING_STRIKE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_ICE_SWORD_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_REGENERATION_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SWIFTNESS_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_POISON_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DELAY_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HOMING_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_PIERCE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_POTENCY_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DURATION_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_PULL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_MECHANISM_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_TAMPER_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_MELEE_STRIKE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_RANGED_STRIKE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SUCCESSFUL_GUARD_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SPELLCAST_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_VANQUISH_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_LOW_QI_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_AFFLICTED_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_IGNITED_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HARD_LANDING_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SHIELD_BROKEN_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_LEFT_CLICK_SUPPORT_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_NEARBY_BLOCK_BREAK_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HOSTILE_PROJECTILE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_BOUNDARY_CROSSING_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HOSTILE_GAZE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HOSTILE_SPELLCAST_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_NEARBY_EXPLOSION_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_REDSTONE_FALLING_EDGE_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_DAWN_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_NEARBY_NATURAL_LIGHTNING_TRIGGER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_STONE_ORB_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_HEAVEN_DRILL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_CRIMSON_LOTUS_DOMAIN_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_THUNDER_ORB_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_STARFALL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SWORDMARK_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SURGING_TIDE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_VERDANT_SEED_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_WATER_PRISON_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_FROST_WALL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_POLARITY_FIELD_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SPELLRETURN_MIRROR_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_FLAME_STEP_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_BLOOD_SPIKE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_THUNDERSTEP_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_MIRRORWATER_CLONE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_FROSTMIRROR_AEGIS_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_WOODEN_DAO_SOLDIER_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_REJUVENATION_ALTAR_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_FIVE_PEAKS_SEAL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_AREA_PLUS_HALF_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_RANGE_PLUS_HALF_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_PROJECTILE_SPEED_PLUS_HALF_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_SCALE_PLUS_HALF_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_ECHO_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_REPEL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_LIFEDRAIN_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_ARMORBREAK_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_MERIDIAN_SEAL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_BARRIER_DAMAGE_X2_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_CLEANSE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_PROLIFERATE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_PRESERVE_TERRAIN_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_RELOCATE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_IGNITE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_CHILL_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_EXECUTE_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_KNOCKUP_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_WEAKNESS_QI_COST;
+    public static final ForgeConfigSpec.IntValue TALISMAN_GLOWING_MARK_QI_COST;
 
     // ══════════════════════════════════════════════════════════════════
     //  REALM POWER LEVELS
@@ -66,6 +157,19 @@ public final class ExtendedConfig {
     public static final ForgeConfigSpec.IntValue TRUE_IMMORTAL_MAX_QI;
     public static final ForgeConfigSpec.IntValue LOOSE_IMMORTAL_MAX_QI;
     public static final ForgeConfigSpec.DoubleValue MAX_QI_GLOBAL_MULTIPLIER;
+
+    // Breakthrough monotonicity guarantee (added 2026-09-01, player-reported
+    // "requirements decreased after reincarnation" bug triage - see RealmMixin.java)
+    public static final ForgeConfigSpec.BooleanValue ENABLE_MONOTONIC_BREAKTHROUGHS;
+    public static final ForgeConfigSpec.IntValue MONOTONIC_MIN_MINOR_INCREASE;
+    public static final ForgeConfigSpec.IntValue MONOTONIC_MIN_MAJOR_INCREASE;
+
+    // Reincarnation-not-retriggering-after-first-death fix (2026-09-01)
+    public static final ForgeConfigSpec.BooleanValue ENABLE_REINCARNATION_TECHNIQUE_FIX;
+
+    // Scrollable item/physique tooltips on the Identity Draw screen (2026-09-01)
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SCROLLABLE_ITEM_TOOLTIPS;
+    public static final ForgeConfigSpec.IntValue SCROLLABLE_TOOLTIP_MAX_LINES;
 
     // Lifespan per realm
     public static final ForgeConfigSpec.IntValue QI_REFINING_LIFESPAN;
@@ -139,6 +243,19 @@ public final class ExtendedConfig {
     public static final ForgeConfigSpec.LongValue SPIRIT_KING_ADVANCE_COST;
     public static final ForgeConfigSpec.LongValue SPIRIT_EMPEROR_ADVANCE_COST;
     public static final ForgeConfigSpec.LongValue SPIRIT_LORD_ADVANCE_COST;
+    // Added 2026-09-02 for base mod 0.1.1479's beast-progression redesign: beasts
+    // now advance through the same 12-tier Realm ladder players use (via the new
+    // BeastProgressionRules.advanceCost(Realm) static method) instead of the old,
+    // separate 8-tier BeastRealm enum. The first 6 tiers (QI_REFINING through
+    // VOID_REFINING) are already covered by the 6 fields above - their real
+    // bytecode defaults (500/5000/50000/500000/5000000/50000000) are identical
+    // in 0.1.1479, so those fields keep their existing names/TOML keys/values
+    // unchanged (no config migration needed). These 4 new fields cover the 4
+    // additional tiers the redesign added on top of the old ladder.
+    public static final ForgeConfigSpec.LongValue BEAST_BODY_INTEGRATION_ADVANCE_COST;
+    public static final ForgeConfigSpec.LongValue BEAST_MAHAYANA_ADVANCE_COST;
+    public static final ForgeConfigSpec.LongValue BEAST_TRIBULATION_TRANSCENDENCE_ADVANCE_COST;
+    public static final ForgeConfigSpec.LongValue BEAST_TRUE_IMMORTAL_ADVANCE_COST;
 
     // ══════════════════════════════════════════════════════════════════
     //  NPC SPAWNING
@@ -489,6 +606,35 @@ public final class ExtendedConfig {
     //  IDENTITY — per-identity lifespan + starting items
     // ══════════════════════════════════════════════════════════════════
     // Lifespan per identity (replaces old category-based lifespan)
+    //
+    // CORRECTED 2026-09-01: every default below was verified against a full
+    // javap -p -c -s disassembly of Identity.class's lifespanRange() plus
+    // Identity$1's $SwitchMap static initializer (the compiled form of the
+    // real mod's switch-on-enum-constant statement). The real method does
+    // NOT give every identity its own independent range - it groups 14
+    // named identities plus a "default" bucket into 5 shared ranges:
+    //   {60,85}   EXILED_PRINCESS, MERCHANT_SON, ACADEMY_STUDENT, TAOIST
+    //   {90,110}  BEAST_DESCENDANT, GENERAL_SON, HUNTER, BANDIT_LEADER, PIRATE
+    //   {80,105}  HERMIT_DISCIPLE, MONK, DOCTOR_HEIR, LONE_CULTIVATOR
+    //   {55,90}   ABANDONED_INFANT (sole member)
+    //   {70,100}  default bucket - every other Identity constant, including
+    //             FISHERMAN, FARMER, MORTAL_CHILD, FALLEN_NOBLE,
+    //             SMITH_APPRENTICE, QINGYUN/WANJIAN/DANDING_OUTER_DISCIPLE,
+    //             and FORMATION_APPRENTICE
+    // All 17 default pairs below had been guessed rather than verified and
+    // were wrong across the board (typically 20-40 years too high); they are
+    // now set to match their real bucket exactly. FISHERMAN and FARMER keep
+    // their own dedicated config fields (IdentityMixin fully replaces the
+    // method via @Inject/HEAD/cancellable, so per-identity granularity for
+    // them is a legitimate enhancement over vanilla, not a bug) but their
+    // DEFAULT values now match the real "default bucket" range they
+    // actually fall into in the base mod. The 7 identities with no dedicated
+    // config fields (MORTAL_CHILD, FALLEN_NOBLE, SMITH_APPRENTICE, the 3
+    // OUTER_DISCIPLE identities, FORMATION_APPRENTICE) correctly fall
+    // through IdentityMixin's else-branch to IDENTITY_LIFESPAN_DEFAULT_MIN/
+    // MAX, which is exactly the real bucket they use in the base mod - no
+    // gap here, just less per-identity granularity than the 16 identities
+    // that do have their own fields.
     public static final ForgeConfigSpec.IntValue IDENTITY_LIFESPAN_LONE_CULTIVATOR_MIN;
     public static final ForgeConfigSpec.IntValue IDENTITY_LIFESPAN_LONE_CULTIVATOR_MAX;
     public static final ForgeConfigSpec.IntValue IDENTITY_LIFESPAN_MERCHANT_SON_MIN;
@@ -1055,7 +1201,9 @@ public final class ExtendedConfig {
         ENABLE_QI_OVERRIDES = builder.comment("Override biome qi density values.").define("enableQiOverrides", true);
         ENABLE_SPELL_OVERRIDES = builder.comment("Override spell damage, qi cost, and charge values.").define("enableSpellOverrides", true);
         ENABLE_WEAPON_OVERRIDES = builder.comment("Override weapon damage and special effect values.").define("enableWeaponOverrides", true);
-        ENABLE_PILL_OVERRIDES = builder.comment("Override pill qi recovery and effect values.").define("enablePillOverrides", true);
+        ENABLE_PILL_OVERRIDES = builder.comment("Override pill qi recovery and effect values (pills section below), " +
+                "and also storage bag column/row counts (storageBag subsection) - both share this one toggle.")
+                .define("enablePillOverrides", true);
         ENABLE_ALCHEMY_OVERRIDES = builder.comment("Override alchemy furnace and rank values.").define("enableAlchemyOverrides", true);
         ENABLE_REFINING_OVERRIDES = builder.comment("Override refining furnace and rank values.").define("enableRefiningOverrides", true);
         ENABLE_SPIRIT_PLANT_OVERRIDES = builder.comment("Override spirit plant growth and effect values.").define("enableSpiritPlantOverrides", true);
@@ -1104,30 +1252,82 @@ public final class ExtendedConfig {
                .push("realms");
 
         builder.push("maxQi");
-        // Values below verified 2026-08-23 against the real decompiled bytecode of
-        // Realm.maxQi() in xiaoxiang_cultivation-0.1.1302.jar (javap -c). The Qi Refining
-        // substage values were previously off by one tier (100 too high each) due to a
-        // transcription slip - fixed here to match the original exactly: Mortal=100,
-        // Qi Refining Early/Middle/Late/Peak=100/200/300/400, deltas=1000/1100/1200/1300,
-        // Loose Immortal=18000, True Immortal=20900. The original also uses a *separate*
-        // hardcoded 500 (not tied to Qi Refining's own peak of 400) as the base of the
-        // "prevPeak + delta" formula for every realm above Qi Refining - see
+        // CORRECTED 2026-09-01: the values below (dated 2026-08-23, "Qi Refining substage
+        // values were previously off by one tier (100 too high each)") were themselves
+        // wrong - re-verified this session directly against Realm.maxQi()'s real bytecode
+        // (javap -p -c -s, not paraphrased) and confirmed the method computes
+        // base(100) + delta(100/200/300/400 for Early/Middle/Late/Peak) = 200/300/400/500,
+        // NOT the flat 100/200/300/400 the 2026-08-23 pass shipped. That earlier "fix" was
+        // itself a regression: with those wrong defaults, Mortal(100) -> Qi Refining Early
+        // uses the SAME value (100), a plateau at the very first breakthrough - a milder
+        // version of the exact "requirement didn't go up" symptom this whole triage exists
+        // to fix. Restored to the bytecode-verified real values: Mortal=100, Qi Refining
+        // Early/Middle/Late/Peak=200/300/400/500, deltas(realms above Qi Refining)=
+        // 1000/1100/1200/1300, Loose Immortal=18000, True Immortal=20900. The original also
+        // uses a *separate* hardcoded 500 (not tied to Qi Refining's own peak of 500) as the
+        // base of the "prevPeak + delta" formula for every realm above Qi Refining - see
         // REALM_PROGRESSION_BASE below, used by RealmMixin instead of qiRefiningPeak.
         MORTAL_MAX_QI = builder.comment("Max qi for Mortal realm.").defineInRange("mortal", 100, 1, 10000000);
-        QI_REFINING_EARLY_MAX_QI = builder.comment("Max qi for Qi Refining (Early).").defineInRange("qiRefiningEarly", 100, 1, 10000000);
-        QI_REFINING_MIDDLE_MAX_QI = builder.comment("Max qi for Qi Refining (Middle).").defineInRange("qiRefiningMiddle", 200, 1, 10000000);
-        QI_REFINING_LATE_MAX_QI = builder.comment("Max qi for Qi Refining (Late).").defineInRange("qiRefiningLate", 300, 1, 10000000);
-        QI_REFINING_PEAK_MAX_QI = builder.comment("Max qi for Qi Refining (Peak).").defineInRange("qiRefiningPeak", 400, 1, 10000000);
+        QI_REFINING_EARLY_MAX_QI = builder.comment("Max qi for Qi Refining (Early).").defineInRange("qiRefiningEarly", 200, 1, 10000000);
+        QI_REFINING_MIDDLE_MAX_QI = builder.comment("Max qi for Qi Refining (Middle).").defineInRange("qiRefiningMiddle", 300, 1, 10000000);
+        QI_REFINING_LATE_MAX_QI = builder.comment("Max qi for Qi Refining (Late).").defineInRange("qiRefiningLate", 400, 1, 10000000);
+        QI_REFINING_PEAK_MAX_QI = builder.comment("Max qi for Qi Refining (Peak).").defineInRange("qiRefiningPeak", 500, 1, 10000000);
         REALM_PROGRESSION_BASE = builder.comment("Base qi value used to calculate realms above Qi Refining (prevPeak = this + (realmOrdinal-2)*1300). "
                 + "This is a separate constant from Qi Refining's own peak value in the original mod - do not tie it to qiRefiningPeak.")
                 .defineInRange("realmProgressionBase", 500, 1, 10000000);
-        REALM_BASE_DELTA_EARLY = builder.comment("Qi delta for Early substage (realms above Qi Refining).").defineInRange("deltaEarly", 1000, 1, 10000000);
-        REALM_BASE_DELTA_MIDDLE = builder.comment("Qi delta for Middle substage.").defineInRange("deltaMiddle", 1100, 1, 10000000);
-        REALM_BASE_DELTA_LATE = builder.comment("Qi delta for Late substage.").defineInRange("deltaLate", 1200, 1, 10000000);
-        REALM_BASE_DELTA_PEAK = builder.comment("Qi delta for Peak substage.").defineInRange("deltaPeak", 1300, 1, 10000000);
+        REALM_BASE_DELTA_EARLY = builder.comment("Qi delta for Early substage (realms above Qi Refining). "
+                + "WARNING: each realm's prevPeak only increases by 1300 per realm above Qi Refining, so if deltaPeak "
+                + "is raised above 1300 (or the deltas are set out of Early<Middle<Late<Peak order), a realm's Peak "
+                + "requirement can end up HIGHER than the next realm's Early requirement, i.e. the cultivation "
+                + "requirement will appear to go DOWN when a player breaks through into the next realm. Keep "
+                + "deltaEarly < deltaMiddle < deltaLate < deltaPeak <= 1300 to avoid this.")
+                .defineInRange("deltaEarly", 1000, 1, 10000000);
+        REALM_BASE_DELTA_MIDDLE = builder.comment("Qi delta for Middle substage. See deltaEarly's comment - keep this < deltaLate.").defineInRange("deltaMiddle", 1100, 1, 10000000);
+        REALM_BASE_DELTA_LATE = builder.comment("Qi delta for Late substage. See deltaEarly's comment - keep this < deltaPeak.").defineInRange("deltaLate", 1200, 1, 10000000);
+        REALM_BASE_DELTA_PEAK = builder.comment("Qi delta for Peak substage. See deltaEarly's comment - keep this <= 1300 or the next realm's cultivation requirement can drop below this one's.").defineInRange("deltaPeak", 1300, 1, 10000000);
         TRUE_IMMORTAL_MAX_QI = builder.comment("Max qi for True Immortal.").defineInRange("trueImmortal", 20900, 1, 100000000);
         LOOSE_IMMORTAL_MAX_QI = builder.comment("Max qi for Loose Immortal.").defineInRange("looseImmortal", 18000, 1, 100000000);
         MAX_QI_GLOBAL_MULTIPLIER = builder.comment("Global multiplier applied to all max qi values after base calculation. 1.0 = no change.").defineInRange("globalMultiplier", 1.0, 0.01, 1000.0);
+        builder.pop();
+
+        builder.push("monotonicity");
+        // Added 2026-09-01, following the player-reported "cultivation requirements
+        // decreased after reincarnation" bug (see RealmMixin.java's configExt$maxQi
+        // and the Bug #1 writeup in CONFIG_AUDIT.md). That specific bug is fixed, but
+        // it was still possible for an admin's own maxQi/delta settings above (or,
+        // verified via javap, the ORIGINAL unmodified base mod's own hardcoded values -
+        // Realm.maxQi flat-returns True Immortal=20900 then Loose Immortal=18000, a
+        // real built-in decrease at that one seam) to produce a non-increasing
+        // breakthrough sequence. This section is a standing safety net: it walks the
+        // full standard breakthrough chain (Mortal -> Qi Refining E/M/L/P -> Foundation
+        // Building E/M/L/P -> ... -> Tribulation Transcendence E/M/L/P, the same order
+        // CultivationProgressionRules.nextAfterSuccess actually advances through, per
+        // real bytecode) and clamps every step up to at least the previous step's
+        // (already-clamped) requirement plus a minimum increase, so no config value or
+        // future oversight can ever cause a breakthrough requirement to go down again.
+        ENABLE_MONOTONIC_BREAKTHROUGHS = builder.comment(
+                "If true, every breakthrough requirement in the standard chain (Mortal through "
+                        + "Tribulation Transcendence Peak) is guaranteed to be strictly higher than every "
+                        + "previous one, regardless of what the maxQi/delta settings above (or the "
+                        + "original mod's own hardcoded values, if realm overrides are disabled) compute. "
+                        + "This runs independently of enableRealmOverrides - it is a safety net, not a "
+                        + "replacement for it. True Immortal and Loose Immortal are each independently "
+                        + "clamped to stay above Tribulation Transcendence Peak (verified via javap that "
+                        + "these two are reached through a separate tribulation-count promotion mechanic, "
+                        + "not the standard chain, and are not necessarily meant to be ordered relative to "
+                        + "EACH OTHER - only above the standard track's ceiling)."
+        ).define("enableMonotonicBreakthroughs", true);
+        MONOTONIC_MIN_MINOR_INCREASE = builder.comment(
+                "Minimum qi increase enforced for a minor (sub-stage, e.g. Early->Middle) breakthrough "
+                        + "step when monotonicity clamping has to correct a value. Keep this smaller than "
+                        + "majorIncrease so minor steps stay smaller jumps than realm-up steps."
+        ).defineInRange("minMinorIncrease", 50, 1, 10000000);
+        MONOTONIC_MIN_MAJOR_INCREASE = builder.comment(
+                "Minimum qi increase enforced for a major (realm-up, e.g. Qi Refining Peak->Foundation "
+                        + "Building Early) breakthrough step when monotonicity clamping has to correct a "
+                        + "value. Also used to keep True Immortal / Loose Immortal above Tribulation "
+                        + "Transcendence Peak. Keep this larger than minMinorIncrease."
+        ).defineInRange("minMajorIncrease", 300, 1, 10000000);
         builder.pop();
 
         builder.push("lifespan");
@@ -1142,7 +1342,10 @@ public final class ExtendedConfig {
         TRIBULATION_TRANSCENDENCE_LIFESPAN = builder.defineInRange("tribulationTranscendence", 6000, 0, 1000000);
         LOOSE_IMMORTAL_LIFESPAN = builder.defineInRange("looseImmortal", 10000, 0, 1000000);
         TRUE_IMMORTAL_LIFESPAN = builder.defineInRange("trueImmortal", 10000, 0, 1000000);
-        LIFESPAN_GLOBAL_MULTIPLIER = builder.comment("Global multiplier applied to all lifespan values. 1.0 = no change.").defineInRange("globalMultiplier", 1.0, 0.01, 1000.0);
+        LIFESPAN_GLOBAL_MULTIPLIER = builder.comment("Global multiplier applied to all lifespan values. 1.0 = no change. " +
+                "Wired 2026-09-01 via LifespanHelperMixin, scaling the whole computed result of " +
+                "LifespanHelper.lifespanCap(CultivationData) at RETURN (that method has no single literal to " +
+                "target - it sums several dao/realm-dependent terms).").defineInRange("globalMultiplier", 1.0, 0.01, 1000.0);
         builder.pop();
 
         builder.push("qiShieldReductionPercent");
@@ -1198,6 +1401,70 @@ public final class ExtendedConfig {
         builder.pop(); // realms
 
         // ════════════════════════════════════════════════════════════════
+        //  REINCARNATION
+        // ════════════════════════════════════════════════════════════════
+        builder.comment("Death/reincarnation flow fixes.")
+               .push("reincarnation");
+
+        // Player-reported 2026-09-01: after dying once, reincarnating, and choosing an
+        // origin again, dying a SECOND time did nothing at all - no Difu/underworld
+        // prompt, just a normal vanilla death. Root-caused via javap: the entire
+        // Difu/reincarnation flow (SoulStateHandler.onLivingDeath) is gated behind
+        // CultivationData.hasEquippedTechnique(), and ReincarnationManager.doReincarnate
+        // wipes cultivation state (copyFrom(new CultivationData())) including
+        // equippedTechniqueId, WITHOUT ever restoring it - unlike its sibling
+        // doReturnIntact, which does call TechniqueLoadoutHelper.normalizeForCurrentState
+        // to restore a technique loadout after its own state reset. So after a
+        // reincarnation, equippedTechniqueId stays blank until the player manually
+        // equips a technique, and hasEquippedTechnique() silently blocks Difu on every
+        // death until then. See ReincarnationManagerMixin.java and the "Bug #4" writeup
+        // in CONFIG_AUDIT.md for the full bytecode citations.
+        ENABLE_REINCARNATION_TECHNIQUE_FIX = builder.comment(
+                "If true, mirrors doReturnIntact's own technique-loadout normalization at the "
+                        + "end of doReincarnate, so a player who has reincarnated still has an "
+                        + "equipped technique (matching their new state) and the Difu/reincarnation "
+                        + "flow correctly triggers again on every subsequent death, not just the "
+                        + "first. This is a bug fix for base-mod behavior verified via javap, not a "
+                        + "balance choice - leave this on unless you have a specific reason not to."
+        ).define("enableReincarnationTechniqueFix", true);
+
+        builder.pop(); // reincarnation
+
+        // ════════════════════════════════════════════════════════════════
+        //  IDENTITY SCREEN TOOLTIPS
+        // ════════════════════════════════════════════════════════════════
+        builder.comment("Identity Draw screen tooltip overflow fixes.")
+               .push("identityScreenTooltips");
+
+        // Player-reported 2026-09-01, alongside the starter-items grid overflow (see
+        // IdentityDrawScreenMixin's renderStarterItems doc): hovering a starter item or the
+        // physique icon shows a normal Minecraft item/description tooltip
+        // (GuiGraphics.renderTooltip, verified via javap - the Identity screen's own
+        // hoveredStarter and hoveredPhysique fields both feed directly into it) that can grow
+        // tall enough to overlap the rest of the screen when an item/physique has a long
+        // description. Rather than truncating, this makes long tooltips scrollable with the
+        // mouse wheel - shows the first N lines plus a "scroll for more" hint, and the wheel
+        // shifts which slice of lines is shown, re-using the exact same vanilla tooltip-box
+        // rendering call each time (just with a shorter list), so no custom clipping/scissor
+        // code is needed. See IdentityDrawScreenMixin.java's doc comment on this feature for
+        // the honest caveat: the vanilla tooltip-line-fetching API this relies on could not be
+        // verified against a real Minecraft jar in the environment this was built in (only the
+        // mod's own compiled classes were available to verify against, not vanilla
+        // Minecraft/Forge) - flagged clearly rather than claimed as bytecode-verified.
+        ENABLE_SCROLLABLE_ITEM_TOOLTIPS = builder.comment(
+                "If true, starter-item and physique tooltips on the Identity Draw screen that "
+                        + "exceed maxVisibleLines become mouse-wheel scrollable instead of growing "
+                        + "tall enough to overlap the rest of the screen. Short tooltips are "
+                        + "completely unaffected - this only changes behavior once a tooltip "
+                        + "actually overflows."
+        ).define("enableScrollableItemTooltips", true);
+        SCROLLABLE_TOOLTIP_MAX_LINES = builder.comment(
+                "Maximum tooltip lines shown at once before scrolling kicks in."
+        ).defineInRange("maxVisibleLines", 8, 3, 30);
+
+        builder.pop(); // identityScreenTooltips
+
+        // ════════════════════════════════════════════════════════════════
         //  BEASTS
         // ════════════════════════════════════════════════════════════════
         builder.comment("Beast (mob) cultivation system. Mobs accumulate qi and advance through beast realms.")
@@ -1210,12 +1477,28 @@ public final class ExtendedConfig {
         BEAST_QI_GAIN_MULTIPLIER = builder.comment("Multiplier for qi gained per check.").defineInRange("qiGainMultiplier", 5.0, 0.0, 1000.0);
 
         builder.push("advanceCost");
-        SPIRIT_SOLDIER_ADVANCE_COST = builder.comment("Qi to advance from Mortal Beast to Spirit Soldier.").defineInRange("spiritSoldier", 500L, 1L, Long.MAX_VALUE);
-        SPIRIT_GENERAL_ADVANCE_COST = builder.comment("Qi to advance from Spirit Soldier to Spirit General.").defineInRange("spiritGeneral", 5000L, 1L, Long.MAX_VALUE);
-        SPIRIT_MARSHAL_ADVANCE_COST = builder.comment("Qi to advance from Spirit General to Spirit Marshal.").defineInRange("spiritMarshal", 50000L, 1L, Long.MAX_VALUE);
-        SPIRIT_KING_ADVANCE_COST = builder.comment("Qi to advance from Spirit Marshal to Spirit King.").defineInRange("spiritKing", 500000L, 1L, Long.MAX_VALUE);
-        SPIRIT_EMPEROR_ADVANCE_COST = builder.comment("Qi to advance from Spirit King to Spirit Emperor.").defineInRange("spiritEmperor", 5000000L, 1L, Long.MAX_VALUE);
-        SPIRIT_LORD_ADVANCE_COST = builder.comment("Qi to advance from Spirit Emperor to Spirit Lord.").defineInRange("spiritLord", 50000000L, 1L, Long.MAX_VALUE);
+        // Wired 2026-09-02 via BeastProgressionRulesMixin against base mod 0.1.1479:
+        // beasts now advance through the shared Realm ladder (MORTAL -> QI_REFINING
+        // -> ... -> LOOSE_IMMORTAL) via BeastProgressionRules.advanceCost(Realm), a
+        // static method, replacing the old BeastRealm enum's instance method that
+        // BeastRealmMixin (now retired - see that file) used to target. These 6
+        // "spirit*" fields keep their original names/TOML keys since their real
+        // bytecode defaults are unchanged in the new version - they now gate the
+        // cost to reach the first 6 configurable Realm tiers (QI_REFINING through
+        // VOID_REFINING) instead of the old BeastRealm-specific tier names, but the
+        // numbers and their relative position in the ladder are identical.
+        SPIRIT_SOLDIER_ADVANCE_COST = builder.comment("Qi for a beast to advance to Qi Refining (1st beast-cultivator tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritSoldier", 500L, 1L, Long.MAX_VALUE);
+        SPIRIT_GENERAL_ADVANCE_COST = builder.comment("Qi for a beast to advance to Foundation Building (2nd tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritGeneral", 5000L, 1L, Long.MAX_VALUE);
+        SPIRIT_MARSHAL_ADVANCE_COST = builder.comment("Qi for a beast to advance to Golden Core (3rd tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritMarshal", 50000L, 1L, Long.MAX_VALUE);
+        SPIRIT_KING_ADVANCE_COST = builder.comment("Qi for a beast to advance to Nascent Soul (4th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritKing", 500000L, 1L, Long.MAX_VALUE);
+        SPIRIT_EMPEROR_ADVANCE_COST = builder.comment("Qi for a beast to advance to Soul Formation (5th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritEmperor", 5000000L, 1L, Long.MAX_VALUE);
+        SPIRIT_LORD_ADVANCE_COST = builder.comment("Qi for a beast to advance to Void Refining (6th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("spiritLord", 50000000L, 1L, Long.MAX_VALUE);
+        // New 2026-09-02: the 4 additional Realm tiers 0.1.1479 added to beast
+        // progression (base mod defaults continue the same x10-per-tier curve).
+        BEAST_BODY_INTEGRATION_ADVANCE_COST = builder.comment("Qi for a beast to advance to Body Integration (7th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("bodyIntegration", 500000000L, 1L, Long.MAX_VALUE);
+        BEAST_MAHAYANA_ADVANCE_COST = builder.comment("Qi for a beast to advance to Mahayana (8th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("mahayana", 5000000000L, 1L, Long.MAX_VALUE);
+        BEAST_TRIBULATION_TRANSCENDENCE_ADVANCE_COST = builder.comment("Qi for a beast to advance to Tribulation Transcendence (9th tier). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("tribulationTranscendence", 50000000000L, 1L, Long.MAX_VALUE);
+        BEAST_TRUE_IMMORTAL_ADVANCE_COST = builder.comment("Qi for a beast to advance to True Immortal (10th tier, one below the final Loose Immortal cap which is not configurable - matches the base mod's own uncapped final realm). Wired 2026-09-02 via BeastProgressionRulesMixin.").defineInRange("trueImmortal", 500000000000L, 1L, Long.MAX_VALUE);
         builder.pop();
 
         builder.pop(); // beasts
@@ -1280,20 +1563,61 @@ public final class ExtendedConfig {
                 "Applied on top of the global multiplier. 1.0 = no change. 0.5 = NPC spells cost half qi. " +
                 "Lower values let NPCs cast more spells before running out of qi.").defineInRange("npcSpellQiCostMultiplier", 1.0, 0.0, 100.0);
         SPELL_CHARGE_GLOBAL_MULTIPLIER = builder.comment("Global multiplier for spell charge requirements. 1.0 = no change.").defineInRange("chargeGlobalMultiplier", 1.0, 0.01, 100.0);
-        SWORD_FLIGHT_UPKEEP_QI_PER_SECOND = builder.comment("Qi drain per second for sword flight.").defineInRange("swordFlightUpkeepQiPerSecond", 20, 0, 10000);
-        VOID_STEP_AIR_JUMP_QI_COST = builder.comment("Qi cost for void step air jump.").defineInRange("voidStepAirJumpQiCost", 15, 0, 10000);
-        VOID_STEP_DASH_QI_COST = builder.comment("Qi cost for void step dash.").defineInRange("voidStepDashQiCost", 60, 0, 10000);
-        VOID_STEP_SLOW_FALL_QI_COST = builder.comment("Qi cost for void step slow fall.").defineInRange("voidStepSlowFallQiCost", 30, 0, 10000);
-        PALM_THUNDER_CHANNEL_QI_PER_SECOND = builder.comment("Qi drain per second for palm thunder channeling.").defineInRange("palmThunderChannelQiPerSecond", 50, 0, 10000);
-        PALM_THUNDER_ARMING_TICKS = builder.comment("Ticks to arm palm thunder.").defineInRange("palmThunderArmingTicks", 40, 1, 600);
-        VOID_ESCAPE_CHARGE_TICKS = builder.comment("Total ticks to charge void escape.").defineInRange("voidEscapeChargeTicks", 100, 1, 1200);
-        VOID_ESCAPE_CHARGE_QI_PER_TICK = builder.comment("Qi cost per tick for void escape charging.").defineInRange("voidEscapeChargeQiPerTick", 10, 0, 1000);
-        VOID_ESCAPE_ACTIVE_QI_PER_TICK = builder.comment("Qi cost per tick during void escape.").defineInRange("voidEscapeActiveQiPerTick", 5, 0, 1000);
-        BUDDHA_FIRE_LOTUS_READY_QI = builder.comment("Qi required to fire Buddha Fire Lotus.").defineInRange("buddhaFireLotusReadyQi", 10000, 1, 1000000);
-        CORE_SELF_DESTRUCT_READY_QI = builder.comment("Qi required for core self destruct.").defineInRange("coreSelfDestructReadyQi", 1000, 1, 1000000);
-        SEA_CHANNEL_TICKS = builder.comment("Ticks to channel Sea of Overwhelming Blood.").defineInRange("seaChannelTicks", 200, 1, 1200);
-        GLACIER_BURIAL_NPC_CHANNEL_TICKS = builder.comment("NPC glacier burial channel ticks.").defineInRange("glacierBurialNpcChannelTicks", 100, 1, 600);
-        GLACIER_BURIAL_BASE_QI_PER_TICK = builder.comment("Base qi per tick for glacier burial.").defineInRange("glacierBurialBaseQiPerTick", 5L, 1L, 10000L);
+        SWORD_FLIGHT_UPKEEP_QI_PER_SECOND = builder.comment("Qi drain per second for sword flight. Wired 2026-09-01 " +
+                "via SwordFlightHandlerMixin, targeting the single per-second drain literal in tick().")
+                .defineInRange("swordFlightUpkeepQiPerSecond", 20, 0, 10000);
+        VOID_STEP_AIR_JUMP_QI_COST = builder.comment("Qi cost for void step air jump. Wired 2026-09-01 via " +
+                "VoidStepHandlerMixin, targeting the 2 real occurrences (check + deduct) in handleJump3Blocks().")
+                .defineInRange("voidStepAirJumpQiCost", 15, 0, 10000);
+        VOID_STEP_DASH_QI_COST = builder.comment("Qi cost for void step dash. Wired 2026-09-01 via " +
+                "VoidStepHandlerMixin, targeting the 2 real occurrences (check + deduct) in handleDash().")
+                .defineInRange("voidStepDashQiCost", 60, 0, 10000);
+        VOID_STEP_SLOW_FALL_QI_COST = builder.comment("Qi cost for void step slow fall. NOT WIRED: a full " +
+                "disassembly of VoidStepHandler.class found only 3 qi check/deduct pairs total, fully accounted " +
+                "for by air jump and dash - applyAutoSlowFall() contains no qi cost at all. Auto slow-fall is a " +
+                "free passive safety feature in the base mod, not a qi-costing ability; there is no real " +
+                "consumer to wire this to.").defineInRange("voidStepSlowFallQiCost", 30, 0, 10000);
+        PALM_THUNDER_CHANNEL_QI_PER_SECOND = builder.comment("Qi drain per second for palm thunder channeling. " +
+                "Wired 2026-09-01 via PalmThunderHandlerMixin, converting to the real per-4-tick drain amount " +
+                "(perSecond / 5) at the single drain call site in tickChannel().")
+                .defineInRange("palmThunderChannelQiPerSecond", 50, 0, 10000);
+        PALM_THUNDER_ARMING_TICKS = builder.comment("Ticks to arm palm thunder. Wired 2026-09-01 via " +
+                "PalmThunderHandlerMixin, targeting the 3 real occurrences in tickChannel(); also kept in sync " +
+                "with the fullChargeTicks() UI helper via PlayerChargeTimelineMixin.")
+                .defineInRange("palmThunderArmingTicks", 40, 1, 600);
+        VOID_ESCAPE_CHARGE_TICKS = builder.comment("Total ticks to charge void escape. Wired 2026-09-01 via " +
+                "VoidEscapeHandlerMixin, targeting the single threshold check in tickCharge(); also kept in sync " +
+                "with the fullChargeTicks() UI helper via PlayerChargeTimelineMixin.")
+                .defineInRange("voidEscapeChargeTicks", 100, 1, 1200);
+        VOID_ESCAPE_CHARGE_QI_PER_TICK = builder.comment("Qi cost per tick for void escape charging. Wired " +
+                "2026-09-01 via VoidEscapeHandlerMixin, targeting the single drain literal in tickCharge().")
+                .defineInRange("voidEscapeChargeQiPerTick", 10, 0, 1000);
+        VOID_ESCAPE_ACTIVE_QI_PER_TICK = builder.comment("Qi cost per tick during void escape. Wired 2026-09-01 " +
+                "via VoidEscapeHandlerMixin, targeting the single drain literal in onPlayerTick().")
+                .defineInRange("voidEscapeActiveQiPerTick", 5, 0, 1000);
+        BUDDHA_FIRE_LOTUS_READY_QI = builder.comment("Qi required to fire Buddha Fire Lotus. Wired 2026-09-01 via " +
+                "ChargeableSpellHandlerMixin, targeting all 5 confirmed occurrences of the real field's inlined " +
+                "value across the class.").defineInRange("buddhaFireLotusReadyQi", 10000, 1, 1000000);
+        CORE_SELF_DESTRUCT_READY_QI = builder.comment("Qi required for core self destruct. Wired 2026-09-01 via " +
+                "ChargeableSpellHandlerMixin, targeting all 5 confirmed occurrences of the real field's inlined " +
+                "value across the class.").defineInRange("coreSelfDestructReadyQi", 1000, 1, 1000000);
+        SEA_CHANNEL_TICKS = builder.comment("Ticks to channel Sea of Overwhelming Blood. Wired 2026-09-01 via " +
+                "Blood07FormationHandlerMixin (the real implementing class, despite the name), targeting the " +
+                "single threshold check in tickChannel(); also kept in sync with the fullChargeTicks() UI helper " +
+                "via PlayerChargeTimelineMixin.").defineInRange("seaChannelTicks", 200, 1, 1200);
+        GLACIER_BURIAL_NPC_CHANNEL_TICKS = builder.comment("NPC glacier burial channel ticks. NOT WIRED: the real " +
+                "field of this exact name lives on PlayerChargeTimeline.class (ConstantValue 100, matching this " +
+                "default) but a full search of that class and NpcCombatChannelController.class (the NPC channel " +
+                "driver) found no getstatic reference to it and no inlined-100 occurrence tied to a channel-tick " +
+                "cap - NPC glacier burial channel continuation is driven by target/state checks in canContinue(), " +
+                "not a tick counter. The field appears to be declared but never actually read anywhere in the " +
+                "compiled mod; left honestly unwired rather than guessed at.")
+                .defineInRange("glacierBurialNpcChannelTicks", 100, 1, 600);
+        GLACIER_BURIAL_BASE_QI_PER_TICK = builder.comment("Base qi per tick for glacier burial. Wired 2026-09-01 " +
+                "via PlayerChargeTimelineMixin, targeting both occurrences (ramp start + floor) in " +
+                "glacierBurialQiCostAtTick() specifically - NOT method = \"*\", since a same-valued but unrelated " +
+                "BASE_DRAIN field also inlines to \"long 5l\" elsewhere in that class.")
+                .defineInRange("glacierBurialBaseQiPerTick", 5L, 1L, 10000L);
 
         builder.pop(); // spells
 
@@ -1303,15 +1627,24 @@ public final class ExtendedConfig {
         builder.comment("Weapon damage and special effect values.")
                .push("weapons");
 
-        WEAPON_DAMAGE_GLOBAL_MULTIPLIER = builder.comment("Global multiplier for all weapon attack damage. 1.0 = no change.").defineInRange("damageGlobalMultiplier", 1.0, 0.0, 100.0);
-        WEAPON_BLOOD_SPELL_DAMAGE_BONUS_MULT = builder.comment("Multiplier for blood spell damage bonus percent on weapons.").defineInRange("bloodSpellDamageBonusMult", 1.0, 0.0, 100.0);
-        WEAPON_BLOOD_SPELL_QI_REDUCTION_MULT = builder.comment("Multiplier for blood spell qi reduction percent on weapons.").defineInRange("bloodSpellQiReductionMult", 1.0, 0.0, 100.0);
-        WEAPON_BLOOD_CAPACITY_MULTIPLIER = builder.comment("Multiplier for weapon blood capacity.").defineInRange("bloodCapacityMultiplier", 1.0, 0.0, 10000.0);
+        WEAPON_DAMAGE_GLOBAL_MULTIPLIER = builder.comment("Global multiplier for all weapon attack damage. 1.0 = no change. " +
+                "Applied live on every hit dealt with a spirit sword or the Bloodthirst Blade (melee only, not spells/projectiles) - " +
+                "wired 2026-09-01 via a LivingHurtEvent handler, not a mixin, since the base mod bakes weapon attack " +
+                "damage into a vanilla attribute at item construction with no live accessor to override.").defineInRange("damageGlobalMultiplier", 1.0, 0.0, 100.0);
+        WEAPON_BLOOD_SPELL_DAMAGE_BONUS_MULT = builder.comment("Multiplier for the Bloodthirst Blade's blood spell damage bonus percent. " +
+                "1.0 = no change. Wired 2026-09-01.").defineInRange("bloodSpellDamageBonusMult", 1.0, 0.0, 100.0);
+        WEAPON_BLOOD_SPELL_QI_REDUCTION_MULT = builder.comment("Multiplier for the Bloodthirst Blade's blood spell qi reduction percent " +
+                "(result is clamped to 0-100). 1.0 = no change. Wired 2026-09-01.").defineInRange("bloodSpellQiReductionMult", 1.0, 0.0, 100.0);
+        WEAPON_BLOOD_CAPACITY_MULTIPLIER = builder.comment("Multiplier for the Bloodthirst Blade's max blood capacity. " +
+                "1.0 = no change. Wired 2026-09-01.").defineInRange("bloodCapacityMultiplier", 1.0, 0.0, 10000.0);
         CHIYAN_BURN_TICKS = builder.comment("Burn duration in ticks for ChiYan sword on-hit effect.").defineInRange("chiyanBurnTicks", 100, 0, 1200);
         HANBING_FROZEN_OVERFLOW_TICKS = builder.comment("Frozen overflow ticks for HanBing sword on-hit effect.").defineInRange("hanbingFrozenOverflowTicks", 80, 0, 1200);
         QINGMU_POISON_TICKS = builder.comment("Poison duration in ticks for QingMu sword on-hit effect.").defineInRange("qingmuPoisonTicks", 200, 0, 1200);
         SOUL_HOOK_ATTACK_DAMAGE = builder.comment("Attack damage for Soul Hook weapon.").defineInRange("soulHookAttackDamage", 15, 0, 1000);
-        WEAPON_ATTACK_SPEED_MODIFIER = builder.comment("Attack speed modifier for spirit swords (default -2.4).").defineInRange("attackSpeedModifier", -2.4, -10.0, 10.0);
+        WEAPON_ATTACK_SPEED_MODIFIER = builder.comment("Attack speed modifier for spirit swords (default -2.4). Not yet wired - " +
+                "verified (2026-09-01) that this is baked into a vanilla weapon attribute at item construction with no live " +
+                "accessor, and (unlike the damage multiplier above) there's no safe runtime event to intercept it through " +
+                "either; changing this currently has no effect. Tracked in CONFIG_AUDIT.md.").defineInRange("attackSpeedModifier", -2.4, -10.0, 10.0);
         builder.push("spellQiCostReductionPercent");
         WEAPON_SPELL_QI_COST_REDUCTION_LOW = builder.comment("Spell qi cost reduction % for LOW tier weapons.").defineInRange("low", 5, 0, 100);
         WEAPON_SPELL_QI_COST_REDUCTION_MID = builder.comment("Spell qi cost reduction % for MID tier weapons.").defineInRange("mid", 7, 0, 100);
@@ -1410,10 +1743,15 @@ public final class ExtendedConfig {
 
         builder.push("furnace");
         ALCHEMY_FURNACE_MAX_QI = builder.comment("Max qi storage for alchemy furnace.").defineInRange("maxQi", 100000L, 1L, Long.MAX_VALUE);
-        ALCHEMY_TICKS_PER_PILL = builder.comment("Ticks to craft one pill.").defineInRange("ticksPerPill", 100, 1, 6000);
+        ALCHEMY_TICKS_PER_PILL = builder.comment("Ticks to craft one pill. Not yet wired - verified (2026-09-01) this " +
+                "mirrors a public static final int constant on the base mod's AlchemyCoreBlockEntity, which javac bakes " +
+                "as a literal into every place that reads it (not a live field read), so a mixin on the field itself " +
+                "would be a no-op; making this live would need per-call-site bytecode work not attempted yet.").defineInRange("ticksPerPill", 100, 1, 6000);
         ALCHEMY_MAX_PILLS_PER_BATCH = builder.comment("Maximum pills per crafting batch.").defineInRange("maxPillsPerBatch", 64, 1, 256);
-        ALCHEMY_INPUT_SLOTS = builder.comment("Number of input slots in alchemy furnace.").defineInRange("inputSlots", 6, 1, 36);
-        ALCHEMY_OUTPUT_SLOTS = builder.comment("Number of output slots in alchemy furnace.").defineInRange("outputSlots", 1, 1, 36);
+        ALCHEMY_INPUT_SLOTS = builder.comment("Number of input slots in alchemy furnace. Not yet wired - same " +
+                "compile-time-constant situation as ticksPerPill above; changing this currently has no effect.").defineInRange("inputSlots", 6, 1, 36);
+        ALCHEMY_OUTPUT_SLOTS = builder.comment("Number of output slots in alchemy furnace. Not yet wired - same " +
+                "compile-time-constant situation as ticksPerPill above; changing this currently has no effect.").defineInRange("outputSlots", 1, 1, 36);
         builder.pop();
         builder.push("xpGains");
         ALCHEMY_XP_GAIN_LOW = builder.comment("XP gained for crafting a LOW tier pill.").defineInRange("low", 5, 0, 100000);
@@ -1436,10 +1774,15 @@ public final class ExtendedConfig {
 
         builder.push("furnace");
         REFINING_FURNACE_MAX_QI = builder.comment("Max qi storage for refining furnace.").defineInRange("maxQi", 100000L, 1L, Long.MAX_VALUE);
-        REFINING_TICKS_PER_ITEM = builder.comment("Ticks to craft one item.").defineInRange("ticksPerItem", 200, 1, 6000);
+        REFINING_TICKS_PER_ITEM = builder.comment("Ticks to craft one item. Not yet wired - verified (2026-09-01) this " +
+                "mirrors a public static final int constant on the base mod's RefiningCoreBlockEntity, which javac " +
+                "bakes as a literal into every place that reads it (not a live field read), so a mixin on the field " +
+                "itself would be a no-op; making this live would need per-call-site bytecode work not attempted yet.").defineInRange("ticksPerItem", 200, 1, 6000);
         REFINING_MAX_ITEMS_PER_BATCH = builder.comment("Maximum items per crafting batch.").defineInRange("maxItemsPerBatch", 1, 1, 64);
-        REFINING_INPUT_SLOTS = builder.comment("Number of input slots in refining furnace.").defineInRange("inputSlots", 6, 1, 36);
-        REFINING_OUTPUT_SLOTS = builder.comment("Number of output slots in refining furnace.").defineInRange("outputSlots", 1, 1, 36);
+        REFINING_INPUT_SLOTS = builder.comment("Number of input slots in refining furnace. Not yet wired - same " +
+                "compile-time-constant situation as ticksPerItem above; changing this currently has no effect.").defineInRange("inputSlots", 6, 1, 36);
+        REFINING_OUTPUT_SLOTS = builder.comment("Number of output slots in refining furnace. Not yet wired - same " +
+                "compile-time-constant situation as ticksPerItem above; changing this currently has no effect.").defineInRange("outputSlots", 1, 1, 36);
         builder.pop();
         builder.push("xpGains");
         REFINING_XP_GAIN_LOW = builder.comment("XP gained for crafting a LOW tier item.").defineInRange("low", 5, 0, 100000);
@@ -1450,7 +1793,11 @@ public final class ExtendedConfig {
         REFINING_XP_GAIN_FAILURE = builder.comment("XP gained on crafting failure.").defineInRange("failure", 2, 0, 100000);
         builder.pop();
         REFINING_TIER_UP_CHANCE_DIVINE_FORGE = builder.comment("Tier-up chance from Divine Forge technique.").defineInRange("tierUpChanceDivineForge", 0.25, 0.0, 1.0);
-        REFINING_TIER_UP_CHANCE_HEAVENLY_ELIXIR = builder.comment("Tier-up chance from Heavenly Elixir technique.").defineInRange("tierUpChanceHeavenlyElixir", 0.25, 0.0, 1.0);
+        REFINING_TIER_UP_CHANCE_HEAVENLY_ELIXIR = builder.comment("Tier-up chance from Heavenly Elixir technique. " +
+                "Verified (2026-09-01) this field's name is a bit misleading: the base mod's Heavenly Elixir technique " +
+                "doesn't actually grant a refining tier-up bonus at all - its real bonus is an ALCHEMY tier-up chance " +
+                "of this same size. Kept under refining/this same setting name for backward compatibility, but it " +
+                "controls Heavenly Elixir's alchemy tier-up chance, not a refining one.").defineInRange("tierUpChanceHeavenlyElixir", 0.25, 0.0, 1.0);
 
         builder.pop(); // refining
 
@@ -1631,10 +1978,18 @@ public final class ExtendedConfig {
         FOUNDATION_DAO_HEAVEN_QI_RECOVERY_BONUS = builder.defineInRange("heaven", 3, 0, 1000);
         builder.pop();
         FOUNDATION_DAO_BLOOD_MELEE_DAMAGE_BONUS = builder.comment("Melee damage bonus for Blood Foundation Dao.").defineInRange("bloodMeleeDamageBonus", 5, 0, 1000);
-        FOUNDATION_DAO_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Foundation Dao.").defineInRange("heavenBoneAgeLimit", 21, 0, 200);
+        FOUNDATION_DAO_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Foundation Dao. " +
+                "Wired 2026-09-01 via CultivationProgressionRulesMixin, targeting the single \"bipush 21\" " +
+                "eligibility-gate literal inside isEligibleFoundationDao(FoundationMaterialState, FoundationDao, " +
+                "int) - lowering this raises how old (in bone age) a cultivator must be before the Heaven path " +
+                "can be chosen at all.").defineInRange("heavenBoneAgeLimit", 21, 0, 200);
         builder.push("tribulationWaves");
-        FOUNDATION_DAO_HEAVEN_TRIBULATION_WAVES = builder.comment("Tribulation waves for Heaven Foundation Dao.").defineInRange("heaven", 3, 0, 20);
-        FOUNDATION_DAO_EARTH_TRIBULATION_WAVES = builder.comment("Tribulation waves for Earth Foundation Dao.").defineInRange("earth", 1, 0, 20);
+        FOUNDATION_DAO_HEAVEN_TRIBULATION_WAVES = builder.comment("Tribulation waves for Heaven Foundation Dao. " +
+                "Wired 2026-09-01 via CultivationProgressionRulesMixin, matching " +
+                "CultivationProgressionRules.foundationTribulationWaves(FoundationDao) - only applies at the " +
+                "Qi Refining (peak) -> Foundation Building breakthrough attempt, same as the base mod.").defineInRange("heaven", 3, 0, 20);
+        FOUNDATION_DAO_EARTH_TRIBULATION_WAVES = builder.comment("Tribulation waves for Earth Foundation Dao. " +
+                "Wired 2026-09-01, same method as the Heaven variant above.").defineInRange("earth", 1, 0, 20);
         builder.pop();
 
         builder.pop(); // foundationDao
@@ -1667,7 +2022,9 @@ public final class ExtendedConfig {
         GOLDEN_CORE_DAO_HEAVEN_TRIBULATION_STRIKES = builder.comment("Tribulation strikes for Heaven Golden Core Dao.").defineInRange("heavenStrikes", 9, 0, 20);
         GOLDEN_CORE_DAO_TRIBULATION_DAMAGE = builder.comment("Tribulation damage for all Golden Core Dao types.").defineInRange("damage", 40, 0, 10000);
         builder.pop();
-        GOLDEN_CORE_DAO_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Golden Core Dao.").defineInRange("heavenBoneAgeLimit", 60, 0, 200);
+        GOLDEN_CORE_DAO_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Golden Core Dao. " +
+                "Wired 2026-09-01, same technique as the Foundation Dao version of this setting - targets the " +
+                "single \"bipush 60\" literal inside isEligibleGoldenCoreDao(...).").defineInRange("heavenBoneAgeLimit", 60, 0, 200);
         builder.push("shatterCoreTrial");
         GOLDEN_CORE_DAO_HUMAN_SHATTER_TRIAL_MAX_HEALTH = builder.comment("Max health for Human shatter core trial boss.").defineInRange("humanMaxHealth", 10000.0, 1.0, 1000000.0);
         GOLDEN_CORE_DAO_BLOOD_SHATTER_TRIAL_MAX_HEALTH = builder.comment("Max health for Blood shatter core trial boss.").defineInRange("bloodMaxHealth", 5000.0, 1.0, 1000000.0);
@@ -1733,104 +2090,104 @@ public final class ExtendedConfig {
 
         // Each identity has its own sub-section with lifespan min/max + starting items
         builder.push("lone_cultivator");
-        IDENTITY_LIFESPAN_LONE_CULTIVATOR_MIN = builder.comment("Min starting lifespan for Lone Cultivator.").defineInRange("minLifespan", 110, 0, 10000);
-        IDENTITY_LIFESPAN_LONE_CULTIVATOR_MAX = builder.comment("Max starting lifespan for Lone Cultivator.").defineInRange("maxLifespan", 140, 0, 10000);
+        IDENTITY_LIFESPAN_LONE_CULTIVATOR_MIN = builder.comment("Min starting lifespan for Lone Cultivator.").defineInRange("minLifespan", 80, 0, 10000);
+        IDENTITY_LIFESPAN_LONE_CULTIVATOR_MAX = builder.comment("Max starting lifespan for Lone Cultivator.").defineInRange("maxLifespan", 105, 0, 10000);
         IDENTITY_STARTING_ITEMS_LONE_CULTIVATOR = builder.comment("Lone Cultivator starting items. Format: 'modid:item,count;modid:item,count'. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("merchant_son");
-        IDENTITY_LIFESPAN_MERCHANT_SON_MIN = builder.comment("Min starting lifespan for Merchant Son.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_MERCHANT_SON_MAX = builder.comment("Max starting lifespan for Merchant Son.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_MERCHANT_SON_MIN = builder.comment("Min starting lifespan for Merchant Son.").defineInRange("minLifespan", 60, 0, 10000);
+        IDENTITY_LIFESPAN_MERCHANT_SON_MAX = builder.comment("Max starting lifespan for Merchant Son.").defineInRange("maxLifespan", 85, 0, 10000);
         IDENTITY_STARTING_ITEMS_MERCHANT_SON = builder.comment("Merchant Son starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("bandit_leader");
-        IDENTITY_LIFESPAN_BANDIT_LEADER_MIN = builder.comment("Min starting lifespan for Bandit Leader.").defineInRange("minLifespan", 120, 0, 10000);
-        IDENTITY_LIFESPAN_BANDIT_LEADER_MAX = builder.comment("Max starting lifespan for Bandit Leader.").defineInRange("maxLifespan", 150, 0, 10000);
+        IDENTITY_LIFESPAN_BANDIT_LEADER_MIN = builder.comment("Min starting lifespan for Bandit Leader.").defineInRange("minLifespan", 90, 0, 10000);
+        IDENTITY_LIFESPAN_BANDIT_LEADER_MAX = builder.comment("Max starting lifespan for Bandit Leader.").defineInRange("maxLifespan", 110, 0, 10000);
         IDENTITY_STARTING_ITEMS_BANDIT_LEADER = builder.comment("Bandit Leader starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("hunter");
-        IDENTITY_LIFESPAN_HUNTER_MIN = builder.comment("Min starting lifespan for Hunter.").defineInRange("minLifespan", 120, 0, 10000);
-        IDENTITY_LIFESPAN_HUNTER_MAX = builder.comment("Max starting lifespan for Hunter.").defineInRange("maxLifespan", 150, 0, 10000);
+        IDENTITY_LIFESPAN_HUNTER_MIN = builder.comment("Min starting lifespan for Hunter.").defineInRange("minLifespan", 90, 0, 10000);
+        IDENTITY_LIFESPAN_HUNTER_MAX = builder.comment("Max starting lifespan for Hunter.").defineInRange("maxLifespan", 110, 0, 10000);
         IDENTITY_STARTING_ITEMS_HUNTER = builder.comment("Hunter starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("doctor_heir");
-        IDENTITY_LIFESPAN_DOCTOR_HEIR_MIN = builder.comment("Min starting lifespan for Doctor Heir.").defineInRange("minLifespan", 110, 0, 10000);
-        IDENTITY_LIFESPAN_DOCTOR_HEIR_MAX = builder.comment("Max starting lifespan for Doctor Heir.").defineInRange("maxLifespan", 140, 0, 10000);
+        IDENTITY_LIFESPAN_DOCTOR_HEIR_MIN = builder.comment("Min starting lifespan for Doctor Heir.").defineInRange("minLifespan", 80, 0, 10000);
+        IDENTITY_LIFESPAN_DOCTOR_HEIR_MAX = builder.comment("Max starting lifespan for Doctor Heir.").defineInRange("maxLifespan", 105, 0, 10000);
         IDENTITY_STARTING_ITEMS_DOCTOR_HEIR = builder.comment("Doctor Heir starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("hermit_disciple");
-        IDENTITY_LIFESPAN_HERMIT_DISCIPLE_MIN = builder.comment("Min starting lifespan for Hermit Disciple.").defineInRange("minLifespan", 110, 0, 10000);
-        IDENTITY_LIFESPAN_HERMIT_DISCIPLE_MAX = builder.comment("Max starting lifespan for Hermit Disciple.").defineInRange("maxLifespan", 140, 0, 10000);
+        IDENTITY_LIFESPAN_HERMIT_DISCIPLE_MIN = builder.comment("Min starting lifespan for Hermit Disciple.").defineInRange("minLifespan", 80, 0, 10000);
+        IDENTITY_LIFESPAN_HERMIT_DISCIPLE_MAX = builder.comment("Max starting lifespan for Hermit Disciple.").defineInRange("maxLifespan", 105, 0, 10000);
         IDENTITY_STARTING_ITEMS_HERMIT_DISCIPLE = builder.comment("Hermit Disciple starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("fisherman");
-        IDENTITY_LIFESPAN_FISHERMAN_MIN = builder.comment("Min starting lifespan for Fisherman.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_FISHERMAN_MAX = builder.comment("Max starting lifespan for Fisherman.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_FISHERMAN_MIN = builder.comment("Min starting lifespan for Fisherman.").defineInRange("minLifespan", 70, 0, 10000);
+        IDENTITY_LIFESPAN_FISHERMAN_MAX = builder.comment("Max starting lifespan for Fisherman.").defineInRange("maxLifespan", 100, 0, 10000);
         IDENTITY_STARTING_ITEMS_FISHERMAN = builder.comment("Fisherman starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("farmer");
-        IDENTITY_LIFESPAN_FARMER_MIN = builder.comment("Min starting lifespan for Farmer.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_FARMER_MAX = builder.comment("Max starting lifespan for Farmer.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_FARMER_MIN = builder.comment("Min starting lifespan for Farmer.").defineInRange("minLifespan", 70, 0, 10000);
+        IDENTITY_LIFESPAN_FARMER_MAX = builder.comment("Max starting lifespan for Farmer.").defineInRange("maxLifespan", 100, 0, 10000);
         IDENTITY_STARTING_ITEMS_FARMER = builder.comment("Farmer starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("abandoned_infant");
-        IDENTITY_LIFESPAN_ABANDONED_INFANT_MIN = builder.comment("Min starting lifespan for Abandoned Infant.").defineInRange("minLifespan", 80, 0, 10000);
-        IDENTITY_LIFESPAN_ABANDONED_INFANT_MAX = builder.comment("Max starting lifespan for Abandoned Infant.").defineInRange("maxLifespan", 120, 0, 10000);
+        IDENTITY_LIFESPAN_ABANDONED_INFANT_MIN = builder.comment("Min starting lifespan for Abandoned Infant.").defineInRange("minLifespan", 55, 0, 10000);
+        IDENTITY_LIFESPAN_ABANDONED_INFANT_MAX = builder.comment("Max starting lifespan for Abandoned Infant.").defineInRange("maxLifespan", 90, 0, 10000);
         IDENTITY_STARTING_ITEMS_ABANDONED_INFANT = builder.comment("Abandoned Infant starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("general_son");
-        IDENTITY_LIFESPAN_GENERAL_SON_MIN = builder.comment("Min starting lifespan for General Son.").defineInRange("minLifespan", 120, 0, 10000);
-        IDENTITY_LIFESPAN_GENERAL_SON_MAX = builder.comment("Max starting lifespan for General Son.").defineInRange("maxLifespan", 150, 0, 10000);
+        IDENTITY_LIFESPAN_GENERAL_SON_MIN = builder.comment("Min starting lifespan for General Son.").defineInRange("minLifespan", 90, 0, 10000);
+        IDENTITY_LIFESPAN_GENERAL_SON_MAX = builder.comment("Max starting lifespan for General Son.").defineInRange("maxLifespan", 110, 0, 10000);
         IDENTITY_STARTING_ITEMS_GENERAL_SON = builder.comment("General Son starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("exiled_princess");
-        IDENTITY_LIFESPAN_EXILED_PRINCESS_MIN = builder.comment("Min starting lifespan for Exiled Princess.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_EXILED_PRINCESS_MAX = builder.comment("Max starting lifespan for Exiled Princess.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_EXILED_PRINCESS_MIN = builder.comment("Min starting lifespan for Exiled Princess.").defineInRange("minLifespan", 60, 0, 10000);
+        IDENTITY_LIFESPAN_EXILED_PRINCESS_MAX = builder.comment("Max starting lifespan for Exiled Princess.").defineInRange("maxLifespan", 85, 0, 10000);
         IDENTITY_STARTING_ITEMS_EXILED_PRINCESS = builder.comment("Exiled Princess starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("pirate");
-        IDENTITY_LIFESPAN_PIRATE_MIN = builder.comment("Min starting lifespan for Pirate.").defineInRange("minLifespan", 120, 0, 10000);
-        IDENTITY_LIFESPAN_PIRATE_MAX = builder.comment("Max starting lifespan for Pirate.").defineInRange("maxLifespan", 150, 0, 10000);
+        IDENTITY_LIFESPAN_PIRATE_MIN = builder.comment("Min starting lifespan for Pirate.").defineInRange("minLifespan", 90, 0, 10000);
+        IDENTITY_LIFESPAN_PIRATE_MAX = builder.comment("Max starting lifespan for Pirate.").defineInRange("maxLifespan", 110, 0, 10000);
         IDENTITY_STARTING_ITEMS_PIRATE = builder.comment("Pirate starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("beast_descendant");
-        IDENTITY_LIFESPAN_BEAST_DESCENDANT_MIN = builder.comment("Min starting lifespan for Beast Descendant.").defineInRange("minLifespan", 120, 0, 10000);
-        IDENTITY_LIFESPAN_BEAST_DESCENDANT_MAX = builder.comment("Max starting lifespan for Beast Descendant.").defineInRange("maxLifespan", 150, 0, 10000);
+        IDENTITY_LIFESPAN_BEAST_DESCENDANT_MIN = builder.comment("Min starting lifespan for Beast Descendant.").defineInRange("minLifespan", 90, 0, 10000);
+        IDENTITY_LIFESPAN_BEAST_DESCENDANT_MAX = builder.comment("Max starting lifespan for Beast Descendant.").defineInRange("maxLifespan", 110, 0, 10000);
         IDENTITY_STARTING_ITEMS_BEAST_DESCENDANT = builder.comment("Beast Descendant starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("taoist");
-        IDENTITY_LIFESPAN_TAOIST_MIN = builder.comment("Min starting lifespan for Taoist.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_TAOIST_MAX = builder.comment("Max starting lifespan for Taoist.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_TAOIST_MIN = builder.comment("Min starting lifespan for Taoist.").defineInRange("minLifespan", 60, 0, 10000);
+        IDENTITY_LIFESPAN_TAOIST_MAX = builder.comment("Max starting lifespan for Taoist.").defineInRange("maxLifespan", 85, 0, 10000);
         IDENTITY_STARTING_ITEMS_TAOIST = builder.comment("Taoist starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("monk");
-        IDENTITY_LIFESPAN_MONK_MIN = builder.comment("Min starting lifespan for Monk.").defineInRange("minLifespan", 110, 0, 10000);
-        IDENTITY_LIFESPAN_MONK_MAX = builder.comment("Max starting lifespan for Monk.").defineInRange("maxLifespan", 140, 0, 10000);
+        IDENTITY_LIFESPAN_MONK_MIN = builder.comment("Min starting lifespan for Monk.").defineInRange("minLifespan", 80, 0, 10000);
+        IDENTITY_LIFESPAN_MONK_MAX = builder.comment("Max starting lifespan for Monk.").defineInRange("maxLifespan", 105, 0, 10000);
         IDENTITY_STARTING_ITEMS_MONK = builder.comment("Monk starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("academy_student");
-        IDENTITY_LIFESPAN_ACADEMY_STUDENT_MIN = builder.comment("Min starting lifespan for Academy Student.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_ACADEMY_STUDENT_MAX = builder.comment("Max starting lifespan for Academy Student.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_ACADEMY_STUDENT_MIN = builder.comment("Min starting lifespan for Academy Student.").defineInRange("minLifespan", 60, 0, 10000);
+        IDENTITY_LIFESPAN_ACADEMY_STUDENT_MAX = builder.comment("Max starting lifespan for Academy Student.").defineInRange("maxLifespan", 85, 0, 10000);
         IDENTITY_STARTING_ITEMS_ACADEMY_STUDENT = builder.comment("Academy Student starting items. Empty = use original mod default.").define("startingItems", "");
         builder.pop();
 
         builder.push("default");
-        IDENTITY_LIFESPAN_DEFAULT_MIN = builder.comment("Default min starting lifespan for custom/unknown identities.").defineInRange("minLifespan", 100, 0, 10000);
-        IDENTITY_LIFESPAN_DEFAULT_MAX = builder.comment("Default max starting lifespan for custom/unknown identities.").defineInRange("maxLifespan", 130, 0, 10000);
+        IDENTITY_LIFESPAN_DEFAULT_MIN = builder.comment("Default min starting lifespan for custom/unknown identities.").defineInRange("minLifespan", 70, 0, 10000);
+        IDENTITY_LIFESPAN_DEFAULT_MAX = builder.comment("Default max starting lifespan for custom/unknown identities.").defineInRange("maxLifespan", 100, 0, 10000);
         IDENTITY_STARTING_ITEMS_DEFAULT = builder.comment("Default starting items for custom/unknown identities.").define("startingItems", "");
         builder.pop();
 
@@ -1848,15 +2205,45 @@ public final class ExtendedConfig {
         builder.comment("Cultivation progression requirements and NPC progression.")
                .push("progression");
 
-        PROGRESSION_FOUNDATION_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Foundation Dao.").defineInRange("foundationHeavenBoneAgeLimit", 21, 0, 200);
-        PROGRESSION_GOLDEN_CORE_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Golden Core Dao.").defineInRange("goldenCoreHeavenBoneAgeLimit", 60, 0, 200);
-        PROGRESSION_FOUNDATION_HEAVEN_ESTIMATE_DAYS = builder.comment("Estimated days for Heaven Foundation route.").defineInRange("foundationHeavenEstimateDays", 30, 0, 10000);
-        PROGRESSION_FOUNDATION_EARTH_ESTIMATE_DAYS = builder.comment("Estimated days for Earth Foundation route.").defineInRange("foundationEarthEstimateDays", 12, 0, 10000);
-        PROGRESSION_GOLDEN_CORE_HEAVEN_ESTIMATE_DAYS = builder.comment("Estimated days for Heaven Golden Core route.").defineInRange("goldenCoreHeavenEstimateDays", 60, 0, 10000);
-        PROGRESSION_GOLDEN_CORE_EARTH_ESTIMATE_DAYS = builder.comment("Estimated days for Earth Golden Core route.").defineInRange("goldenCoreEarthEstimateDays", 24, 0, 10000);
-        PROGRESSION_NPC_TRIBULATION_DEATH_CHANCE = builder.comment("Chance for NPC to die on tribulation failure.").defineInRange("npcTribulationDeathChance", 0.02, 0.0, 1.0);
-        PROGRESSION_NPC_TRIBULATION_WEAKNESS_DAYS = builder.comment("Days of weakness after NPC tribulation failure.").defineInRange("npcTribulationWeaknessDays", 3, 0, 365);
-        PROGRESSION_GENDER_EDITS_DEFAULT = builder.comment("Default number of gender edits allowed.").defineInRange("genderEditsDefault", 5, 0, 1000);
+        PROGRESSION_FOUNDATION_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Foundation Dao. " +
+                "This duplicates FOUNDATION_DAO_HEAVEN_BONE_AGE_LIMIT in the foundationDao section above (same " +
+                "default, same real game value) - verified (2026-09-01) both names point at the exact same " +
+                "single bytecode literal, so only ONE of the two can safely own the live override (two mixins " +
+                "fighting over one injection point would make whichever ran last silently win). The " +
+                "foundationDao-section field is the one actually wired; this one is kept for backward " +
+                "compatibility but has no independent effect - edit the other one instead.").defineInRange("foundationHeavenBoneAgeLimit", 21, 0, 200);
+        PROGRESSION_GOLDEN_CORE_HEAVEN_BONE_AGE_LIMIT = builder.comment("Max bone age for Heaven Golden Core Dao. " +
+                "Same duplicate situation as the Foundation version above - GOLDEN_CORE_DAO_HEAVEN_BONE_AGE_LIMIT " +
+                "in the goldenCoreDao section is the one actually wired.").defineInRange("goldenCoreHeavenBoneAgeLimit", 60, 0, 200);
+        PROGRESSION_FOUNDATION_HEAVEN_ESTIMATE_DAYS = builder.comment("Estimated days shown for the Heaven " +
+                "Foundation route. Wired 2026-09-01 - bytecode note: estimateHigherFoundationRouteDays(dao) " +
+                "actually returns 0 for HEAVEN (already the top path, nothing higher to estimate), 30 for EARTH, " +
+                "and 12 for everything else. This field's default (30) matches the EARTH case, not HEAVEN's real " +
+                "value (0) - its name is misleading in the base mod. Wired to the EARTH branch so the field " +
+                "means what its own default already implied; HEAVEN's real 0 isn't user-configurable (there's " +
+                "nothing to tune - it's just \"you're already there\").").defineInRange("foundationHeavenEstimateDays", 30, 0, 10000);
+        PROGRESSION_FOUNDATION_EARTH_ESTIMATE_DAYS = builder.comment("Estimated days shown for every Foundation " +
+                "route other than Heaven or Earth (i.e. Human/Blood/none). Wired 2026-09-01 to the real \"else\" " +
+                "branch (12), which is what this field's default already matched - same mislabeling as above, " +
+                "the real EARTH-specific value (30) is controlled by the HEAVEN field instead. Tooltip corrected " +
+                "to describe what it actually controls rather than what its name implies.").defineInRange("foundationEarthEstimateDays", 12, 0, 10000);
+        PROGRESSION_GOLDEN_CORE_HEAVEN_ESTIMATE_DAYS = builder.comment("Estimated days shown for the Heaven " +
+                "Golden Core route. Wired 2026-09-01 - same mislabeling pattern as the Foundation version: " +
+                "estimateHigherGoldenCoreRouteDays returns 0 for HEAVEN, 60 for EARTH, 24 for everything else. " +
+                "This field (default 60) is wired to the real EARTH branch, matching its own default.").defineInRange("goldenCoreHeavenEstimateDays", 60, 0, 10000);
+        PROGRESSION_GOLDEN_CORE_EARTH_ESTIMATE_DAYS = builder.comment("Estimated days shown for every Golden " +
+                "Core route other than Heaven or Earth. Wired 2026-09-01 to the real \"else\" branch (24), " +
+                "matching this field's own default.").defineInRange("goldenCoreEarthEstimateDays", 24, 0, 10000);
+        PROGRESSION_NPC_TRIBULATION_DEATH_CHANCE = builder.comment("Chance for NPC to die on tribulation failure. " +
+                "Wired 2026-09-01 via SectSavedDataMixin, targeting SectSavedData.shouldNpcTribulationDeath - a " +
+                "real per-NPC-tribulation-failure roll, not cosmetic.").defineInRange("npcTribulationDeathChance", 0.02, 0.0, 1.0);
+        PROGRESSION_NPC_TRIBULATION_WEAKNESS_DAYS = builder.comment("Days of weakness after NPC tribulation " +
+                "failure. Wired 2026-09-01, same mixin, targeting SectSavedData.failMemberTribulation.").defineInRange("npcTribulationWeaknessDays", 3, 0, 365);
+        PROGRESSION_GENDER_EDITS_DEFAULT = builder.comment("Default number of gender edits allowed. " +
+                "Wired 2026-09-01 via CultivationDataMixin - two sites needed patching: the constructor's " +
+                "initial value, and deserializeNBT's fallback default used when loading a save from before this " +
+                "field existed on a character (ordinal 0 of two \"5\" literals in that method - the other is " +
+                "unrelated, verified not touched).").defineInRange("genderEditsDefault", 5, 0, 1000);
 
         builder.pop(); // progression
 
@@ -1867,11 +2254,21 @@ public final class ExtendedConfig {
                .push("npcCombat");
 
         NPC_COMBAT_HARD_DODGE_CAP = builder.comment("Maximum dodge chance cap (0.7 = 70%).").defineInRange("hardDodgeCap", 0.7, 0.0, 1.0);
-        NPC_COMBAT_PROJECTILE_SCAN_RADIUS = builder.comment("Radius to scan for incoming projectiles.").defineInRange("projectileScanRadius", 13.0, 1.0, 200.0);
-        NPC_COMBAT_MAX_CANDIDATES = builder.comment("Max threat candidates per scan.").defineInRange("maxCandidates", 48, 1, 500);
+        NPC_COMBAT_PROJECTILE_SCAN_RADIUS = builder.comment("Radius to scan for incoming projectiles. " +
+                "Wired 2026-09-01 via NpcCombatThreatDetectorMixin - governs the whole threat-candidate AABB " +
+                "scan (projectile/collision/area/tnt threats alike, not just projectiles - the base mod's own " +
+                "name for this radius is a bit narrower than what it actually does).").defineInRange("projectileScanRadius", 13.0, 1.0, 200.0);
+        NPC_COMBAT_MAX_CANDIDATES = builder.comment("Max threat candidates per scan. " +
+                "Wired 2026-09-01, same mixin/method as the radius above.").defineInRange("maxCandidates", 48, 1, 500);
         NPC_COMBAT_STALEMATE_TIMEOUT = builder.comment("Ticks before an NPC retreats from a stalemate combat (no progress). " +
                 "1200 = 60 seconds. 0 = disabled (NPCs never retreat from stalemate). " +
-                "Set this to prevent hour-long battles where neither side can damage the other.").defineInRange("stalemateTimeout", 1200, 0, 12000);
+                "Set this to prevent hour-long battles where neither side can damage the other. " +
+                "Verified (2026-09-01) via full javap search of NpcCombatThreatDetector, NpcCombatTactics, " +
+                "WanderingCultivatorEntity and every AI class in the entity/npc package, plus a jar-wide grep for " +
+                "\"stalemate\" (zero hits): the base mod has no stalemate-detection or forced-retreat-on-no-progress " +
+                "mechanic at all, in any form, so there is nothing here to override - a mixin would have to add " +
+                "wholly new logic rather than intercept an existing check. Not currently wired; not a bug, just " +
+                "a feature this config mod would need to build from scratch.").defineInRange("stalemateTimeout", 1200, 0, 12000);
         builder.push("dodgeChance");
         NPC_COMBAT_DODGE_MORTAL = builder.comment("Dodge chance for Mortal NPCs.").defineInRange("mortal", 0.12, 0.0, 1.0);
         NPC_COMBAT_DODGE_QI_REFINING = builder.comment("Dodge chance for Qi Refining NPCs.").defineInRange("qiRefining", 0.22, 0.0, 1.0);
@@ -1975,7 +2372,14 @@ public final class ExtendedConfig {
                .push("sects");
 
         builder.push("generation");
-        SECT_MAX_POWER_SCORE = builder.comment("Maximum sect power score (0-N).").defineInRange("maxPowerScore", 4, 0, 20);
+        // Duplicate field, found 2026-09-01: this is the same concept as
+        // SECT_PROFILE_MAX_POWER_SCORE (same key "maxPowerScore", same
+        // default) - only the profile variant maps to a real field
+        // (GeneratedSectCultivationProfile.MAX_POWER_SCORE), so it is the
+        // one wired (see SectAncestorProfileMixin). This one is left as-is,
+        // matching this project's established handling of other duplicate
+        // fields found during the audit.
+        SECT_MAX_POWER_SCORE = builder.comment("Maximum sect power score (0-N). NOTE: duplicate of sectProfile.maxPowerScore - this copy is unwired, has no effect.").defineInRange("maxPowerScore", 4, 0, 20);
         SECT_SETTLEMENT_CELL_SPAWN_CHANCE = builder.comment("Chance per cell for a sect settlement to generate. " +
                 "1.0 = always, 0.1 = 10%. Default is 50% higher than the original mod (0.34 -> 0.51).").defineInRange("cellSpawnChance", 0.51, 0.0, 1.0);
         builder.pop();
@@ -1988,11 +2392,23 @@ public final class ExtendedConfig {
         SECT_ANCESTOR_LOOSE_IMMORTAL_CHANCE = builder.comment("Chance for ancestor to be a loose immortal.").defineInRange("looseImmortal", 0.24, 0.0, 1.0);
         builder.pop();
         builder.push("ambient");
-        SECT_AMBIENT_MAX_SCENES = builder.comment("Max concurrent ambient scenes per level.").defineInRange("maxScenes", 2, 0, 20);
-        SECT_AMBIENT_MAX_SPECTATORS = builder.comment("Max spectators per scene.").defineInRange("maxSpectators", 4, 0, 50);
-        SECT_AMBIENT_MIN_COOLDOWN_TICKS = builder.comment("Min cooldown between sect interactions.").defineInRange("minCooldownTicks", 1800, 0, 60000);
-        SECT_AMBIENT_MAX_COOLDOWN_TICKS = builder.comment("Max cooldown between sect interactions.").defineInRange("maxCooldownTicks", 4200, 0, 60000);
-        SECT_AMBIENT_NPC_COOLDOWN_TICKS = builder.comment("NPC individual cooldown.").defineInRange("npcCooldownTicks", 3600, 0, 60000);
+        // NOTE (2026-09-01): maxScenes/minCooldownTicks/maxCooldownTicks
+        // below are genuine duplicates of SECT_AMBIENT_MAX_ACTIVE_SCENES_
+        // PER_LEVEL / _MIN_SECT_COOLDOWN_TICKS / _MAX_SECT_COOLDOWN_TICKS
+        // further down (same titles, same defaults) - only the latter set
+        // is wired, by the pre-existing SectAmbientInteractionRulesMixin.
+        // maxSpectators' real consumer (addSparringSpectators) builds a
+        // fixed 4-element hardcoded offset array, not a simple comparison -
+        // structurally unwireable without rewriting the placement algorithm;
+        // default already matches (4). npcCooldownTicks' literal (3600)
+        // does not appear anywhere in SectSavedData.class - real consumer
+        // not located this session; default already matches (3600). See
+        // SectAmbientCheckIntervalMixin's class doc for the full trace.
+        SECT_AMBIENT_MAX_SCENES = builder.comment("Max concurrent ambient scenes per level.", "NOTE: duplicate of sectAmbient.maxActiveScenesPerLevel - this copy is unwired, has no effect.").defineInRange("maxScenes", 2, 0, 20);
+        SECT_AMBIENT_MAX_SPECTATORS = builder.comment("Max spectators per scene.", "NOTE: real consumer builds a fixed 4-element array, not a simple constant - currently unwired, has no effect.").defineInRange("maxSpectators", 4, 0, 50);
+        SECT_AMBIENT_MIN_COOLDOWN_TICKS = builder.comment("Min cooldown between sect interactions.", "NOTE: duplicate of sectAmbient.minSectCooldownTicks - this copy is unwired, has no effect.").defineInRange("minCooldownTicks", 1800, 0, 60000);
+        SECT_AMBIENT_MAX_COOLDOWN_TICKS = builder.comment("Max cooldown between sect interactions.", "NOTE: duplicate of sectAmbient.maxSectCooldownTicks - this copy is unwired, has no effect.").defineInRange("maxCooldownTicks", 4200, 0, 60000);
+        SECT_AMBIENT_NPC_COOLDOWN_TICKS = builder.comment("NPC individual cooldown.", "NOTE: real backing literal not located anywhere in SectSavedData.class this session - currently unwired, has no effect.").defineInRange("npcCooldownTicks", 3600, 0, 60000);
         builder.pop();
         builder.push("shop");
         SECT_SHOP_SELL_PERCENT = builder.comment("Sell price as percentage of buy price.").defineInRange("sellPercent", 60, 0, 200);
@@ -2048,16 +2464,30 @@ public final class ExtendedConfig {
                 "Each tier above 2 multiplies the number of buildings. " +
                 "0.5 = tier 5 gets 1.5x buildings, tier 12 gets 6.0x buildings. " +
                 "Higher = grand sects have more buildings, lower = they stay compact.").defineInRange("buildingCountMultiplier", 0.5, 0.0, 5.0);
+        // NOTE (2026-09-01): unwired - its real consumer would live somewhere
+        // in SectSettlementFeature.class and its 30+ nested classes (worldgen
+        // placement code, 16,800+ lines disassembled for the outer class
+        // alone), and a search of the outer class's own bytecode for a
+        // spacing/min-distance concept came back empty. Deprioritized as a
+        // costly needle-in-haystack rather than guessed at, same treatment as
+        // the SECT_AMBIENT_* fields elsewhere in this audit.
         SECT_MIN_SPACING_PER_TIER = builder.comment("Minimum distance between sects, per tier. " +
                 "Two sects must be at least (tier1 + tier2 + 2) * this value blocks apart. " +
                 "200 = two small sects need 400 blocks, two grand sects need 5200 blocks. " +
-                "Higher = sects are more spread out, lower = sects can be closer together.").defineInRange("minSpacingPerTier", 200, 50, 2000);
-        SECT_SAFE_TICK = builder.comment("Cancels the original mod's deferred sect NPC spawn/repair queue " +
-                "to prevent ConcurrentModificationException crashes. When true (default), NEW sects will " +
-                "generate empty (no NPCs ever spawn in them, not just 'unrepaired') and existing sect NPCs " +
-                "will not be automatically repaired, but the server won't crash when chunks unload near " +
-                "sects. Set to false if you want sect NPCs to actually populate and don't experience the " +
-                "crash - if you do hit it again with this off, that's the tradeoff this setting exists for.").define("safeTick", true);
+                "Higher = sects are more spread out, lower = sects can be closer together.",
+                "NOTE: real backing consumer not located this session - currently unwired, has no effect.").defineInRange("minSpacingPerTier", 200, 50, 2000);
+        SECT_SAFE_TICK = builder.comment("Safety net around the original mod's sect-infrastructure-backfill " +
+                "tick (SectSettlementFeature.tickSectIBackfill), the one call in DeferredSectNpcSpawner." +
+                "onServerTick() with no exception handling of its own, matching a real crash pattern seen with " +
+                "larger sects. CORRECTED (2026-09-01): this tooltip previously described an OLDER version of " +
+                "this mixin that cancelled sect NPC spawning entirely whenever this was true - that is no " +
+                "longer what this setting does. Verified via javap -p -c -s against onServerTick's own bytecode " +
+                "that steps 2 (sect chest/barrel loot) and 4 (NPC spawn/repair) already have their own " +
+                "catch-and-reschedule handling in the base mod and are never touched by this setting - sect NPCs " +
+                "spawn and repair normally either way. When true (default), only the infrastructure-backfill " +
+                "step is wrapped in try/catch and silently retried next tick on failure. Set to false only to " +
+                "confirm whether a crash is really coming from this exact call (the tradeoff being that step " +
+                "runs unprotected).").define("safeTick", true);
         builder.pop(); // sizeTiers
 
         // ── Crouch Meditation ──
@@ -2127,6 +2557,12 @@ public final class ExtendedConfig {
         TRIAL_INNER_WORLD_PLATFORM_Y = builder.comment("Platform Y level for inner world trial.").defineInRange("platformY", 80, 0, 320);
         TRIAL_INNER_WORLD_SOUL_WOUND_TICKS = builder.comment("Soul wound duration in ticks.").defineInRange("soulWoundTicks", 1200, 0, 60000);
         TRIAL_INNER_WORLD_FAILURE_HEALTH_PENALTY_PERCENT = builder.comment("Health penalty percentage on trial failure (0.5 = 50%).").defineInRange("failureHealthPenaltyPercent", 0.5, 0.0, 1.0);
+        // NOTE (2026-09-01): real backing field lives on the unrelated
+        // TimeStasisHandler class (a general ability handler, not trial-
+        // exclusive), not on InnerWorldTrialManager - fixed by
+        // TimeStasisDurationMixin after an earlier version of this wiring
+        // silently targeted the wrong class. Changing this affects Time
+        // Stasis duration everywhere it's cast, not just inside trials.
         TRIAL_INNER_WORLD_TIME_STASIS_DURATION = builder.comment("Time stasis duration in ticks.").defineInRange("timeStasisDuration", 600, 0, 60000);
         builder.pop();
 
@@ -2139,13 +2575,25 @@ public final class ExtendedConfig {
                .push("qiSystem");
 
         builder.push("playerConsumer");
-        QI_SYSTEM_ATTRACTION_RADIUS = builder.comment("Base qi attraction radius for players.").defineInRange("attractionRadius", 14.0, 1.0, 200.0);
-        QI_SYSTEM_MEDITATION_RANGE_BONUS = builder.comment("Meditation range bonus.").defineInRange("meditationRangeBonus", 10.0, 0.0, 200.0);
-        QI_SYSTEM_MEDITATION_EFFICIENCY_BONUS = builder.comment("Meditation efficiency bonus.").defineInRange("meditationEfficiencyBonus", 10.0, 0.0, 200.0);
+        QI_SYSTEM_ATTRACTION_RADIUS = builder.comment("Base qi attraction radius for players. Wired 2026-09-01 " +
+                "via PlayerQiConsumerMixin, targeting PlayerQiConsumer.attractRadius()'s single 14.0 literal " +
+                "(BASE_ATTRACTION_RADIUS is a compile-time-inlined constant, not a live field).").defineInRange("attractionRadius", 14.0, 1.0, 200.0);
+        QI_SYSTEM_MEDITATION_RANGE_BONUS = builder.comment("Meditation range bonus. Wired 2026-09-01, same mixin, " +
+                "same method, the separate 10.0 literal added while meditating.").defineInRange("meditationRangeBonus", 10.0, 0.0, 200.0);
+        QI_SYSTEM_MEDITATION_EFFICIENCY_BONUS = builder.comment("Meditation efficiency bonus. Wired 2026-09-01, " +
+                "same mixin, targeting the distinct 10.0 literal in finalAbsorbMultiplier() (same numeric value " +
+                "as meditationRangeBonus but a different constant in a different method).").defineInRange("meditationEfficiencyBonus", 10.0, 0.0, 200.0);
         builder.pop();
         builder.push("qiShield");
-        QI_SHIELD_QI_PER_DAMAGE = builder.comment("Qi required per point of damage absorbed by qi shield.").defineInRange("qiPerDamage", 10L, 1L, 100000L);
-        QI_SHIELD_PERFECT_REDUCTION = builder.comment("Damage reduction for perfect qi shield (1.0 = 100%).").defineInRange("perfectReduction", 1.0, 0.0, 1.0);
+        QI_SHIELD_QI_PER_DAMAGE = builder.comment("Qi required per point of damage absorbed by qi shield. Wired " +
+                "2026-09-01 via QiShieldHandlerMixin, targeting both qiPerDamage(ServerPlayer) and " +
+                "qiPerDamage(WanderingCultivatorEntity)'s single 10.0 literal each.").defineInRange("qiPerDamage", 10L, 1L, 100000L);
+        QI_SHIELD_PERFECT_REDUCTION = builder.comment("Fraction of an incoming hit a \"perfect\" qi shield can " +
+                "absorb (1.0 = 100%, vanilla behavior). Wired 2026-09-01 via QiShieldHandlerMixin, redirecting " +
+                "the Math.max(0, incomingDamage) call in maxAbsorbableDamage(...) that makes the whole hit " +
+                "eligible for absorption when grantsPerfectQiShield(...) is true; still gated by available qi " +
+                "exactly as before. See QiShieldHandlerMixin's class doc for the full trace.")
+                .defineInRange("perfectReduction", 1.0, 0.0, 1.0);
         builder.pop();
         builder.push("spiritStoneOre");
         QI_STONE_ORE_MAX_QI_LOW = builder.comment("Max qi for low spirit stone ore.").defineInRange("maxQiLow", 2000L, 1L, Long.MAX_VALUE);
@@ -2217,10 +2665,29 @@ public final class ExtendedConfig {
         EFFECT_SHATTER_ARMOR_TOUGHNESS_PENALTY = builder.comment("Toughness penalty for Shatter Armor effect.").defineInRange("toughnessPenalty", -0.99, -10.0, 0.0);
         builder.pop();
         builder.push("inverseFiveElements");
+        // Wired 2026-09-01 via PhysiqueBonusHelperMixin (configExt$inverseMarkDurationTicksLong
+        // / configExt$inverseMarkDurationTicksInt): the real target is PhysiqueBonusHelper.class,
+        // not the empty InverseFiveElementsEffect marker MobEffect. "600" appears exactly 3 times
+        // in the whole class - all inside lambda$onSpellCast$1 - twice as "long 600l" (stack-timeout
+        // and mark-expiry refresh) and once as "sipush 600" (the MobEffectInstance duration arg).
         EFFECT_INVERSE_MARK_DURATION_TICKS = builder.comment("Duration in ticks for inverse five elements mark.").defineInRange("markDurationTicks", 600, 0, 60000);
+        // Wired 2026-09-01 via PhysiqueBonusHelperMixin (configExt$inverseBaseFiveElementDmgMult):
+        // applySharedSpellDamageRules(Physique,Spell,D) - sole 1.1d in that method, gated on
+        // INVERSE_FIVE_ELEMENTS_BODY && isBasicFiveElementSpell.
         EFFECT_INVERSE_BASE_FIVE_ELEMENT_DMG_MULT = builder.comment("Base five element damage multiplier for inverse effect.").defineInRange("baseDmgMult", 1.1, 0.0, 100.0);
+        // Wired 2026-09-01 via PhysiqueBonusHelperMixin (configExt$inverseBaseFiveElementCostMult):
+        // spellQiCostMultiplier(Physique,Spell) - sole 0.9d in that overload (explicit descriptor
+        // used since the method is overloaded with spellQiCostMultiplier(Player,Spell)).
         EFFECT_INVERSE_BASE_FIVE_ELEMENT_COST_MULT = builder.comment("Base five element cost multiplier for inverse effect.").defineInRange("baseCostMult", 0.9, 0.0, 10.0);
+        // Wired 2026-09-01 via PhysiqueBonusHelperMixin (configExt$inverseStackDamagePerLayer):
+        // applyPlayerOnlySpellDamageRules(Player,Physique,Spell,D) - sole 0.25d in that method,
+        // formula mult *= (1.0 + stacks * 0.25).
         EFFECT_INVERSE_STACK_DAMAGE_PER_LAYER = builder.comment("Damage bonus per stack layer for inverse effect.").defineInRange("stackDamagePerLayer", 0.25, 0.0, 100.0);
+        // Wired 2026-09-01 via PhysiqueBonusHelperMixin (configExt$inverseStackCostReductionPerLayer):
+        // spellQiCostMultiplier(Player,Spell) - sole 0.25d in that overload, formula
+        // mult *= Math.max(0.0, 1.0 - stacks * 0.25). Shares its constant-pool index with the
+        // 0.25d above (both trace to one named constant in the original source reused for two
+        // purposes) but is scoped to its own method here so the two config fields tune independently.
         EFFECT_INVERSE_STACK_COST_REDUCTION_PER_LAYER = builder.comment("Cost reduction per stack layer for inverse effect.").defineInRange("stackCostReductionPerLayer", 0.25, 0.0, 100.0);
         builder.pop();
 
@@ -2249,10 +2716,19 @@ public final class ExtendedConfig {
         builder.comment("Lifespan helper constants for bone age and aging.")
                .push("lifespanHelper");
 
-        LIFESPAN_START_BONE_AGE_MIN = builder.comment("Minimum starting bone age.").defineInRange("startBoneAgeMin", 14, 0, 200);
-        LIFESPAN_START_BONE_AGE_MAX = builder.comment("Maximum starting bone age.").defineInRange("startBoneAgeMax", 18, 0, 200);
-        LIFESPAN_AGE_PER_DAY = builder.comment("Age progression per in-game day.").defineInRange("agePerDay", 1.0, 0.0, 100.0);
-        LIFESPAN_AGE_PER_DAY_MEDITATING = builder.comment("Age progression per day while meditating.").defineInRange("agePerDayMeditating", 1.0, 0.0, 100.0);
+        LIFESPAN_START_BONE_AGE_MIN = builder.comment("Minimum starting bone age. Wired 2026-09-01 via " +
+                "IdentityDrawHandlerMixin (both the base mod's own standard-identity draw, targeted directly " +
+                "via bytecode, and this mod's own custom-identity code paths, which previously hardcoded " +
+                "14 + RNG.nextInt(5) and ignored this field entirely).").defineInRange("startBoneAgeMin", 14, 0, 200);
+        LIFESPAN_START_BONE_AGE_MAX = builder.comment("Maximum starting bone age. Wired 2026-09-01, same mixin " +
+                "as startBoneAgeMin.").defineInRange("startBoneAgeMax", 18, 0, 200);
+        LIFESPAN_AGE_PER_DAY = builder.comment("Age progression per in-game day. Wired 2026-09-01 via " +
+                "LifespanHandlerMixin, targeting LifespanHandler.advanceBoneAge's single \"dconst_1\" rate " +
+                "constant.").defineInRange("agePerDay", 1.0, 0.0, 100.0);
+        LIFESPAN_AGE_PER_DAY_MEDITATING = builder.comment("Age progression per day while meditating. NOT WIRED: " +
+                "an exhaustive search of LifespanHandler and LifespanHelper for any meditation-specific aging " +
+                "logic (2026-09-01) found none - the base mod ages players at the same rate whether meditating " +
+                "or not. This field currently has no effect.").defineInRange("agePerDayMeditating", 1.0, 0.0, 100.0);
         LIFESPAN_NEAR_IMMORTAL_THRESHOLD = builder.comment("Threshold for near-immortal aging slowdown.").defineInRange("nearImmortalThreshold", 10000, 0, 1000000);
         LIFESPAN_ORDINARY_DEATH_PENALTY_YEARS = builder.comment("Years of lifespan lost on ordinary death.").defineInRange("ordinaryDeathPenaltyYears", 1, 0, 10000);
 
@@ -2265,20 +2741,45 @@ public final class ExtendedConfig {
                .push("sectLife");
 
         SECT_LIFE_TICK_INTERVAL = builder.comment("How often sect life ticks (in ticks).").defineInRange("lifeTickInterval", 20, 1, 6000);
-        SECT_FULL_SIMULATION_PLAYER_RADIUS = builder.comment("Radius around player where full sect simulation runs (blocks).").defineInRange("fullSimulationPlayerRadius", 64, 16, 1024);
-        SECT_DISTANT_CATCH_UP_DAY_CAP = builder.comment("Max days of catch-up simulation for distant sects.").defineInRange("distantCatchUpDayCap", 7, 1, 365);
-        SECT_WAREHOUSE_SLOT_LIMIT = builder.comment("Max slots in sect warehouse.").defineInRange("warehouseSlotLimit", 54, 9, 512);
-        SECT_MEMBER_PERSONAL_INVENTORY_SLOT_LIMIT = builder.comment("Max personal inventory slots per sect member.").defineInRange("memberPersonalInventorySlotLimit", 27, 9, 256);
-        SECT_EVENT_LIMIT = builder.comment("Max events recorded per sect.").defineInRange("eventLimit", 100, 10, 10000);
-        SECT_PERFORMANCE_QUEUE_LIMIT = builder.comment("Max queued performances per sect.").defineInRange("performanceQueueLimit", 4, 1, 100);
-        SECT_PERFORMANCE_TIMEOUT_TICKS = builder.comment("Timeout for performances in ticks.").defineInRange("performanceTimeoutTicks", 200, 20, 6000);
-        SECT_PERFORMANCE_PLAYER_RADIUS = builder.comment("Radius for performance visibility (blocks).").defineInRange("performancePlayerRadius", 48, 8, 512);
+        SECT_FULL_SIMULATION_PLAYER_RADIUS = builder.comment(
+                "Radius around player where full sect simulation runs (blocks).",
+                "WARNING (2026-09-01 server-performance triage): verified via javap across the",
+                "entire base-mod jar that the real constant this field was meant to wire",
+                "(SectSavedData.FULL_SIMULATION_PLAYER_RADIUS = 192) has ZERO consumers anywhere",
+                "in the compiled base mod - it is dead code in xiaoxiang_cultivation itself, not",
+                "just unwired here. This config field is currently NOT connected to anything;",
+                "changing it has no effect on server performance. Left in place only for",
+                "config-file backward compatibility. See CONFIG_AUDIT.md 'Bug #3' for the full",
+                "investigation. (Note this field's default of 64 never matched the real",
+                "constant's 192 either - it appears to have been a placeholder guess.)"
+        ).defineInRange("fullSimulationPlayerRadius", 64, 16, 1024);
+        // Defaults below corrected 2026-09-01 against real values verified via
+        // javap -p -c -s (SectSavedData.class / SectSavedData$SectRecord.class)
+        // - see SectOperationsLimitsMixin/SectRecordEventLimitMixin class docs.
+        SECT_DISTANT_CATCH_UP_DAY_CAP = builder.comment("Max days of catch-up simulation for distant sects.").defineInRange("distantCatchUpDayCap", 300, 1, 365);
+        SECT_WAREHOUSE_SLOT_LIMIT = builder.comment("Max slots in sect warehouse.").defineInRange("warehouseSlotLimit", 324, 9, 512);
+        SECT_MEMBER_PERSONAL_INVENTORY_SLOT_LIMIT = builder.comment("Max personal inventory slots per sect member.").defineInRange("memberPersonalInventorySlotLimit", 18, 9, 256);
+        SECT_EVENT_LIMIT = builder.comment("Max events recorded per sect.").defineInRange("eventLimit", 128, 10, 10000);
+        SECT_PERFORMANCE_QUEUE_LIMIT = builder.comment("Max queued performances per sect.").defineInRange("performanceQueueLimit", 8, 1, 100);
+        SECT_PERFORMANCE_TIMEOUT_TICKS = builder.comment("Timeout for performances in ticks.", "NOTE: real consumer not located this session - currently unwired, has no effect.").defineInRange("performanceTimeoutTicks", 200, 20, 6000);
+        SECT_PERFORMANCE_PLAYER_RADIUS = builder.comment(
+                "Radius for performance visibility (blocks).",
+                "Verified via javap and now wired to a real, 7-times-used base-mod constant",
+                "(SectSavedData's hasNearbyPlayer(..., 48.0) gate on death/recruitment/",
+                "expedition/tribulation 'performance' events - pathfinding, animation, corpse",
+                "spawns). Lowering this reduces visible-work cost from distant NPC sect events",
+                "without touching the underlying sect simulation itself. See CONFIG_AUDIT.md",
+                "'Bug #3' for the full investigation and the list of methods this now controls."
+        ).defineInRange("performancePlayerRadius", 48, 8, 512);
         SECT_POPULATION_FLOOR_INITIAL_SCALE = builder.comment("Initial population scaling factor.").defineInRange("populationFloorInitialScale", 0.4, 0.1, 10.0);
         SECT_ELDER_DISCIPLE_TARGET = builder.comment("Target disciple count per elder.").defineInRange("elderDiscipleTarget", 3, 0, 50);
         SECT_LOW_POPULATION_RECRUIT_CHANCE = builder.comment("Recruit chance when population is low (0.5 = 50%).").defineInRange("lowPopulationRecruitChance", 0.85, 0.0, 1.0);
         SECT_ELDER_RECRUIT_CHANCE = builder.comment("Base recruit chance for elders (0.1 = 10%).").defineInRange("elderRecruitChance", 0.45, 0.0, 1.0);
         SECT_SERVANT_APPRENTICESHIP_CHANCE = builder.comment("Chance for servant to become apprentice (0.05 = 5%).").defineInRange("servantApprenticeshipChance", 0.35, 0.0, 1.0);
-        SECT_RECRUIT_DISCIPLE_CHANCE = builder.comment("Base disciple recruit chance (0.1 = 10%).").defineInRange("recruitDiscipleChance", 0.1, 0.0, 1.0);
+        // Default corrected 2026-09-01 (was 0.1, real value verified via
+        // javap is 0.3 - createDataLayerRecruit's sole 0.3d literal) - see
+        // SectRecruitChanceMixin's class doc.
+        SECT_RECRUIT_DISCIPLE_CHANCE = builder.comment("Base disciple recruit chance (0.1 = 10%).").defineInRange("recruitDiscipleChance", 0.3, 0.0, 1.0);
         SECT_DISCIPLE_REALM_GATE = builder.comment("Minimum realm ordinal to become a disciple.").defineInRange("discipleRealmGate", 2, 0, 12);
         SECT_DISCIPLE_SUB_STAGE_GATE = builder.comment("Minimum sub-stage ordinal for discipleship.").defineInRange("discipleSubStageGate", 0, 0, 4);
 
@@ -2290,13 +2791,30 @@ public final class ExtendedConfig {
         builder.comment("Sect NPC journey/expedition parameters.")
                .push("sectJourney");
 
-        SECT_MAX_PHYSICAL_JOURNEYS_PER_SECT = builder.comment("Max concurrent physical journeys per sect.").defineInRange("maxPhysicalJourneysPerSect", 2, 0, 20);
-        SECT_JOURNEY_CHUNK_RADIUS = builder.comment("Chunk loading radius for journeys.").defineInRange("chunkRadius", 2, 0, 16);
-        SECT_JOURNEY_STUCK_TICKS = builder.comment("Ticks before journey NPC is considered stuck.").defineInRange("stuckTicks", 200, 20, 6000);
+        // Default corrected 2026-09-01 (was 2, real value verified via javap
+        // is 3 - admitPhysicalJourney's iconst_3 gate) - see
+        // SectOperationsLimitsMixin's class doc.
+        SECT_MAX_PHYSICAL_JOURNEYS_PER_SECT = builder.comment("Max concurrent physical journeys per sect.").defineInRange("maxPhysicalJourneysPerSect", 3, 0, 20);
+        SECT_JOURNEY_CHUNK_RADIUS = builder.comment(
+                "Chunk loading radius for journeys.",
+                "NOT currently wired to the base mod (investigated 2026-09-01): the real",
+                "SectJourneyChunkTickets.RADIUS=1 is baked into raw loop-bound bytecode",
+                "(iconst_m1/iconst_1), not a clean getstatic target a mixin can safely retarget.",
+                "The chunk force/release lifecycle (ForgeChunkManager-backed) was inspected and",
+                "found to already be well-balanced (more release call sites than move call",
+                "sites, no obvious leak) - left untouched rather than risk chunk-loading",
+                "corruption. This field's default of 2 also does not match the real value of 1.",
+                "See CONFIG_AUDIT.md 'Bug #3' for details."
+        ).defineInRange("chunkRadius", 2, 0, 16);
+        // Defaults below corrected 2026-09-01 against real values verified
+        // via javap -p -c -s (SectSavedData.class) - see
+        // SectJourneyTimingMixin's class doc for the full trace of which
+        // JourneyState timestamp field each literal is measured against.
+        SECT_JOURNEY_STUCK_TICKS = builder.comment("Ticks before journey NPC is considered stuck.").defineInRange("stuckTicks", 600, 20, 6000);
         SECT_JOURNEY_RETURN_FALLBACK_TICKS = builder.comment("Fallback timeout for return journey.").defineInRange("returnFallbackTicks", 1200, 100, 12000);
-        SECT_JOURNEY_ENTITY_MISSING_GRACE_TICKS = builder.comment("Grace period for missing journey entity.").defineInRange("entityMissingGraceTicks", 100, 0, 6000);
-        SECT_JOURNEY_DATA_PHASE_TICKS = builder.comment("Data phase duration in ticks.").defineInRange("dataPhaseTicks", 20, 1, 600);
-        SECT_JOURNEY_ENTITY_RELOAD_WAIT_TICKS = builder.comment("Wait for entity reload in ticks.").defineInRange("entityReloadWaitTicks", 20, 1, 600);
+        SECT_JOURNEY_ENTITY_MISSING_GRACE_TICKS = builder.comment("Grace period for missing journey entity.").defineInRange("entityMissingGraceTicks", 200, 0, 6000);
+        SECT_JOURNEY_DATA_PHASE_TICKS = builder.comment("Data phase duration in ticks.").defineInRange("dataPhaseTicks", 100, 1, 600);
+        SECT_JOURNEY_ENTITY_RELOAD_WAIT_TICKS = builder.comment("Wait for entity reload in ticks.").defineInRange("entityReloadWaitTicks", 100, 1, 600);
         SECT_JOURNEY_QUEUE_FALLBACK_TICKS = builder.comment("Queue fallback timeout in ticks.").defineInRange("queueFallbackTicks", 36000, 10, 60000);
 
         builder.pop(); // sectJourney
@@ -2307,10 +2825,22 @@ public final class ExtendedConfig {
         builder.comment("Sect defense response parameters.")
                .push("sectDefense");
 
-        SECT_DEFENSE_ESCAPE_RADIUS = builder.comment("Radius for defense escape (blocks).").defineInRange("escapeRadius", 32.0, 1.0, 512.0);
+        // NOTE (verified via javap -p -c -s against SectSavedData.class,
+        // 2026-09-01): escapeRadius/criticalResponderLimit/deathResponderLimit
+        // below are unwired - the real base-mod fields they'd map to
+        // (DEFENSE_ESCAPE_RADIUS, DEFENSE_CRITICAL_RESPONDER_LIMIT,
+        // DEFENSE_DEATH_RESPONDER_LIMIT) have zero getstatic use sites
+        // anywhere in the jar, and the actual responder cap is a hardcoded
+        // literal (2 or 3) clamped again to max 3 inside
+        // DefenseIncident.create() - the configured 5/8 could never take
+        // effect even if wired. See SectDefenseMixin's class doc for the
+        // full trace. Only criticalHealthRatio has a real, verified consumer
+        // (a literal 0.25d comparison in handleSectMemberAttacked) and is
+        // wired by SectDefenseMixin.
+        SECT_DEFENSE_ESCAPE_RADIUS = builder.comment("Radius for defense escape (blocks).", "NOTE: real backing field has no consumer in the base mod - currently unwired, has no effect.").defineInRange("escapeRadius", 32.0, 1.0, 512.0);
         SECT_DEFENSE_CRITICAL_HEALTH_RATIO = builder.comment("Health ratio for critical defense response (0.3 = 30%).").defineInRange("criticalHealthRatio", 0.25, 0.0, 1.0);
-        SECT_DEFENSE_CRITICAL_RESPONDER_LIMIT = builder.comment("Max responders for critical threat.").defineInRange("criticalResponderLimit", 5, 0, 100);
-        SECT_DEFENSE_DEATH_RESPONDER_LIMIT = builder.comment("Max responders for sect member death.").defineInRange("deathResponderLimit", 8, 0, 100);
+        SECT_DEFENSE_CRITICAL_RESPONDER_LIMIT = builder.comment("Max responders for critical threat.", "NOTE: real responder cap is a hardcoded literal, clamped to max 3 regardless - currently unwired, has no effect.").defineInRange("criticalResponderLimit", 5, 0, 100);
+        SECT_DEFENSE_DEATH_RESPONDER_LIMIT = builder.comment("Max responders for sect member death.", "NOTE: real responder cap is a hardcoded literal, clamped to max 3 regardless - currently unwired, has no effect.").defineInRange("deathResponderLimit", 8, 0, 100);
 
         builder.pop(); // sectDefense
 
@@ -2320,10 +2850,16 @@ public final class ExtendedConfig {
         builder.comment("Sect department work shift schedules (in-game time, 0-24000).")
                .push("sectSchedule");
 
-        SECT_DEPARTMENT_FIRST_SHIFT_START = builder.comment("First shift start time (in-game time).").defineInRange("firstShiftStart", 6000, 0, 24000);
-        SECT_DEPARTMENT_FIRST_SHIFT_END = builder.comment("First shift end time.").defineInRange("firstShiftEnd", 12000, 0, 24000);
-        SECT_DEPARTMENT_SECOND_SHIFT_START = builder.comment("Second shift start time.").defineInRange("secondShiftStart", 12000, 0, 24000);
-        SECT_DEPARTMENT_SECOND_SHIFT_END = builder.comment("Second shift end time.").defineInRange("secondShiftEnd", 18000, 0, 24000);
+        // Defaults corrected 2026-09-01 (were 6000/12000/12000/18000, never
+        // matching the real base-mod values below) when this field was wired
+        // for the first time - verified via javap -p -c -s against
+        // SectSavedData.departmentShiftScheduled(UUID, long): shift 0 is
+        // [1000, 6000), shift 1 is [6000, 11000), each member's shift chosen
+        // by Math.floorMod(member.hashCode(), 2).
+        SECT_DEPARTMENT_FIRST_SHIFT_START = builder.comment("First shift start time (in-game time).").defineInRange("firstShiftStart", 1000, 0, 24000);
+        SECT_DEPARTMENT_FIRST_SHIFT_END = builder.comment("First shift end time.").defineInRange("firstShiftEnd", 6000, 0, 24000);
+        SECT_DEPARTMENT_SECOND_SHIFT_START = builder.comment("Second shift start time.").defineInRange("secondShiftStart", 6000, 0, 24000);
+        SECT_DEPARTMENT_SECOND_SHIFT_END = builder.comment("Second shift end time.").defineInRange("secondShiftEnd", 11000, 0, 24000);
         SECT_SCHEDULE_DAY_TICKS = builder.comment("Ticks per sect day (usually 24000 = 1 Minecraft day).").defineInRange("dayTicks", 24000, 1000, 60000);
         SECT_SCHEDULE_MORNING_END_EXCLUSIVE = builder.comment("When morning phase ends (exclusive, in-game time).").defineInRange("morningEndExclusive", 1000, 0, 24000);
         SECT_SCHEDULE_NIGHT_START = builder.comment("When night phase starts (in-game time).").defineInRange("nightStart", 12000, 0, 24000);
@@ -2336,10 +2872,18 @@ public final class ExtendedConfig {
         builder.comment("Sect task market additional parameters (journey timeouts, escrow).")
                .push("sectTasks");
 
-        SECT_TASK_MAX_ESCROW_STACKS = builder.comment("Max escrow stacks per task.").defineInRange("maxEscrowStacks", 16, 1, 256);
+        // MAX_ESCROW_STACKS/JOURNEY_MIN/MAX_TIMEOUT_TICKS defaults corrected
+        // 2026-09-01 (were 16/1200/4800) - verified via javap -v /-c against
+        // SectTaskMarketRules.class real ConstantValues and journeyTimeoutTicks()'s
+        // body (12000 base + up to 24000 more by severity = 12000-36000 range).
+        // MAX_ESCROW_STACKS' own consuming call site was not isolated this
+        // session (not referenced within SectTaskMarketRules itself, so it is
+        // read from elsewhere, likely SectSavedData's task-escrow logic) -
+        // still unwired, default corrected for honesty regardless.
+        SECT_TASK_MAX_ESCROW_STACKS = builder.comment("Max escrow stacks per task.").defineInRange("maxEscrowStacks", 8, 1, 256);
         SECT_TASK_MAX_SYSTEM_PURCHASE_TASKS = builder.comment("Max system purchase tasks.").defineInRange("maxSystemPurchaseTasks", 8, 0, 100);
-        SECT_TASK_JOURNEY_MIN_TIMEOUT_TICKS = builder.comment("Minimum journey timeout in ticks.").defineInRange("journeyMinTimeoutTicks", 1200, 20, 60000);
-        SECT_TASK_JOURNEY_MAX_TIMEOUT_TICKS = builder.comment("Maximum journey timeout in ticks.").defineInRange("journeyMaxTimeoutTicks", 4800, 20, 60000);
+        SECT_TASK_JOURNEY_MIN_TIMEOUT_TICKS = builder.comment("Minimum journey timeout in ticks.").defineInRange("journeyMinTimeoutTicks", 12000, 20, 60000);
+        SECT_TASK_JOURNEY_MAX_TIMEOUT_TICKS = builder.comment("Maximum journey timeout in ticks.").defineInRange("journeyMaxTimeoutTicks", 36000, 20, 60000);
 
         builder.pop(); // sectTasks
 
@@ -2379,7 +2923,11 @@ public final class ExtendedConfig {
         builder.comment("Sect ambient NPC social interaction additional parameters.")
                .push("sectAmbient");
 
-        SECT_AMBIENT_CHECK_INTERVAL_TICKS = builder.comment("How often ambient interactions are checked (ticks).").defineInRange("checkIntervalTicks", 100, 1, 6000);
+        // Default corrected 2026-09-01 (was 100, real value verified via
+        // javap is 20 - tickDailyLife's Math.floorMod gate). NOTE: this same
+        // gate also controls tickSectISystems, an unrelated subsystem - see
+        // SectAmbientCheckIntervalMixin's class doc.
+        SECT_AMBIENT_CHECK_INTERVAL_TICKS = builder.comment("How often ambient interactions are checked (ticks).").defineInRange("checkIntervalTicks", 20, 1, 6000);
         SECT_AMBIENT_MAX_ACTIVE_SCENES_PER_LEVEL = builder.comment("Max concurrent ambient scenes per level.").defineInRange("maxActiveScenesPerLevel", 2, 0, 50);
         SECT_AMBIENT_MIN_SECT_COOLDOWN_TICKS = builder.comment("Minimum sect cooldown for ambient interactions.").defineInRange("minSectCooldownTicks", 1800, 0, 60000);
         SECT_AMBIENT_MAX_SECT_COOLDOWN_TICKS = builder.comment("Maximum sect cooldown for ambient interactions.").defineInRange("maxSectCooldownTicks", 4200, 0, 60000);
@@ -2395,8 +2943,13 @@ public final class ExtendedConfig {
 
         SECT_OVERHEAD_PANEL_FADE_START_DISTANCE = builder.comment("Distance where overhead panel starts fading (blocks).").defineInRange("panelFadeStartDistance", 56.0, 1.0, 256.0);
         SECT_OVERHEAD_PANEL_RENDER_DISTANCE = builder.comment("Max render distance for overhead panel (blocks).").defineInRange("panelRenderDistance", 64.0, 1.0, 512.0);
-        SECT_OVERHEAD_PANEL_FADE_IN_TICKS = builder.comment("Fade in animation duration (ticks).").defineInRange("panelFadeInTicks", 10, 0, 200);
-        SECT_OVERHEAD_PANEL_FADE_OUT_TICKS = builder.comment("Fade out animation duration (ticks).").defineInRange("panelFadeOutTicks", 10, 0, 200);
+        // Defaults corrected 2026-09-01 (were 10/10) when this field was
+        // wired for the first time - verified via javap -p -c -s against
+        // SectOverheadPanelVisibilityClient.onClientTick(): currentAlpha
+        // moves by +-0.2f/tick while shown (5 ticks to fully fade in) and
+        // by -0.125f/tick while hidden (8 ticks to fully fade out).
+        SECT_OVERHEAD_PANEL_FADE_IN_TICKS = builder.comment("Fade in animation duration (ticks).").defineInRange("panelFadeInTicks", 5, 1, 200);
+        SECT_OVERHEAD_PANEL_FADE_OUT_TICKS = builder.comment("Fade out animation duration (ticks).").defineInRange("panelFadeOutTicks", 8, 1, 200);
         SECT_BUBBLE_MIN_DURATION_TICKS = builder.comment("Minimum bubble display duration (ticks).").defineInRange("bubbleMinDurationTicks", 60, 1, 6000);
         SECT_BUBBLE_MAX_DURATION_TICKS = builder.comment("Maximum bubble display duration (ticks).").defineInRange("bubbleMaxDurationTicks", 120, 1, 6000);
         SECT_BUBBLE_FADE_TICKS = builder.comment("Bubble fade time (ticks).").defineInRange("bubbleFadeTicks", 10, 0, 200);
@@ -2410,12 +2963,25 @@ public final class ExtendedConfig {
         builder.comment("Generated sect NPC cultivation profile parameters.")
                .push("sectProfile");
 
-        SECT_PROFILE_MIN_CULTIVATOR_PROGRESS = builder.comment("Minimum cultivator progress.").defineInRange("minCultivatorProgress", 0.1, 0.0, 1.0);
-        SECT_PROFILE_MAX_MORTAL_REALM_PROGRESS = builder.comment("Maximum mortal realm progress.").defineInRange("maxMortalRealmProgress", 0.8, 0.0, 1.0);
+        // Field-type gap found 2026-09-01: the real backing fields
+        // (GeneratedSectCultivationProfile.MIN_CULTIVATOR_PROGRESS/
+        // MAX_MORTAL_REALM_PROGRESS/MIN_MASTER_PROGRESS) are raw int
+        // Realm.progressIndex() values, not 0.0-1.0 fractions - these 3
+        // DoubleValue fields cannot be correctly wired to them without
+        // inventing an unverified fraction-to-int mapping, so they remain
+        // unwired (see SectAncestorProfileMixin's class doc for the full
+        // bytecode citation).
+        SECT_PROFILE_MIN_CULTIVATOR_PROGRESS = builder.comment("Minimum cultivator progress. NOTE: field type mismatch with the real int-based value - currently unwired, has no effect.").defineInRange("minCultivatorProgress", 0.1, 0.0, 1.0);
+        SECT_PROFILE_MAX_MORTAL_REALM_PROGRESS = builder.comment("Maximum mortal realm progress. NOTE: field type mismatch with the real int-based value - currently unwired, has no effect.").defineInRange("maxMortalRealmProgress", 0.8, 0.0, 1.0);
+        // MAX_ORDINARY_ROLE_SPAN default corrected 2026-09-01 (was 365) when
+        // wired for the first time - verified via javap -p -c -s against
+        // GeneratedSectCultivationProfile.forRole(): the real cap is 20
+        // (progressIndex units, not days - the "(days)" in these comments
+        // appears to be a pre-existing scaffolding assumption, not verified).
         SECT_PROFILE_MAX_POWER_SCORE = builder.comment("Maximum sect power score.").defineInRange("maxPowerScore", 4, 0, 100);
-        SECT_PROFILE_MIN_ORDINARY_ROLE_SPAN = builder.comment("Minimum ordinary role span (days).").defineInRange("minOrdinaryRoleSpan", 30, 1, 10000);
-        SECT_PROFILE_MAX_ORDINARY_ROLE_SPAN = builder.comment("Maximum ordinary role span (days).").defineInRange("maxOrdinaryRoleSpan", 365, 1, 10000);
-        SECT_PROFILE_MIN_MASTER_PROGRESS = builder.comment("Minimum progress for master role.").defineInRange("minMasterProgress", 0.5, 0.0, 1.0);
+        SECT_PROFILE_MIN_ORDINARY_ROLE_SPAN = builder.comment("Minimum ordinary role span (days). NOTE: real backing field not located this session - currently unwired, has no effect.").defineInRange("minOrdinaryRoleSpan", 30, 1, 10000);
+        SECT_PROFILE_MAX_ORDINARY_ROLE_SPAN = builder.comment("Maximum ordinary role span.").defineInRange("maxOrdinaryRoleSpan", 20, 1, 10000);
+        SECT_PROFILE_MIN_MASTER_PROGRESS = builder.comment("Minimum progress for master role. NOTE: field type mismatch with the real int-based value - currently unwired, has no effect.").defineInRange("minMasterProgress", 0.5, 0.0, 1.0);
 
         builder.pop(); // sectProfile
 
@@ -2471,18 +3037,52 @@ public final class ExtendedConfig {
         builder.comment("Formation core plate block entity timing and harvest parameters.")
                .push("formationCore");
 
-        FORMATION_EFFECT_INTERVAL_TICKS = builder.comment("How often formation effects tick.").defineInRange("effectIntervalTicks", 20, 1, 6000);
-        FORMATION_GENERATED_ARRAY_SYNC_INTERVAL_TICKS = builder.comment("Sync interval for generated arrays.").defineInRange("generatedArraySyncIntervalTicks", 100, 1, 6000);
-        FORMATION_RELOAD_FLAG_VALIDATION_GRACE_TICKS = builder.comment("Grace period for flag validation on reload.").defineInRange("reloadFlagValidationGraceTicks", 200, 0, 6000);
-        FORMATION_EFFECT_DURATION_TICKS = builder.comment("Duration of formation effects (ticks).").defineInRange("effectDurationTicks", 200, 1, 6000);
-        FORMATION_GROWTH_TICK_INTERVAL_TICKS = builder.comment("Growth formation tick interval.").defineInRange("growthTickIntervalTicks", 100, 1, 6000);
-        FORMATION_STORAGE_CORE_INTERVAL_TICKS = builder.comment("Storage core tick interval.").defineInRange("storageCoreIntervalTicks", 20, 1, 6000);
-        FORMATION_FARM_HARVEST_MIN_CHECKS = builder.comment("Minimum farm harvest checks per cycle.").defineInRange("farmHarvestMinChecks", 1, 0, 100);
-        FORMATION_FARM_HARVEST_CHECKS_PER_TARGET = builder.comment("Farm harvest checks per target.").defineInRange("farmHarvestChecksPerTarget", 4, 1, 100);
-        FORMATION_FARM_HARVEST_MAX_CHECKS = builder.comment("Maximum farm harvest checks per cycle.").defineInRange("farmHarvestMaxChecks", 64, 1, 1000);
-        FORMATION_MIN_FLAG_EFFECT_RADIUS = builder.comment("Minimum flag effect radius (blocks).").defineInRange("minFlagEffectRadius", 1, 1, 64);
-        FORMATION_DEFAULT_FLAG_EFFECT_RADIUS = builder.comment("Default flag effect radius (blocks).").defineInRange("defaultFlagEffectRadius", 4, 1, 64);
-        FORMATION_MAX_FLAG_EFFECT_RADIUS = builder.comment("Maximum flag effect radius (blocks).").defineInRange("maxFlagEffectRadius", 16, 1, 128);
+        FORMATION_EFFECT_INTERVAL_TICKS = builder.comment("How often formation effects tick. " +
+                "Wired 2026-09-01 via FormationCorePlateBlockEntityMixin. Verified (javap -constants) the real " +
+                "base-mod value is 10, not the 20 this field previously shipped with (it was never wired before, " +
+                "so this corrects the default to the real original-mod value rather than leave a wrong one live).")
+                .defineInRange("effectIntervalTicks", 10, 1, 6000);
+        FORMATION_GENERATED_ARRAY_SYNC_INTERVAL_TICKS = builder.comment("Sync interval for generated arrays " +
+                "(IMMORTAL-tier formation cores only). Wired 2026-09-01. Real base-mod value is 200, corrected " +
+                "from this field's previous unwired default of 100.")
+                .defineInRange("generatedArraySyncIntervalTicks", 200, 1, 6000);
+        FORMATION_RELOAD_FLAG_VALIDATION_GRACE_TICKS = builder.comment("Grace period for flag validation on " +
+                "reload. Wired 2026-09-01. Real base-mod value is 100, corrected from this field's previous " +
+                "unwired default of 200.").defineInRange("reloadFlagValidationGraceTicks", 100, 0, 6000);
+        FORMATION_EFFECT_DURATION_TICKS = builder.comment("Duration of formation effects (ticks). " +
+                "Wired 2026-09-01 - applies to the REJUVENATION, FLIGHT_BAN, and MAZE effect types (4 call " +
+                "sites total, all sharing this one literal). Real base-mod value is 16, corrected from this " +
+                "field's previous unwired default of 200 (12.5x off).").defineInRange("effectDurationTicks", 16, 1, 6000);
+        FORMATION_GROWTH_TICK_INTERVAL_TICKS = builder.comment("Growth formation tick cadence (distinct from " +
+                "FORMATION_GROWTH_MULT_*, which controls the multiplier applied on each tick, not how often it " +
+                "ticks). Wired 2026-09-01. Real base-mod value is 20, corrected from this field's previous " +
+                "unwired default of 100.").defineInRange("growthTickIntervalTicks", 20, 1, 6000);
+        FORMATION_STORAGE_CORE_INTERVAL_TICKS = builder.comment("Storage core tick interval. " +
+                "Wired 2026-09-01. This default (20) already matched the real base-mod value.")
+                .defineInRange("storageCoreIntervalTicks", 20, 1, 6000);
+        FORMATION_FARM_HARVEST_MIN_CHECKS = builder.comment("Minimum farm-tile scan budget per harvest cycle " +
+                "(bounds the batch-size-driven scan, doesn't change harvested yield - see FORMATION_HARVEST_ " +
+                "BATCH_SIZE_IMMORTAL etc for that). Wired 2026-09-01. Real base-mod value is 4096, corrected " +
+                "from this field's previous unwired default of 1 (and the range widened to fit - the old 0-100 " +
+                "range couldn't even hold the real value).").defineInRange("farmHarvestMinChecks", 4096, 0, 20000);
+        FORMATION_FARM_HARVEST_CHECKS_PER_TARGET = builder.comment("Farm-tile scan budget per harvest-batch " +
+                "unit. Wired 2026-09-01. Real base-mod value is 1024, corrected from this field's previous " +
+                "unwired default of 4 (range widened to fit).")
+                .defineInRange("farmHarvestChecksPerTarget", 1024, 1, 5000);
+        FORMATION_FARM_HARVEST_MAX_CHECKS = builder.comment("Maximum farm-tile scan budget per harvest cycle. " +
+                "Wired 2026-09-01. Real base-mod value is 16384, corrected from this field's previous unwired " +
+                "default of 64 (range widened to fit).").defineInRange("farmHarvestMaxChecks", 16384, 1, 50000);
+        FORMATION_MIN_FLAG_EFFECT_RADIUS = builder.comment("Minimum flag effect radius (blocks). " +
+                "Wired 2026-09-01. This default (1) already matched the real base-mod value.")
+                .defineInRange("minFlagEffectRadius", 1, 1, 64);
+        FORMATION_DEFAULT_FLAG_EFFECT_RADIUS = builder.comment("Default flag effect radius (blocks) used before " +
+                "a per-flag radius is explicitly set. Wired 2026-09-01. Real base-mod value is 8, corrected " +
+                "from this field's previous unwired default of 4.").defineInRange("defaultFlagEffectRadius", 8, 1, 64);
+        FORMATION_MAX_FLAG_EFFECT_RADIUS = builder.comment("Maximum flag effect radius (blocks). " +
+                "Wired 2026-09-01 - two call sites share this literal (the shared clamp helper and a second, " +
+                "independent fallback clamp in radiusForFlag). Real base-mod value is 255, corrected from this " +
+                "field's previous unwired default of 16 (range widened to fit).")
+                .defineInRange("maxFlagEffectRadius", 255, 1, 512);
 
         builder.pop(); // formationCore
 
@@ -2559,9 +3159,23 @@ public final class ExtendedConfig {
         builder.comment("Additional cultivation progression rules: technique base, lifespan reserve, weakness days.")
                .push("progressionRules");
 
-        PROGRESSION_MORTAL_EQUIPPED_TECHNIQUE_BASE_MULT = builder.comment("Base technique multiplier for mortals.").defineInRange("mortalEquippedTechniqueBaseMult", 1.0, 0.0, 100.0);
-        PROGRESSION_NPC_HIGHER_DAO_LIFESPAN_RESERVE_THRESHOLD = builder.comment("Lifespan reserve threshold for NPC Dao selection.").defineInRange("npcHigherDaoLifespanReserveThreshold", 0.5, 0.0, 100.0);
-        PROGRESSION_NPC_TRIBULATION_FAILURE_WEAKNESS_DAYS = builder.comment("Days of weakness after NPC tribulation failure.").defineInRange("npcTribulationFailureWeaknessDays", 30, 0, 3650);
+        PROGRESSION_MORTAL_EQUIPPED_TECHNIQUE_BASE_MULT = builder.comment("Base technique multiplier for mortals. " +
+                "Wired 2026-09-01 via CultivationProgressionRulesMixin, targeting " +
+                "CultivationProgressionRules.baseAbsorbMultiplier(Realm, boolean, boolean) - the fallback " +
+                "absorption multiplier used for a MORTAL-realm player/NPC with an equipped technique, when " +
+                "the realm itself defines no base absorb mult of its own. The default (1.0) already matches " +
+                "the real value.").defineInRange("mortalEquippedTechniqueBaseMult", 1.0, 0.0, 100.0);
+        PROGRESSION_NPC_HIGHER_DAO_LIFESPAN_RESERVE_THRESHOLD = builder.comment("Lifespan reserve threshold for " +
+                "NPC Dao selection. Wired 2026-09-01 via CultivationProgressionRulesMixin, targeting " +
+                "CultivationProgressionRules.hasEnoughLifespanReserve(double, int). This field was never wired " +
+                "before this session, so its default has been corrected from 0.5 to the real value, 1.0 " +
+                "(reserveDays / lifespanDays must be >= 1.0).").defineInRange("npcHigherDaoLifespanReserveThreshold", 1.0, 0.0, 100.0);
+        PROGRESSION_NPC_TRIBULATION_FAILURE_WEAKNESS_DAYS = builder.comment("Days of weakness after NPC " +
+                "tribulation failure. DUPLICATE FIELD (found 2026-09-01): this describes the exact same real " +
+                "mechanic as progressionRules.npcTribulationWeaknessDays above (SectSavedData.failMemberTribulation, " +
+                "real value 3, not 30 - this field's own default was never corrected because only one mixin can " +
+                "safely own that bytecode site). Edit npcTribulationWeaknessDays instead; this field is not wired " +
+                "and changing it does nothing.").defineInRange("npcTribulationFailureWeaknessDays", 30, 0, 3650);
 
         builder.pop(); // progressionRules
 
@@ -2589,10 +3203,222 @@ public final class ExtendedConfig {
         builder.comment("Additional morality system constants: min/max value bounds.")
                .push("moralityBounds");
 
-        MORALITY_MIN_VALUE = builder.comment("Minimum morality value.").defineInRange("minValue", -1000, -100000, 0);
-        MORALITY_MAX_VALUE = builder.comment("Maximum morality value.").defineInRange("maxValue", 1000, 0, 100000);
+        MORALITY_MIN_VALUE = builder.comment("Minimum morality value. Wired 2026-09-01 via MoralityHelperMixin, " +
+                "targeting the int AND long -1000000 literals in MoralityHelper.clamp(int) and .add(int, int) " +
+                "(two overload-distinct constants per method). Never wired before this session, so the default " +
+                "and range were corrected to match the real value (-1000000, was -1000).").defineInRange("minValue", -1000000, -100000000, 0);
+        MORALITY_MAX_VALUE = builder.comment("Maximum morality value. Wired 2026-09-01, same mixin, targeting " +
+                "the +1000000 literals. Default/range corrected from 1000 the same way.").defineInRange("maxValue", 1000000, 0, 100000000);
 
         builder.pop(); // moralityBounds
+
+        // ══════════════════════════════════════════════════════════════════
+        //  TALISMAN (new in base mod 0.1.1479)
+        // ══════════════════════════════════════════════════════════════════
+        // The 0.1.1479 update added a ~166-class Talisman glyph-crafting system
+        // (com.xiaoxiang.cultivation.cultivation.talisman / .entity.talisman /
+        // .talisman packages). Its central constants table, TalismanLimits.class,
+        // holds ~110 public static final int/float fields (structural caps like
+        // MAX_EXECUTABLE_SLOTS plus ~90 per-glyph *_QI_COST values) - but every one
+        // of them is a compile-time constant inlined at every use site (confirmed:
+        // zero getstatic references to TalismanLimits anywhere in the disassembled
+        // package), so wiring each one requires individually locating and verifying
+        // its real use site(s), exactly like every other fix in this project. Only
+        // the two fields below have been traced and verified so far; the rest are
+        // tracked as a backlog in CONFIG_AUDIT.md for future passes rather than
+        // guessed at.
+        builder.comment("Talisman glyph-crafting system (base mod 0.1.1479+). Only a first wave " +
+                "of its constants are wired so far - see CONFIG_AUDIT.md for the full backlog.")
+               .push("talisman");
+
+        ENABLE_TALISMAN_OVERRIDES = builder.comment("Override talisman glyph-crafting values.").define("enableTalismanOverrides", true);
+
+        // Wired 2026-09-02 via TalismanCompilerMixin (configExt$defaultExplosionRadius /
+        // configExt$maxExplosionRadius): TalismanCompiler.buildCompiledPlan(...), the
+        // EXPLOSION manifestation-type branch of a tableswitch on
+        // TalismanManifestationType.ordinal() (case 2 = EXPLOSION, the 2nd declared
+        // enum constant, confirmed via the real enum's declaration order). fconst_2
+        // (2.0f = TalismanLimits.DEFAULT_EXPLOSION_RADIUS) is fed into
+        // evolvedAreaRadius(F, TalismanEvolutionBundle) to compute the glyph's real
+        // radius after evolution scaling, which is then compared via fcmpl/ifle
+        // against ldc_w 7.0f (TalismanLimits.MAX_EXPLOSION_RADIUS) - exceeding it
+        // raises TalismanCompileError.EXPLOSION_RADIUS_LIMIT and rejects the craft.
+        // Both literals are single, unambiguous occurrences within this one method.
+        TALISMAN_DEFAULT_EXPLOSION_RADIUS = builder.comment("Base explosion radius (before evolution scaling) for the EXPLOSION talisman glyph manifestation.").defineInRange("defaultExplosionRadius", 2.0, 0.1, 100.0);
+        TALISMAN_MAX_EXPLOSION_RADIUS = builder.comment("Maximum allowed explosion radius (after evolution scaling) before talisman compilation rejects the glyph.").defineInRange("maxExplosionRadius", 7.0, 0.1, 100.0);
+
+        builder.comment("Per-glyph Qi costs for the Talisman crafting system (base mod 0.1.1479). " +
+                "Wave 2 of the audit in CONFIG_AUDIT.md - each field traced to its exact call site " +
+                "in TalismanGlyphCatalog's register*(Map) methods via TalismanGlyphCatalogMixin.")
+               .push("glyphCosts");
+
+        TALISMAN_TRIGGER_QI_COST = builder.comment("Qi cost for the ON_HURT, LOW_HEALTH, NEARBY_LIVING, CONTACT talisman glyphs (they share one generic base-mod constant) (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.TRIGGER_QI_COST.")
+                .defineInRange("triggerQiCost", 11, 0, 10000);
+        TALISMAN_FIREBALL_QI_COST = builder.comment("Qi cost for the FIREBALL talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.FIREBALL_QI_COST.")
+                .defineInRange("fireballQiCost", 17, 0, 10000);
+        TALISMAN_EXPLOSION_QI_COST = builder.comment("Qi cost for the EXPLOSION talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.EXPLOSION_QI_COST.")
+                .defineInRange("explosionQiCost", 16, 0, 10000);
+        TALISMAN_DAMAGE_QI_COST = builder.comment("Qi cost for the DAMAGE_X2 talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DAMAGE_QI_COST.")
+                .defineInRange("damageQiCost", 15, 0, 10000);
+        TALISMAN_DESTRUCTION_QI_COST = builder.comment("Qi cost for the DESTRUCTION_X2 talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DESTRUCTION_QI_COST.")
+                .defineInRange("destructionQiCost", 16, 0, 10000);
+        TALISMAN_SPLIT_QI_COST = builder.comment("Qi cost for the SPLIT talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SPLIT_QI_COST.")
+                .defineInRange("splitQiCost", 19, 0, 10000);
+        TALISMAN_DIVINE_SENSE_TRIGGER_QI_COST = builder.comment("Qi cost for the DIVINE_SENSE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DIVINE_SENSE_TRIGGER_QI_COST.")
+                .defineInRange("divineSenseTriggerQiCost", 13, 0, 10000);
+        TALISMAN_ANTI_AIR_TRIGGER_QI_COST = builder.comment("Qi cost for the ANTI_AIR talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.ANTI_AIR_TRIGGER_QI_COST.")
+                .defineInRange("antiAirTriggerQiCost", 16, 0, 10000);
+        TALISMAN_LIGHTNING_ARC_QI_COST = builder.comment("Qi cost for the LIGHTNING_ARC talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.LIGHTNING_ARC_QI_COST.")
+                .defineInRange("lightningArcQiCost", 24, 0, 10000);
+        TALISMAN_LIGHTNING_STRIKE_QI_COST = builder.comment("Qi cost for the LIGHTNING_STRIKE talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.LIGHTNING_STRIKE_QI_COST.")
+                .defineInRange("lightningStrikeQiCost", 28, 0, 10000);
+        TALISMAN_ICE_SWORD_QI_COST = builder.comment("Qi cost for the ICE_SWORD talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.ICE_SWORD_QI_COST.")
+                .defineInRange("iceSwordQiCost", 24, 0, 10000);
+        TALISMAN_REGENERATION_QI_COST = builder.comment("Qi cost for the REGENERATION talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.REGENERATION_QI_COST.")
+                .defineInRange("regenerationQiCost", 18, 0, 10000);
+        TALISMAN_SWIFTNESS_QI_COST = builder.comment("Qi cost for the SWIFTNESS talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SWIFTNESS_QI_COST.")
+                .defineInRange("swiftnessQiCost", 16, 0, 10000);
+        TALISMAN_POISON_QI_COST = builder.comment("Qi cost for the POISON talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.POISON_QI_COST.")
+                .defineInRange("poisonQiCost", 18, 0, 10000);
+        TALISMAN_DELAY_QI_COST = builder.comment("Qi cost for the DELAY talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DELAY_QI_COST.")
+                .defineInRange("delayQiCost", 13, 0, 10000);
+        TALISMAN_HOMING_QI_COST = builder.comment("Qi cost for the HOMING talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HOMING_QI_COST.")
+                .defineInRange("homingQiCost", 18, 0, 10000);
+        TALISMAN_PIERCE_QI_COST = builder.comment("Qi cost for the PIERCE_PLUS_ONE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.PIERCE_QI_COST.")
+                .defineInRange("pierceQiCost", 20, 0, 10000);
+        TALISMAN_POTENCY_QI_COST = builder.comment("Qi cost for the POTENCY_PLUS_ONE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.POTENCY_QI_COST.")
+                .defineInRange("potencyQiCost", 16, 0, 10000);
+        TALISMAN_DURATION_QI_COST = builder.comment("Qi cost for the DURATION_X2 talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DURATION_QI_COST.")
+                .defineInRange("durationQiCost", 15, 0, 10000);
+        TALISMAN_PULL_QI_COST = builder.comment("Qi cost for the PULL talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.PULL_QI_COST.")
+                .defineInRange("pullQiCost", 19, 0, 10000);
+        TALISMAN_MECHANISM_TRIGGER_QI_COST = builder.comment("Qi cost for the MECHANISM talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.MECHANISM_TRIGGER_QI_COST.")
+                .defineInRange("mechanismTriggerQiCost", 12, 0, 10000);
+        TALISMAN_TAMPER_TRIGGER_QI_COST = builder.comment("Qi cost for the TAMPER talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.TAMPER_TRIGGER_QI_COST.")
+                .defineInRange("tamperTriggerQiCost", 14, 0, 10000);
+        TALISMAN_MELEE_STRIKE_TRIGGER_QI_COST = builder.comment("Qi cost for the MELEE_STRIKE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.MELEE_STRIKE_TRIGGER_QI_COST.")
+                .defineInRange("meleeStrikeTriggerQiCost", 14, 0, 10000);
+        TALISMAN_RANGED_STRIKE_TRIGGER_QI_COST = builder.comment("Qi cost for the RANGED_STRIKE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.RANGED_STRIKE_TRIGGER_QI_COST.")
+                .defineInRange("rangedStrikeTriggerQiCost", 15, 0, 10000);
+        TALISMAN_SUCCESSFUL_GUARD_TRIGGER_QI_COST = builder.comment("Qi cost for the SUCCESSFUL_GUARD talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SUCCESSFUL_GUARD_TRIGGER_QI_COST.")
+                .defineInRange("successfulGuardTriggerQiCost", 16, 0, 10000);
+        TALISMAN_SPELLCAST_TRIGGER_QI_COST = builder.comment("Qi cost for the SPELLCAST talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SPELLCAST_TRIGGER_QI_COST.")
+                .defineInRange("spellcastTriggerQiCost", 18, 0, 10000);
+        TALISMAN_VANQUISH_TRIGGER_QI_COST = builder.comment("Qi cost for the VANQUISH talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.VANQUISH_TRIGGER_QI_COST.")
+                .defineInRange("vanquishTriggerQiCost", 17, 0, 10000);
+        TALISMAN_LOW_QI_TRIGGER_QI_COST = builder.comment("Qi cost for the LOW_QI talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.LOW_QI_TRIGGER_QI_COST.")
+                .defineInRange("lowQiTriggerQiCost", 15, 0, 10000);
+        TALISMAN_AFFLICTED_TRIGGER_QI_COST = builder.comment("Qi cost for the AFFLICTED talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.AFFLICTED_TRIGGER_QI_COST.")
+                .defineInRange("afflictedTriggerQiCost", 16, 0, 10000);
+        TALISMAN_IGNITED_TRIGGER_QI_COST = builder.comment("Qi cost for the IGNITED talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.IGNITED_TRIGGER_QI_COST.")
+                .defineInRange("ignitedTriggerQiCost", 12, 0, 10000);
+        TALISMAN_HARD_LANDING_TRIGGER_QI_COST = builder.comment("Qi cost for the HARD_LANDING talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HARD_LANDING_TRIGGER_QI_COST.")
+                .defineInRange("hardLandingTriggerQiCost", 12, 0, 10000);
+        TALISMAN_SHIELD_BROKEN_TRIGGER_QI_COST = builder.comment("Qi cost for the SHIELD_BROKEN talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SHIELD_BROKEN_TRIGGER_QI_COST.")
+                .defineInRange("shieldBrokenTriggerQiCost", 20, 0, 10000);
+        TALISMAN_LEFT_CLICK_SUPPORT_TRIGGER_QI_COST = builder.comment("Qi cost for the LEFT_CLICK_SUPPORT talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.LEFT_CLICK_SUPPORT_TRIGGER_QI_COST.")
+                .defineInRange("leftClickSupportTriggerQiCost", 14, 0, 10000);
+        TALISMAN_NEARBY_BLOCK_BREAK_TRIGGER_QI_COST = builder.comment("Qi cost for the NEARBY_BLOCK_BREAK talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.NEARBY_BLOCK_BREAK_TRIGGER_QI_COST.")
+                .defineInRange("nearbyBlockBreakTriggerQiCost", 16, 0, 10000);
+        TALISMAN_HOSTILE_PROJECTILE_TRIGGER_QI_COST = builder.comment("Qi cost for the HOSTILE_PROJECTILE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HOSTILE_PROJECTILE_TRIGGER_QI_COST.")
+                .defineInRange("hostileProjectileTriggerQiCost", 18, 0, 10000);
+        TALISMAN_BOUNDARY_CROSSING_TRIGGER_QI_COST = builder.comment("Qi cost for the BOUNDARY_CROSSING talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.BOUNDARY_CROSSING_TRIGGER_QI_COST.")
+                .defineInRange("boundaryCrossingTriggerQiCost", 16, 0, 10000);
+        TALISMAN_HOSTILE_GAZE_TRIGGER_QI_COST = builder.comment("Qi cost for the HOSTILE_GAZE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HOSTILE_GAZE_TRIGGER_QI_COST.")
+                .defineInRange("hostileGazeTriggerQiCost", 18, 0, 10000);
+        TALISMAN_HOSTILE_SPELLCAST_TRIGGER_QI_COST = builder.comment("Qi cost for the HOSTILE_SPELLCAST talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HOSTILE_SPELLCAST_TRIGGER_QI_COST.")
+                .defineInRange("hostileSpellcastTriggerQiCost", 20, 0, 10000);
+        TALISMAN_NEARBY_EXPLOSION_TRIGGER_QI_COST = builder.comment("Qi cost for the NEARBY_EXPLOSION talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.NEARBY_EXPLOSION_TRIGGER_QI_COST.")
+                .defineInRange("nearbyExplosionTriggerQiCost", 18, 0, 10000);
+        TALISMAN_REDSTONE_FALLING_EDGE_TRIGGER_QI_COST = builder.comment("Qi cost for the REDSTONE_FALLING_EDGE talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.REDSTONE_FALLING_EDGE_TRIGGER_QI_COST.")
+                .defineInRange("redstoneFallingEdgeTriggerQiCost", 12, 0, 10000);
+        TALISMAN_DAWN_TRIGGER_QI_COST = builder.comment("Qi cost for the DAWN talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.DAWN_TRIGGER_QI_COST.")
+                .defineInRange("dawnTriggerQiCost", 11, 0, 10000);
+        TALISMAN_NEARBY_NATURAL_LIGHTNING_TRIGGER_QI_COST = builder.comment("Qi cost for the NEARBY_NATURAL_LIGHTNING talisman glyph (trigger). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.NEARBY_NATURAL_LIGHTNING_TRIGGER_QI_COST.")
+                .defineInRange("nearbyNaturalLightningTriggerQiCost", 13, 0, 10000);
+        TALISMAN_STONE_ORB_QI_COST = builder.comment("Qi cost for the STONE_ORB talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.STONE_ORB_QI_COST.")
+                .defineInRange("stoneOrbQiCost", 21, 0, 10000);
+        TALISMAN_HEAVEN_DRILL_QI_COST = builder.comment("Qi cost for the HEAVEN_DRILL talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.HEAVEN_DRILL_QI_COST.")
+                .defineInRange("heavenDrillQiCost", 30, 0, 10000);
+        TALISMAN_CRIMSON_LOTUS_DOMAIN_QI_COST = builder.comment("Qi cost for the CRIMSON_LOTUS_DOMAIN talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.CRIMSON_LOTUS_DOMAIN_QI_COST.")
+                .defineInRange("crimsonLotusDomainQiCost", 32, 0, 10000);
+        TALISMAN_THUNDER_ORB_QI_COST = builder.comment("Qi cost for the THUNDER_ORB talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.THUNDER_ORB_QI_COST.")
+                .defineInRange("thunderOrbQiCost", 25, 0, 10000);
+        TALISMAN_STARFALL_QI_COST = builder.comment("Qi cost for the STARFALL talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.STARFALL_QI_COST.")
+                .defineInRange("starfallQiCost", 34, 0, 10000);
+        TALISMAN_SWORDMARK_QI_COST = builder.comment("Qi cost for the SWORDMARK talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SWORDMARK_QI_COST.")
+                .defineInRange("swordmarkQiCost", 27, 0, 10000);
+        TALISMAN_SURGING_TIDE_QI_COST = builder.comment("Qi cost for the SURGING_TIDE talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SURGING_TIDE_QI_COST.")
+                .defineInRange("surgingTideQiCost", 24, 0, 10000);
+        TALISMAN_VERDANT_SEED_QI_COST = builder.comment("Qi cost for the VERDANT_SEED talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.VERDANT_SEED_QI_COST.")
+                .defineInRange("verdantSeedQiCost", 23, 0, 10000);
+        TALISMAN_WATER_PRISON_QI_COST = builder.comment("Qi cost for the WATER_PRISON talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.WATER_PRISON_QI_COST.")
+                .defineInRange("waterPrisonQiCost", 26, 0, 10000);
+        TALISMAN_FROST_WALL_QI_COST = builder.comment("Qi cost for the FROST_WALL talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.FROST_WALL_QI_COST.")
+                .defineInRange("frostWallQiCost", 22, 0, 10000);
+        TALISMAN_POLARITY_FIELD_QI_COST = builder.comment("Qi cost for the POLARITY_FIELD talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.POLARITY_FIELD_QI_COST.")
+                .defineInRange("polarityFieldQiCost", 24, 0, 10000);
+        TALISMAN_SPELLRETURN_MIRROR_QI_COST = builder.comment("Qi cost for the SPELLRETURN_MIRROR talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SPELLRETURN_MIRROR_QI_COST.")
+                .defineInRange("spellreturnMirrorQiCost", 28, 0, 10000);
+        TALISMAN_FLAME_STEP_QI_COST = builder.comment("Qi cost for the FLAME_STEP talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.FLAME_STEP_QI_COST.")
+                .defineInRange("flameStepQiCost", 18, 0, 10000);
+        TALISMAN_BLOOD_SPIKE_QI_COST = builder.comment("Qi cost for the BLOOD_SPIKE talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.BLOOD_SPIKE_QI_COST.")
+                .defineInRange("bloodSpikeQiCost", 25, 0, 10000);
+        TALISMAN_THUNDERSTEP_QI_COST = builder.comment("Qi cost for the THUNDERSTEP talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.THUNDERSTEP_QI_COST.")
+                .defineInRange("thunderstepQiCost", 30, 0, 10000);
+        TALISMAN_MIRRORWATER_CLONE_QI_COST = builder.comment("Qi cost for the MIRRORWATER_CLONE talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.MIRRORWATER_CLONE_QI_COST.")
+                .defineInRange("mirrorwaterCloneQiCost", 27, 0, 10000);
+        TALISMAN_FROSTMIRROR_AEGIS_QI_COST = builder.comment("Qi cost for the FROSTMIRROR_AEGIS talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.FROSTMIRROR_AEGIS_QI_COST.")
+                .defineInRange("frostmirrorAegisQiCost", 26, 0, 10000);
+        TALISMAN_WOODEN_DAO_SOLDIER_QI_COST = builder.comment("Qi cost for the WOODEN_DAO_SOLDIER talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.WOODEN_DAO_SOLDIER_QI_COST.")
+                .defineInRange("woodenDaoSoldierQiCost", 30, 0, 10000);
+        TALISMAN_REJUVENATION_ALTAR_QI_COST = builder.comment("Qi cost for the REJUVENATION_ALTAR talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.REJUVENATION_ALTAR_QI_COST.")
+                .defineInRange("rejuvenationAltarQiCost", 26, 0, 10000);
+        TALISMAN_FIVE_PEAKS_SEAL_QI_COST = builder.comment("Qi cost for the FIVE_PEAKS_SEAL talisman glyph (manifestation). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.FIVE_PEAKS_SEAL_QI_COST.")
+                .defineInRange("fivePeaksSealQiCost", 32, 0, 10000);
+        TALISMAN_AREA_PLUS_HALF_QI_COST = builder.comment("Qi cost for the AREA_PLUS_HALF talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.AREA_PLUS_HALF_QI_COST.")
+                .defineInRange("areaPlusHalfQiCost", 17, 0, 10000);
+        TALISMAN_RANGE_PLUS_HALF_QI_COST = builder.comment("Qi cost for the RANGE_PLUS_HALF talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.RANGE_PLUS_HALF_QI_COST.")
+                .defineInRange("rangePlusHalfQiCost", 15, 0, 10000);
+        TALISMAN_PROJECTILE_SPEED_PLUS_HALF_QI_COST = builder.comment("Qi cost for the PROJECTILE_SPEED_PLUS_HALF talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.PROJECTILE_SPEED_PLUS_HALF_QI_COST.")
+                .defineInRange("projectileSpeedPlusHalfQiCost", 16, 0, 10000);
+        TALISMAN_SCALE_PLUS_HALF_QI_COST = builder.comment("Qi cost for the SCALE_PLUS_HALF talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.SCALE_PLUS_HALF_QI_COST.")
+                .defineInRange("scalePlusHalfQiCost", 18, 0, 10000);
+        TALISMAN_ECHO_QI_COST = builder.comment("Qi cost for the ECHO talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.ECHO_QI_COST.")
+                .defineInRange("echoQiCost", 24, 0, 10000);
+        TALISMAN_REPEL_QI_COST = builder.comment("Qi cost for the REPEL talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.REPEL_QI_COST.")
+                .defineInRange("repelQiCost", 17, 0, 10000);
+        TALISMAN_LIFEDRAIN_QI_COST = builder.comment("Qi cost for the LIFEDRAIN talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.LIFEDRAIN_QI_COST.")
+                .defineInRange("lifedrainQiCost", 22, 0, 10000);
+        TALISMAN_ARMORBREAK_QI_COST = builder.comment("Qi cost for the ARMORBREAK talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.ARMORBREAK_QI_COST.")
+                .defineInRange("armorbreakQiCost", 18, 0, 10000);
+        TALISMAN_MERIDIAN_SEAL_QI_COST = builder.comment("Qi cost for the MERIDIAN_SEAL talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.MERIDIAN_SEAL_QI_COST.")
+                .defineInRange("meridianSealQiCost", 20, 0, 10000);
+        TALISMAN_BARRIER_DAMAGE_X2_QI_COST = builder.comment("Qi cost for the BARRIER_DAMAGE_X2 talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.BARRIER_DAMAGE_X2_QI_COST.")
+                .defineInRange("barrierDamageX2QiCost", 22, 0, 10000);
+        TALISMAN_CLEANSE_QI_COST = builder.comment("Qi cost for the CLEANSE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.CLEANSE_QI_COST.")
+                .defineInRange("cleanseQiCost", 16, 0, 10000);
+        TALISMAN_PROLIFERATE_QI_COST = builder.comment("Qi cost for the PROLIFERATE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.PROLIFERATE_QI_COST.")
+                .defineInRange("proliferateQiCost", 22, 0, 10000);
+        TALISMAN_PRESERVE_TERRAIN_QI_COST = builder.comment("Qi cost for the PRESERVE_TERRAIN talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.PRESERVE_TERRAIN_QI_COST.")
+                .defineInRange("preserveTerrainQiCost", 8, 0, 10000);
+        TALISMAN_RELOCATE_QI_COST = builder.comment("Qi cost for the RELOCATE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.RELOCATE_QI_COST.")
+                .defineInRange("relocateQiCost", 23, 0, 10000);
+        TALISMAN_IGNITE_QI_COST = builder.comment("Qi cost for the IGNITE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.IGNITE_QI_COST.")
+                .defineInRange("igniteQiCost", 14, 0, 10000);
+        TALISMAN_CHILL_QI_COST = builder.comment("Qi cost for the CHILL talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.CHILL_QI_COST.")
+                .defineInRange("chillQiCost", 14, 0, 10000);
+        TALISMAN_EXECUTE_QI_COST = builder.comment("Qi cost for the EXECUTE talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.EXECUTE_QI_COST.")
+                .defineInRange("executeQiCost", 20, 0, 10000);
+        TALISMAN_KNOCKUP_QI_COST = builder.comment("Qi cost for the KNOCKUP talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.KNOCKUP_QI_COST.")
+                .defineInRange("knockupQiCost", 16, 0, 10000);
+        TALISMAN_WEAKNESS_QI_COST = builder.comment("Qi cost for the WEAKNESS talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.WEAKNESS_QI_COST.")
+                .defineInRange("weaknessQiCost", 15, 0, 10000);
+        TALISMAN_GLOWING_MARK_QI_COST = builder.comment("Qi cost for the GLOWING_MARK talisman glyph (evolution). Wired 2026-09-02 via TalismanGlyphCatalogMixin, TalismanLimits.GLOWING_MARK_QI_COST.")
+                .defineInRange("glowingMarkQiCost", 12, 0, 10000);
+        builder.pop(); // glyphCosts
+
+        builder.pop(); // talisman
 
         SPEC = builder.build();
     }
@@ -2700,8 +3526,8 @@ public final class ExtendedConfig {
         clientBuilder.comment("HUD positioning and dimensions.")
                       .push("hud");
         CLIENT_HUD_VISIBLE = clientBuilder.comment("Show or hide the in-game cultivation HUD.").define("visible", true);
-        CLIENT_HUD_X = clientBuilder.comment("HUD X position on screen.").defineInRange("x", 6, 0, 10000);
-        CLIENT_HUD_Y = clientBuilder.comment("HUD Y position on screen.").defineInRange("y", 6, 0, 10000);
+        CLIENT_HUD_X = clientBuilder.comment("HUD X position on screen. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("x", 6, 0, 10000);
+        CLIENT_HUD_Y = clientBuilder.comment("HUD Y position on screen. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("y", 6, 0, 10000);
         CLIENT_HUD_BAR_WIDTH = clientBuilder.comment("Width of qi/cultivation bars in HUD.").defineInRange("barWidth", 72, 20, 500);
 
         // Bar-style health/hunger/air HUD
@@ -2712,24 +3538,24 @@ public final class ExtendedConfig {
         CLIENT_HUNGER_BAR_BOTTOM_COLOR = clientBuilder.comment("Hunger bar bottom gradient color.").defineInRange("hungerBarBottom", 0xFF806010, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_AIR_BAR_TOP_COLOR = clientBuilder.comment("Air bar top gradient color.").defineInRange("airBarTop", 0xFF30B0E0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_AIR_BAR_BOTTOM_COLOR = clientBuilder.comment("Air bar bottom gradient color.").defineInRange("airBarBottom", 0xFF106080, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        CLIENT_PORTRAIT_SIZE = clientBuilder.comment("Size of the portrait icon in HUD.").defineInRange("portraitSize", 23, 8, 100);
+        CLIENT_PORTRAIT_SIZE = clientBuilder.comment("Size of the portrait icon in HUD. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("portraitSize", 23, 8, 100);
         clientBuilder.pop();
 
         // Per-element positioning within the cultivation panel
         clientBuilder.comment("Per-element positioning within the cultivation panel. Adjust X/Y offsets to move individual elements. 0 = default position.")
                       .push("elementPos");
-        CLIENT_REALM_NAME_X = clientBuilder.comment("Realm name X offset from default position.").defineInRange("realmNameX", 0, -200, 200);
-        CLIENT_REALM_NAME_Y = clientBuilder.comment("Realm name Y offset from default position.").defineInRange("realmNameY", 0, -200, 200);
-        CLIENT_QI_BAR_X = clientBuilder.comment("Qi bar X offset from default position.").defineInRange("qiBarX", 0, -200, 200);
-        CLIENT_QI_BAR_Y = clientBuilder.comment("Qi bar Y offset from default position.").defineInRange("qiBarY", 0, -200, 200);
-        CLIENT_CULT_BAR_X = clientBuilder.comment("Cultivation bar X offset from default position.").defineInRange("cultBarX", 0, -200, 200);
-        CLIENT_CULT_BAR_Y = clientBuilder.comment("Cultivation bar Y offset from default position.").defineInRange("cultBarY", 0, -200, 200);
-        CLIENT_SPELL_GRID_X = clientBuilder.comment("Spell grid X offset from default position.").defineInRange("spellGridX", 0, -200, 200);
-        CLIENT_SPELL_GRID_Y = clientBuilder.comment("Spell grid Y offset from default position.").defineInRange("spellGridY", 0, -200, 200);
-        CLIENT_INFO_TEXT_X = clientBuilder.comment("Info text block X offset from default position.").defineInRange("infoTextX", 0, -200, 200);
-        CLIENT_INFO_TEXT_Y = clientBuilder.comment("Info text block Y offset from default position.").defineInRange("infoTextY", 0, -200, 200);
-        CLIENT_PORTRAIT_X = clientBuilder.comment("Portrait X offset from default position.").defineInRange("portraitX", 0, -200, 200);
-        CLIENT_PORTRAIT_Y = clientBuilder.comment("Portrait Y offset from default position.").defineInRange("portraitY", 0, -200, 200);
+        CLIENT_REALM_NAME_X = clientBuilder.comment("Realm name X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("realmNameX", 0, -200, 200);
+        CLIENT_REALM_NAME_Y = clientBuilder.comment("Realm name Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("realmNameY", 0, -200, 200);
+        CLIENT_QI_BAR_X = clientBuilder.comment("Qi bar X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("qiBarX", 0, -200, 200);
+        CLIENT_QI_BAR_Y = clientBuilder.comment("Qi bar Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("qiBarY", 0, -200, 200);
+        CLIENT_CULT_BAR_X = clientBuilder.comment("Cultivation bar X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("cultBarX", 0, -200, 200);
+        CLIENT_CULT_BAR_Y = clientBuilder.comment("Cultivation bar Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("cultBarY", 0, -200, 200);
+        CLIENT_SPELL_GRID_X = clientBuilder.comment("Spell grid X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("spellGridX", 0, -200, 200);
+        CLIENT_SPELL_GRID_Y = clientBuilder.comment("Spell grid Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("spellGridY", 0, -200, 200);
+        CLIENT_INFO_TEXT_X = clientBuilder.comment("Info text block X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("infoTextX", 0, -200, 200);
+        CLIENT_INFO_TEXT_Y = clientBuilder.comment("Info text block Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("infoTextY", 0, -200, 200);
+        CLIENT_PORTRAIT_X = clientBuilder.comment("Portrait X offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("portraitX", 0, -200, 200);
+        CLIENT_PORTRAIT_Y = clientBuilder.comment("Portrait Y offset from default position. Not yet wired to the base mod's HUD rendering (position-offset fields need per-element bytecode slicing not yet done safely) - tracked in CONFIG_AUDIT.md; changing this currently has no visible effect.").defineInRange("portraitY", 0, -200, 200);
         clientBuilder.pop();
 
         clientBuilder.comment("Status bar layout in the panel.")
@@ -2746,7 +3572,16 @@ public final class ExtendedConfig {
         CLIENT_CULT_BAR_TOP_COLOR = clientBuilder.comment("Cultivation bar top gradient color.").defineInRange("cultBarTop", -928374, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_CULT_BAR_BOTTOM_COLOR = clientBuilder.comment("Cultivation bar bottom gradient color.").defineInRange("cultBarBottom", -3631046, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_GOLD_TEXT_COLOR = clientBuilder.comment("Gold text color used for headings and emphasis.").defineInRange("goldText", -1456016, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        CLIENT_INK_BLACK_COLOR = clientBuilder.comment("Ink black color for primary text.").defineInRange("inkBlack", -16448509, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        // VERIFIED 2026-09-01: the base mod's own INK_BLACK constant that this field's
+        // value was meant to match is not referenced anywhere in CultivationHud's
+        // bytecode - it's dead in the base mod itself, not just unwired here. This
+        // field currently has no effect; left in place (not removed) so a future
+        // update to the base mod that starts using its own INK_BLACK constant has
+        // somewhere ready to hook into, rather than deleting a slot that might
+        // become real again.
+        CLIENT_INK_BLACK_COLOR = clientBuilder.comment("Ink black color for primary text. Currently has no effect - " +
+                "verified (2026-09-01) that the base mod's own matching constant is itself unused, so there is nothing to override.")
+                .defineInRange("inkBlack", -16448509, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_INK_SOFT_COLOR = clientBuilder.comment("Soft ink color for secondary text.").defineInRange("inkSoft", -12766422, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_VERMILLION_COLOR = clientBuilder.comment("Vermillion (red-orange) accent color.").defineInRange("vermillion", -4703686, Integer.MIN_VALUE, Integer.MAX_VALUE);
         CLIENT_BORDER_LIGHT_COLOR = clientBuilder.comment("Light border color for panels.").defineInRange("borderLight", -2504802, Integer.MIN_VALUE, Integer.MAX_VALUE);

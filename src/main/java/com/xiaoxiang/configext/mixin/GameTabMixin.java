@@ -26,7 +26,7 @@ public class GameTabMixin {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>", at = @At("TAIL"), require = 0)
     private void configExt$removeDifficultyButton(CallbackInfo ci) {
         try {
             if (ExtendedConfig.CLIENT_REMOVE_VANILLA_DIFFICULTY_BUTTON == null

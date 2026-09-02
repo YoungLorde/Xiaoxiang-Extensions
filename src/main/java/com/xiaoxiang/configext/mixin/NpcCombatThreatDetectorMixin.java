@@ -5,7 +5,9 @@ import com.xiaoxiang.cultivation.cultivation.realm.Realm;
 import com.xiaoxiang.cultivation.entity.npc.NpcCombatThreatDetector;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -19,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(NpcCombatThreatDetector.class)
 public abstract class NpcCombatThreatDetectorMixin {
 
-    @Inject(method = "profile", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "profile", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$profile(Realm realm, CallbackInfoReturnable<Object> cir) {
         if (!ExtendedConfig.ENABLE_NPC_COMBAT_OVERRIDES.get()) {
             return;
@@ -45,13 +47,35 @@ public abstract class NpcCombatThreatDetectorMixin {
         }
     }
 
-    @Inject(method = "cappedChance", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "cappedChance", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$cappedChance(double chance, CallbackInfoReturnable<Double> cir) {
         if (!ExtendedConfig.ENABLE_NPC_COMBAT_OVERRIDES.get()) {
             return;
         }
         double cap = ExtendedConfig.NPC_COMBAT_HARD_DODGE_CAP.get();
         cir.setReturnValue(Math.max(0.0, Math.min(cap, chance)));
+    }
+
+    /**
+     * Added 2026-09-01. findThreat(WanderingCultivatorEntity, boolean) is the
+     * per-scan candidate-gathering method (called every scan cycle from the
+     * already-covered tick() path). Verified via javap -p -c -s: a single
+     * "ldc2_w 13.0d" feeds an AABB.inflate(...) call that gathers every
+     * candidate threat (projectile/collision/area/tnt alike - the field name
+     * "PROJECTILE_SCAN_RADIUS" is a slight misnomer in the base mod, but
+     * there's only one radius here to control), and a single "ldc2_w 48l"
+     * feeds Stream.limit(...) capping how many sorted candidates survive.
+     */
+    @ModifyConstant(method = "findThreat", constant = @Constant(doubleValue = 13.0), remap = false, require = 0)
+    private double configExt$projectileScanRadius(double original) {
+        if (!ExtendedConfig.ENABLE_NPC_COMBAT_OVERRIDES.get()) return original;
+        return ExtendedConfig.NPC_COMBAT_PROJECTILE_SCAN_RADIUS.get();
+    }
+
+    @ModifyConstant(method = "findThreat", constant = @Constant(longValue = 48L), remap = false, require = 0)
+    private long configExt$maxCandidates(long original) {
+        if (!ExtendedConfig.ENABLE_NPC_COMBAT_OVERRIDES.get()) return original;
+        return ExtendedConfig.NPC_COMBAT_MAX_CANDIDATES.get();
     }
 
     private static int getScanTicks(Realm realm) {

@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SectDepartmentType.class)
 public abstract class SectDepartmentTypeMixin {
 
-    @Inject(method = "workPointsPerOutput", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "workPointsPerOutput", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$workPointsPerOutput(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_SECT_OVERRIDES.get()) return;
         SectDepartmentType self = (SectDepartmentType) (Object) this;
@@ -53,7 +53,7 @@ public abstract class SectDepartmentTypeMixin {
         }
     }
 
-    @Inject(method = "dailyOutputCap", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "dailyOutputCap", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$dailyOutputCap(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_SECT_OVERRIDES.get()) return;
         SectDepartmentType self = (SectDepartmentType) (Object) this;
@@ -72,7 +72,7 @@ public abstract class SectDepartmentTypeMixin {
         }
     }
 
-    @Inject(method = "inputBufferTarget", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "inputBufferTarget", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$inputBufferTarget(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_SECT_OVERRIDES.get()) return;
         SectDepartmentType self = (SectDepartmentType) (Object) this;

@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BiomeQiProfile.class)
 public abstract class BiomeQiProfileMixin {
 
-    @Inject(method = "of", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "of", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$of(Holder<Biome> biome, CallbackInfoReturnable<BiomeQiProfile> cir) {
         if (!ExtendedConfig.ENABLE_QI_OVERRIDES.get()) {
             return;

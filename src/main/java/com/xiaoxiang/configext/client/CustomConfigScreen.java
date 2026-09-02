@@ -2419,7 +2419,7 @@ public class CustomConfigScreen extends Screen {
         // ── Export/Import/Diff/Checksum/ResetTab/Save/Nav buttons at bottom-left ──
         int utilBtnY = this.height - 28;
         int utilBtnH = 12;
-        String[] utilLabels = {"Export", "Import", "Diff", "Checksum", "Reset Tab", "Save", "Preset", "SavePreset", "Nav"};
+        String[] utilLabels = {"Export", "Import", "Diff", "Checksum", "Reset Tab", "Reset All", "Save", "Preset", "SavePreset", "Nav"};
         int utilX = 8;
         for (String label : utilLabels) {
             int utilW = this.font.width(label) + 6;
@@ -4513,7 +4513,7 @@ public class CustomConfigScreen extends Screen {
         // ── Export/Import/Diff/Checksum/ResetTab/Save buttons at bottom-left ──
         int utilBtnY = this.height - 28;
         int utilBtnH = 12;
-        String[] utilLabels = {"Export", "Import", "Diff", "Checksum", "Reset Tab", "Save", "Preset", "SavePreset", "Nav"};
+        String[] utilLabels = {"Export", "Import", "Diff", "Checksum", "Reset Tab", "Reset All", "Save", "Preset", "SavePreset", "Nav"};
         int utilX = 8;
         for (String label : utilLabels) {
             int utilW = this.font.width(label) + 6;
@@ -4544,6 +4544,22 @@ public class CustomConfigScreen extends Screen {
                         break;
                     case "Reset Tab":
                         resetCurrentTabConfigs();
+                        break;
+                    case "Reset All":
+                        // Resets every configurable in the mod, not just the current tab -
+                        // gated behind Shift so a stray click can't wipe every customization
+                        // at once (same modifier-confirm pattern already used for tab
+                        // reordering above). getDefaultValueString() reads the value each
+                        // field was registered with in ExtendedConfig.java, which is the
+                        // original xiaoxiang_cultivation mod's own default for every field
+                        // that was defined correctly - "reset to default" always means that,
+                        // never some separate config-ext-specific default.
+                        if (hasShiftDown()) {
+                            resetAllConfigs();
+                            NotificationSystem.showSuccess("Reset ALL settings to their default values");
+                        } else {
+                            NotificationSystem.showWarning("Hold Shift and click 'Reset All' to reset every setting in the mod");
+                        }
                         break;
                     case "Save":
                         saveAnimStart = System.currentTimeMillis();

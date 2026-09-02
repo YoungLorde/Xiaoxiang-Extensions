@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Spell.class)
 public abstract class SpellMixin {
 
-    @Inject(method = "damage", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "damage", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$damage(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_SPELL_OVERRIDES.get()) {
             return;
@@ -43,7 +43,7 @@ public abstract class SpellMixin {
         cir.setReturnValue((int) Math.max(0, Math.round(base * mult)));
     }
 
-    @Inject(method = "qiCost", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "qiCost", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$qiCost(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_SPELL_OVERRIDES.get()) {
             return;

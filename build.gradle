@@ -89,7 +89,10 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 
     // Original mod as compile-only dependency (we reference its classes but don't bundle it)
-    compileOnly fg.deobf("blank:xiaoxiang_cultivation:0.1.1302")
+    // Bumped 2026-09-02: base mod updated to 0.1.1479 (was 0.1.1302). The old jar
+    // stays in libs/ for reference/diffing; only this version string and the
+    // matching jar filename in libs/ need to agree for flatDir resolution.
+    compileOnly fg.deobf("blank:xiaoxiang_cultivation:0.1.1479")
 
     // Cloth Config not needed - the "Configured" mod provides the GUI
 }

@@ -623,6 +623,70 @@ public class ItemPickerPopup {
         pose.popPose();
     }
 
+    /**
+     * Fixed 2026-09-02 (player-reported, screenshot): the Item Preview panel
+     * (PREVIEW_W = 80px, ~76px usable) used plain drawScaledString for the
+     * item name/id and every tooltip line. That method only ever scales a
+     * SINGLE line down, floored at 0.5x - fine for a moderately-long item
+     * name, but item tooltip lines can be full sentences ("Harvests nature
+     * crops, grass, spirit herbs, and similar plants, stores drops nearby,
+     * and tries to replant."). Once a line's natural width exceeds 2x
+     * maxWidth, the 0.5x floor can no longer bring it inside the box at all
+     * - it just renders proportionally too wide and spills out of the
+     * preview panel into the Selected panel next to it, which is exactly
+     * the "words cutting into another box section" bug reported.
+     *
+     * This method wraps text across as many lines as needed - at a fixed,
+     * always-legible scale rather than an unbounded shrink - so no line can
+     * ever exceed maxWidth regardless of how long the source sentence is.
+     * Wrapping happens at the *unscaled* width the text would occupy at
+     * `scale` (maxWidth / scale), so every wrapped line individually still
+     * fits maxWidth once actually drawn at that scale. Returns the total
+     * pixel height consumed so callers can stack subsequent elements below
+     * however many lines this actually took, instead of assuming 1 line.
+     */
+    private static int drawWrappedScaledString(GuiGraphics g, net.minecraft.client.gui.Font font,
+                                                 String text, int x, int y, int maxWidth, int maxY,
+                                                 int color, float scale) {
+        if (text == null || text.isEmpty()) return 0;
+        int wrapWidthUnscaled = Math.max(1, (int) (maxWidth / scale));
+        java.util.List<String> lines = wrapPlainText(font, text, wrapWidthUnscaled);
+        int lineHeight = Math.max(1, Math.round(font.lineHeight * scale));
+        PoseStack pose = g.pose();
+        int curY = y;
+        for (String line : lines) {
+            if (curY + lineHeight > maxY) break; // respect the panel's bottom edge, same as before
+            pose.pushPose();
+            pose.translate(x, curY, 0);
+            pose.scale(scale, scale, 1.0f);
+            g.drawString(font, line, 0, 0, color);
+            pose.popPose();
+            curY += lineHeight;
+        }
+        return curY - y;
+    }
+
+    /** Greedy word-wrap (space-delimited, plus explicit \n breaks) at a fixed unscaled pixel width. */
+    private static java.util.List<String> wrapPlainText(net.minecraft.client.gui.Font font, String text, int maxWidth) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (String rawLine : text.split("\n", -1)) {
+            String[] words = rawLine.split(" ");
+            StringBuilder line = new StringBuilder();
+            for (String word : words) {
+                if (word.isEmpty()) continue;
+                String candidate = line.length() == 0 ? word : line + " " + word;
+                if (font.width(candidate) > maxWidth && line.length() > 0) {
+                    out.add(line.toString());
+                    line = new StringBuilder(word);
+                } else {
+                    line = new StringBuilder(candidate);
+                }
+            }
+            out.add(line.toString());
+        }
+        return out;
+    }
+
     public boolean isOpen() { return open; }
 
     public void open(String configPath, String currentValue) {
@@ -1578,22 +1642,29 @@ public class ItemPickerPopup {
                         int iconX = previewX + (previewW - 32) / 2;
                         int iconY = panelTopY + 8;
                         g.renderItem(stack, iconX, iconY);
-                        // Render item name below the icon (wrapped)
+                        int previewTextW = previewW - 4;
+                        int previewBottom = panelBottomY - 2;
+                        // Render item name below the icon, wrapping (not overflowing) if it's long -
+                        // stack subsequent elements below however many lines it actually took.
                         String itemName = stack.getHoverName().getString();
-                        drawScaledString(g, font, itemName, previewX + 2, iconY + 36, previewW - 4, 0xFFFFFF);
+                        int cursorY = iconY + 36;
+                        cursorY += drawWrappedScaledString(g, font, itemName, previewX + 2, cursorY, previewTextW, previewBottom, 0xFFFFFF, 0.7f);
                         // Render item ID below the name
                         String shortId = hoveredItemId.contains(":") ? hoveredItemId.substring(hoveredItemId.indexOf(":") + 1) : hoveredItemId;
-                        drawScaledString(g, font, "\u00A77" + shortId, previewX + 2, iconY + 52, previewW - 4, 0xFFA0A0A0);
-                        // Render tooltip lines if available
+                        cursorY += 2;
+                        cursorY += drawWrappedScaledString(g, font, shortId, previewX + 2, cursorY, previewTextW, previewBottom, 0xFFA0A0A0, 0.7f);
+                        cursorY += 4;
+                        // Render tooltip lines if available. Each source tooltip line can itself be a
+                        // full sentence (e.g. an "Effect:" description) - wrap every one individually
+                        // rather than assuming it fits on one row, so nothing can spill into the
+                        // Selected panel to the right (the bug this whole method exists to fix).
                         try {
                             java.util.List<net.minecraft.network.chat.Component> tooltipLines = stack.getTooltipLines(
                                 net.minecraft.client.Minecraft.getInstance().player,
                                 net.minecraft.world.item.TooltipFlag.NORMAL);
-                            int tooltipY = iconY + 66;
-                            for (int t = 0; t < Math.min(6, tooltipLines.size()); t++) {
-                                if (tooltipY + 12 > panelBottomY) break;
-                                drawScaledString(g, font, tooltipLines.get(t).getString(), previewX + 2, tooltipY, previewW - 4, 0xFFCCCCCC);
-                                tooltipY += 12;
+                            for (int t = 0; t < tooltipLines.size() && cursorY < previewBottom; t++) {
+                                cursorY += drawWrappedScaledString(g, font, tooltipLines.get(t).getString(),
+                                        previewX + 2, cursorY, previewTextW, previewBottom, 0xFFCCCCCC, 0.7f);
                             }
                         } catch (Exception e) { /* tooltip rendering is non-critical */ }
                     }

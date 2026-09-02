@@ -2,6 +2,7 @@ package com.xiaoxiang.configext.mixin;
 
 import com.xiaoxiang.configext.config.ExtendedConfig;
 import com.xiaoxiang.cultivation.cultivation.QiElement;
+import com.xiaoxiang.cultivation.cultivation.technique.Technique;
 import com.xiaoxiang.cultivation.cultivation.technique.TechniqueBonusHelper;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -93,5 +94,44 @@ public abstract class TechniqueBonusHelperMixin {
         double mult = ExtendedConfig.TECHNIQUE_MOVE_SPEED_BONUS_GLOBAL.get();
         if (mult == 1.0) return;
         cir.setReturnValue(cir.getReturnValueD() * mult);
+    }
+
+    // ── Refining section's two per-technique tier-up-chance fields (added 2026-09-01) ──
+    //
+    // refiningTierUpChance(Player)D and alchemyTierUpChance(Player)D both read
+    // bonusOf(player) - i.e. whichever ONE technique the player has equipped
+    // (Technique.bonus(), baked once per enum constant at class-init - verified
+    // via javap that bonusOf() is a single equipped-technique lookup, not an
+    // aggregate across several techniques) - so identity-checking the equipped
+    // technique here is safe and unambiguous, the same pattern already used in
+    // PillEffectSpecsMixin for matching individual items.
+    //
+    // IMPORTANT bytecode-verified finding: REFINING_TIER_UP_CHANCE_HEAVENLY_ELIXIR's
+    // own name/section says "refining", but the base mod's HEAVENLY_ELIXIR technique
+    // never calls .refiningTierUpChance() when building its Bonus record - it calls
+    // .alchemyTierUpChance(0.25) instead. Heavenly Elixir's real bonus is an ALCHEMY
+    // tier-up chance, not a refining one; its actual refiningTierUpChance is 0.0
+    // (DIVINE_FORGE is the one that sets refiningTierUpChance, to 0.25). Rather than
+    // wire this field to a mechanic it doesn't actually control (which would give
+    // Heavenly Elixir a refining bonus the base mod never gave it, and make "Reset
+    // All" restore a value that isn't the real original-mod default), this hooks it
+    // to alchemyTierUpChance() instead - the field's own default (0.25) already
+    // matches what that mechanic's real default is, so this makes the field mean
+    // what its default value already implied. Its own tooltip in ExtendedConfig.java
+    // has been corrected to say this plainly.
+    @Inject(method = "refiningTierUpChance", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
+    private static void configExt$refiningTierUpChance(Player player, CallbackInfoReturnable<Double> cir) {
+        if (!ExtendedConfig.ENABLE_REFINING_OVERRIDES.get()) return;
+        if (TechniqueBonusHelper.equippedOf(player) == Technique.DIVINE_FORGE) {
+            cir.setReturnValue(ExtendedConfig.REFINING_TIER_UP_CHANCE_DIVINE_FORGE.get());
+        }
+    }
+
+    @Inject(method = "alchemyTierUpChance", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
+    private static void configExt$alchemyTierUpChanceForHeavenlyElixir(Player player, CallbackInfoReturnable<Double> cir) {
+        if (!ExtendedConfig.ENABLE_REFINING_OVERRIDES.get()) return;
+        if (TechniqueBonusHelper.equippedOf(player) == Technique.HEAVENLY_ELIXIR) {
+            cir.setReturnValue(ExtendedConfig.REFINING_TIER_UP_CHANCE_HEAVENLY_ELIXIR.get());
+        }
     }
 }

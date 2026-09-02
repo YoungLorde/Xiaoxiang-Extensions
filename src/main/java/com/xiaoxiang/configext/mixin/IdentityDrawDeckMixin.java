@@ -15,13 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(IdentityDrawDeck.class)
 public abstract class IdentityDrawDeckMixin {
 
-    @Inject(method = "deckSize", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "deckSize", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$deckSize(CallbackInfoReturnable<Integer> cir) {
         int override = ExtendedConfig.IDENTITY_DRAW_DECK_SIZE.get();
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "roundsRemaining", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "roundsRemaining", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$roundsRemaining(CallbackInfoReturnable<Integer> cir) {
         int maxRounds = ExtendedConfig.IDENTITY_DRAW_MAX_ROUNDS.get();
         // roundsRemaining = maxRounds - roundsUsed
@@ -38,7 +38,7 @@ public abstract class IdentityDrawDeckMixin {
         }
     }
 
-    @Inject(method = "canRoll", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "canRoll", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$canRoll(CallbackInfoReturnable<Boolean> cir) {
         int maxRounds = ExtendedConfig.IDENTITY_DRAW_MAX_ROUNDS.get();
         int defaultMaxRounds = 2;

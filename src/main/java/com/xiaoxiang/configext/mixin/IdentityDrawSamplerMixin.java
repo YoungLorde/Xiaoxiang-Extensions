@@ -37,7 +37,7 @@ public abstract class IdentityDrawSamplerMixin {
     // deleting the work.
     private static final boolean CUSTOM_IDENTITIES_IN_ROSTER_ENABLED = true;
 
-    @Inject(method = "sampleNew", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "sampleNew", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$injectCustomIdentities(Random random, CallbackInfoReturnable<IdentityDrawDeck> cir) {
         if (!CUSTOM_IDENTITIES_IN_ROSTER_ENABLED) return;
         IdentityDrawDeck originalDeck = cir.getReturnValue();

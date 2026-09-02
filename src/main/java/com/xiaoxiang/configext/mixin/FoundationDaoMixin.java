@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(FoundationDao.class)
 public abstract class FoundationDaoMixin {
 
-    @Inject(method = "lifespanBonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "lifespanBonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$lifespanBonus(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -36,7 +36,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "spellDamageMult", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "spellDamageMult", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$spellDamageMult(CallbackInfoReturnable<Double> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -51,7 +51,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "spellQiCostMult", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "spellQiCostMult", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$spellQiCostMult(CallbackInfoReturnable<Double> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -66,7 +66,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "hpMult", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "hpMult", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$hpMult(CallbackInfoReturnable<Double> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -79,7 +79,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "bodyDefenseBonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "bodyDefenseBonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$bodyDefenseBonus(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -98,7 +98,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "cultivationEfficiencyBonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "cultivationEfficiencyBonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$cultivationEfficiencyBonus(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -113,7 +113,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "qiRecoveryPerSecondBonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "qiRecoveryPerSecondBonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$qiRecoveryPerSecondBonus(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;
@@ -128,7 +128,7 @@ public abstract class FoundationDaoMixin {
         if (override != cir.getReturnValue()) cir.setReturnValue(override);
     }
 
-    @Inject(method = "meleeDamageBonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "meleeDamageBonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$meleeDamageBonus(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_DAO_OVERRIDES.get()) return;
         FoundationDao self = (FoundationDao) (Object) this;

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ModCommonConfig.class)
 public abstract class ModCommonConfigMixin {
 
-    @Inject(method = "sectSettlementCellSpawnChance", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "sectSettlementCellSpawnChance", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$overrideSectSpawnChance(CallbackInfoReturnable<Double> cir) {
         try {
             cir.setReturnValue(ExtendedConfig.SECT_SETTLEMENT_CELL_SPAWN_CHANCE.get());

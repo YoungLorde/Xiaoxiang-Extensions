@@ -20,22 +20,22 @@ public abstract class LooseImmortalBonusHelperMixin {
         return Math.max(0, Math.min(3, level));
     }
 
-    @Inject(method = "wavesForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "wavesForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$wavesForCurrentLevel(int level, CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(ExtendedConfig.LOOSE_IMMORTAL_WAVES_PER_TRIBULATION.get());
     }
 
-    @Inject(method = "boltsPerWaveForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "boltsPerWaveForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$boltsPerWaveForCurrentLevel(int level, CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(ExtendedConfig.LOOSE_IMMORTAL_BOLTS_PER_WAVE.get());
     }
 
-    @Inject(method = "strikeDamageForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "strikeDamageForCurrentLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$strikeDamageForCurrentLevel(int level, CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(ExtendedConfig.LOOSE_IMMORTAL_STRIKE_DAMAGE.get());
     }
 
-    @Inject(method = "bodyDefenseBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "bodyDefenseBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$bodyDefenseBonusForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {
@@ -47,7 +47,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "cultivationEfficiencyBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "cultivationEfficiencyBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$cultivationEfficiencyBonusForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {
@@ -59,7 +59,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "qiRecoveryPerSecondBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "qiRecoveryPerSecondBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$qiRecoveryPerSecondBonusForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {
@@ -71,7 +71,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "meleeDamageBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "meleeDamageBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$meleeDamageBonusForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {
@@ -83,7 +83,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "spellDamageBonusPercentForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "spellDamageBonusPercentForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$spellDamageBonusPercentForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         // Config stores as double multiplier (0.1, 0.2, etc.), original returns int percent
@@ -96,7 +96,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue((int) Math.round(override * 100));
     }
 
-    @Inject(method = "spellQiCostReductionPercentForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "spellQiCostReductionPercentForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$spellQiCostReductionPercentForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         double override = switch (idx) {
@@ -108,7 +108,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue((int) Math.round(override * 100));
     }
 
-    @Inject(method = "maxQiBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "maxQiBonusForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$maxQiBonusForLevel(int level, CallbackInfoReturnable<Long> cir) {
         int idx = configExt$levelIndex(level);
         long override = switch (idx) {
@@ -120,7 +120,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "freeZhenyuanTotalForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "freeZhenyuanTotalForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$freeZhenyuanTotalForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {
@@ -132,7 +132,7 @@ public abstract class LooseImmortalBonusHelperMixin {
         cir.setReturnValue(override);
     }
 
-    @Inject(method = "automaticZhenyuanAttributesTotalForLevel", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "automaticZhenyuanAttributesTotalForLevel", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$automaticZhenyuanAttributesTotalForLevel(int level, CallbackInfoReturnable<Integer> cir) {
         int idx = configExt$levelIndex(level);
         int override = switch (idx) {

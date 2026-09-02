@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AlchemyRank.class)
 public abstract class AlchemyRankMixin {
 
-    @Inject(method = "xpGainFor", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "xpGainFor", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$xpGainFor(PillTier tier, CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_ALCHEMY_OVERRIDES.get()) {
             return;
@@ -29,7 +29,7 @@ public abstract class AlchemyRankMixin {
         cir.setReturnValue(val);
     }
 
-    @Inject(method = "xpGainForFailure", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "xpGainForFailure", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$xpGainForFailure(CallbackInfoReturnable<Integer> cir) {
         if (!ExtendedConfig.ENABLE_ALCHEMY_OVERRIDES.get()) {
             return;

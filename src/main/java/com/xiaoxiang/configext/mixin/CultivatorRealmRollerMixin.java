@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(CultivatorRealmRoller.class)
 public abstract class CultivatorRealmRollerMixin {
 
-    @Inject(method = "roll", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "roll", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$roll(RandomSource random, CallbackInfoReturnable<Realm> cir) {
         if (!ExtendedConfig.ENABLE_SPAWN_OVERRIDES.get()) {
             return;

@@ -38,7 +38,7 @@ public abstract class CreateWorldScreenMixin {
     // Pre-world creation state is in PreWorldState (not here, because mixin
     // validation requires static fields to be private)
 
-    @Inject(method = "onCreate", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onCreate", at = @At("HEAD"), cancellable = true, require = 0)
     private void configExt$showPerkScreenBeforeCreate(CallbackInfo ci) {
         // Bypass flag: when we call onCreate() programmatically from the confirm
         // button handler, don't intercept again (would cause infinite loop)

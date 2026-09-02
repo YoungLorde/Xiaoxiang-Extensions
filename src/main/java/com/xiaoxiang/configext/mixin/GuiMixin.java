@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public abstract class GuiMixin {
 
-    @Inject(method = "renderPlayerHealth", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderPlayerHealth", at = @At("HEAD"), cancellable = true, require = 0)
     private void configExt$suppressPlayerHealth(GuiGraphics g, CallbackInfo ci) {
         if (ExtendedConfig.CLIENT_ENABLE_BAR_HUD.get()) {
             ci.cancel();

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(WanderingCultivatorEntity.class)
 public abstract class WanderingCultivatorEntityMixin {
 
-    @ModifyConstant(method = "checkCultivatorSpawnRules", constant = @org.spongepowered.asm.mixin.injection.Constant(doubleValue = 2.0E-4), remap = false)
+    @ModifyConstant(method = "checkCultivatorSpawnRules", constant = @org.spongepowered.asm.mixin.injection.Constant(doubleValue = 2.0E-4), remap = false, require = 0)
     private static double configExt$nearChance(double original) {
         if (!ExtendedConfig.ENABLE_SPAWN_OVERRIDES.get()) {
             return original;
@@ -22,7 +22,7 @@ public abstract class WanderingCultivatorEntityMixin {
         return ExtendedConfig.CULTIVATOR_SPAWN_CHANCE_NEAR.get();
     }
 
-    @ModifyConstant(method = "checkCultivatorSpawnRules", constant = @org.spongepowered.asm.mixin.injection.Constant(doubleValue = 5.0E-5), remap = false)
+    @ModifyConstant(method = "checkCultivatorSpawnRules", constant = @org.spongepowered.asm.mixin.injection.Constant(doubleValue = 5.0E-5), remap = false, require = 0)
     private static double configExt$farChance(double original) {
         if (!ExtendedConfig.ENABLE_SPAWN_OVERRIDES.get()) {
             return original;

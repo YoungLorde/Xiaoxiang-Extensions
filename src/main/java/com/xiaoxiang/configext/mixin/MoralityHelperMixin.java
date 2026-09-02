@@ -4,7 +4,9 @@ import com.xiaoxiang.configext.config.ExtendedConfig;
 import com.xiaoxiang.cultivation.cultivation.MoralityHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -18,7 +20,7 @@ public abstract class MoralityHelperMixin {
     /**
      * Override the tribulation damage multiplier to use config coefficient and max.
      */
-    @Inject(method = "tribulationDamageMultiplier", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "tribulationDamageMultiplier", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$tribulationDamageMultiplier(int morality, CallbackInfoReturnable<Float> cir) {
         if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return;
         double coefficient = ExtendedConfig.MORALITY_TRIBULATION_DAMAGE_COEFFICIENT.get();
@@ -30,7 +32,7 @@ public abstract class MoralityHelperMixin {
     /**
      * Override isRighteous to use config neutral max threshold.
      */
-    @Inject(method = "isRighteous", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "isRighteous", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$isRighteous(int morality, CallbackInfoReturnable<Boolean> cir) {
         if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return;
         int neutralMax = ExtendedConfig.MORALITY_NEUTRAL_MAX.get();
@@ -41,7 +43,7 @@ public abstract class MoralityHelperMixin {
     /**
      * Override isEvil to use config neutral min threshold.
      */
-    @Inject(method = "isEvil", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "isEvil", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$isEvil(int morality, CallbackInfoReturnable<Boolean> cir) {
         if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return;
         int neutralMin = ExtendedConfig.MORALITY_NEUTRAL_MIN.get();
@@ -84,5 +86,54 @@ public abstract class MoralityHelperMixin {
         } else {
             cir.setReturnValue(MoralityHelper.Path.NEUTRAL);
         }
+    }
+
+    /**
+     * MORALITY_MIN_VALUE / MORALITY_MAX_VALUE (added 2026-09-01).
+     *
+     * Verified via javap -p -c -s: clamp(int) does
+     * Math.max(-1000000, Math.min(1000000, morality)) - one int "ldc -1000000"
+     * and one int "ldc 1000000", each the sole occurrence of that literal/type
+     * in the method. add(int, int) independently re-clamps its long-arithmetic
+     * sum against BOTH a long comparison threshold (ldc2_w -1000000l /
+     * 1000000l) AND an int literal returned on that branch (ldc -1000000 /
+     * 1000000) - four distinct constant sites, each appearing exactly once.
+     * All six are targeted below, scoped per-method and per-type so none of
+     * them can bleed into an unrelated site.
+     */
+    @ModifyConstant(method = "clamp", constant = @Constant(intValue = -1000000), remap = false, require = 0)
+    private static int configExt$clampMin(int original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MIN_VALUE.get();
+    }
+
+    @ModifyConstant(method = "clamp", constant = @Constant(intValue = 1000000), remap = false, require = 0)
+    private static int configExt$clampMax(int original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MAX_VALUE.get();
+    }
+
+    @ModifyConstant(method = "add", constant = @Constant(intValue = -1000000), remap = false, require = 0)
+    private static int configExt$addMinInt(int original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MIN_VALUE.get();
+    }
+
+    @ModifyConstant(method = "add", constant = @Constant(intValue = 1000000), remap = false, require = 0)
+    private static int configExt$addMaxInt(int original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MAX_VALUE.get();
+    }
+
+    @ModifyConstant(method = "add", constant = @Constant(longValue = -1000000L), remap = false, require = 0)
+    private static long configExt$addMinLong(long original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MIN_VALUE.get();
+    }
+
+    @ModifyConstant(method = "add", constant = @Constant(longValue = 1000000L), remap = false, require = 0)
+    private static long configExt$addMaxLong(long original) {
+        if (!ExtendedConfig.ENABLE_MORALITY_OVERRIDES.get()) return original;
+        return ExtendedConfig.MORALITY_MAX_VALUE.get();
     }
 }

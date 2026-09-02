@@ -19,7 +19,7 @@ $ModsDir    = "C:\Users\YoungLorde\AppData\Roaming\ATLauncher\instances\XiaoCult
 # JarName and the versions\ archive folder below both derive from this one
 # value, so bumping a release only means changing this ONE line here (plus
 # mod_version in gradle.properties, which is what the build itself reads).
-$Version    = "1.0.4"
+$Version    = "1.0.9"
 $JarName    = "xiaoxiang_config_ext-$Version.jar"
 $LogFile    = Join-Path $ProjectDir "build_log.txt"
 # Same courtesy copy rebuild_and_install.bat makes for Realm Expansion's

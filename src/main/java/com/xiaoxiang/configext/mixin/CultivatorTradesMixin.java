@@ -20,13 +20,22 @@ import com.mojang.logging.LogUtils;
  * and addSpellBookOffers already pass Integer.MAX_VALUE for maxUses (confirmed via
  * the ldc #10 // int 2147483647 constant at both sites), so those two are already
  * effectively infinite and are left untouched here; only addInventoryOffers (maxUses
- * = the NPC's actual stock count) and addHeldSwordOffer (maxUses hardcoded to 1) are
+ * = the NPC's actual stock count) and addHeldWeaponOffer (maxUses hardcoded to 1) are
  * ever limited, so those are the two infiniteUses actually needs to touch.
  *
  * priceMult scales the cost ItemStack's count directly (the constructor's own
  * trailing float parameter is vanilla's per-use "demand" price creep, which the
  * original mod already always passes as 0.0f at every site - unrelated to our
  * priceMult setting, and intentionally left alone here).
+ *
+ * UPDATED 2026-09-02 for base mod 0.1.1479: re-verified against the new jar
+ * (javap -p -c) and confirmed addHeldSwordOffer was renamed to
+ * addHeldWeaponOffer, with an identical 3-param signature
+ * (MerchantOffers, WanderingCultivatorEntity, boolean) and the same two
+ * MerchantOffer constructor call sites (5-arg and 6-arg), both still using
+ * a hardcoded iconst_1 for maxUses. This is a clean rename only - all
+ * @ModifyArg method targets below were updated from "addHeldSwordOffer" to
+ * "addHeldWeaponOffer" accordingly; no other logic changed.
  */
 @Mixin(CultivatorTrades.class)
 public abstract class CultivatorTradesMixin {
@@ -53,9 +62,9 @@ public abstract class CultivatorTradesMixin {
         return configExt$infiniteUses(original);
     }
 
-    // ── infinite uses: addHeldSwordOffer (2 call sites: 5-arg, 6-arg ctor) ──
+    // ── infinite uses: addHeldWeaponOffer (2 call sites: 5-arg, 6-arg ctor) ──
 
-    @ModifyArg(method = "addHeldSwordOffer",
+    @ModifyArg(method = "addHeldWeaponOffer",
                at = @At(value = "INVOKE",
                         target = "Lnet/minecraft/world/item/trading/MerchantOffer;<init>(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;IIF)V",
                         ordinal = 0),
@@ -64,7 +73,7 @@ public abstract class CultivatorTradesMixin {
         return configExt$infiniteUses(original);
     }
 
-    @ModifyArg(method = "addHeldSwordOffer",
+    @ModifyArg(method = "addHeldWeaponOffer",
                at = @At(value = "INVOKE",
                         target = "Lnet/minecraft/world/item/trading/MerchantOffer;<init>(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;IIF)V",
                         ordinal = 0),
@@ -102,9 +111,9 @@ public abstract class CultivatorTradesMixin {
         return configExt$scalePrice(original);
     }
 
-    // ── price multiplier: addHeldSwordOffer cost item(s) ──
+    // ── price multiplier: addHeldWeaponOffer cost item(s) ──
 
-    @ModifyArg(method = "addHeldSwordOffer",
+    @ModifyArg(method = "addHeldWeaponOffer",
                at = @At(value = "INVOKE",
                         target = "Lnet/minecraft/world/item/trading/MerchantOffer;<init>(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;IIF)V",
                         ordinal = 0),
@@ -113,7 +122,7 @@ public abstract class CultivatorTradesMixin {
         return configExt$scalePrice(original);
     }
 
-    @ModifyArg(method = "addHeldSwordOffer",
+    @ModifyArg(method = "addHeldWeaponOffer",
                at = @At(value = "INVOKE",
                         target = "Lnet/minecraft/world/item/trading/MerchantOffer;<init>(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;IIF)V",
                         ordinal = 0),
@@ -122,7 +131,7 @@ public abstract class CultivatorTradesMixin {
         return configExt$scalePrice(original);
     }
 
-    @ModifyArg(method = "addHeldSwordOffer",
+    @ModifyArg(method = "addHeldWeaponOffer",
                at = @At(value = "INVOKE",
                         target = "Lnet/minecraft/world/item/trading/MerchantOffer;<init>(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;IIF)V",
                         ordinal = 0),

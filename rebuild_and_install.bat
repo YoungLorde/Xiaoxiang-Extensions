@@ -27,7 +27,7 @@ REM Single source of truth for the version number this script cares about -
 REM JAR_NAME and the versions\ archive folder below both derive from this one
 REM value, so bumping a release only means changing this ONE line here (plus
 REM mod_version in gradle.properties, which is what the build itself reads).
-set "VERSION=1.0.4"
+set "VERSION=1.0.9"
 set "JAR_NAME=xiaoxiang_config_ext-%VERSION%.jar"
 set "LOG_FILE=%PROJECT_DIR%build_log.txt"
 REM Where Realm Expansion keeps its own compile-time copy of this mod's jar -

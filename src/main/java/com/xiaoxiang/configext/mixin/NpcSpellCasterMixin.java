@@ -27,49 +27,49 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(NpcSpellCaster.class)
 public abstract class NpcSpellCasterMixin {
 
-    @Inject(method = "cast", at = @At("HEAD"), remap = false)
+    @Inject(method = "cast", at = @At("HEAD"), remap = false, require = 0)
     private static void configExt$setNpcCastingStart(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                       CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(true);
     }
 
-    @Inject(method = "cast", at = @At("RETURN"), remap = false)
+    @Inject(method = "cast", at = @At("RETURN"), remap = false, require = 0)
     private static void configExt$setNpcCastingEnd(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                     CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(false);
     }
 
-    @Inject(method = "castWithOutcome", at = @At("HEAD"), remap = false)
+    @Inject(method = "castWithOutcome", at = @At("HEAD"), remap = false, require = 0)
     private static void configExt$setNpcCastingStartOutcome(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                              CallbackInfoReturnable<Object> cir) {
         NpcCombatContext.setNpcCasting(true);
     }
 
-    @Inject(method = "castWithOutcome", at = @At("RETURN"), remap = false)
+    @Inject(method = "castWithOutcome", at = @At("RETURN"), remap = false, require = 0)
     private static void configExt$setNpcCastingEndOutcome(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                            CallbackInfoReturnable<Object> cir) {
         NpcCombatContext.setNpcCasting(false);
     }
 
-    @Inject(method = "castMega", at = @At("HEAD"), remap = false)
+    @Inject(method = "castMega", at = @At("HEAD"), remap = false, require = 0)
     private static void configExt$setNpcCastingStartMega(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                           CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(true);
     }
 
-    @Inject(method = "castMega", at = @At("RETURN"), remap = false)
+    @Inject(method = "castMega", at = @At("RETURN"), remap = false, require = 0)
     private static void configExt$setNpcCastingEndMega(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                         CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(false);
     }
 
-    @Inject(method = "completeMegaCastPrepaid", at = @At("HEAD"), remap = false)
+    @Inject(method = "completeMegaCastPrepaid", at = @At("HEAD"), remap = false, require = 0)
     private static void configExt$setNpcCastingStartComplete(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                               CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(true);
     }
 
-    @Inject(method = "completeMegaCastPrepaid", at = @At("RETURN"), remap = false)
+    @Inject(method = "completeMegaCastPrepaid", at = @At("RETURN"), remap = false, require = 0)
     private static void configExt$setNpcCastingEndComplete(WanderingCultivatorEntity caster, Spell spell, LivingEntity target,
                                                             CallbackInfoReturnable<Boolean> cir) {
         NpcCombatContext.setNpcCasting(false);

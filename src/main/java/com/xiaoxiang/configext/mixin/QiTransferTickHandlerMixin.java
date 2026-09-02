@@ -25,7 +25,7 @@ public abstract class QiTransferTickHandlerMixin {
 
     private static final ThreadLocal<Double> meditationMultiplier = new ThreadLocal<>();
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"), require = 0)
     private static void configExt$captureMeditationState(ServerPlayer player, CultivationData data, CallbackInfo ci) {
         if (data != null && data.isMeditating()) {
             // Check if crouch-meditating (lower multiplier) vs cushion-meditating (10x)
@@ -39,12 +39,12 @@ public abstract class QiTransferTickHandlerMixin {
         }
     }
 
-    @Inject(method = "tick", at = @At("RETURN"))
+    @Inject(method = "tick", at = @At("RETURN"), require = 0)
     private static void configExt$clearMeditationState(ServerPlayer player, CultivationData data, CallbackInfo ci) {
         meditationMultiplier.remove();
     }
 
-    @Inject(method = "computeDrain", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "computeDrain", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$multiplyDrainWhenMeditating(int chargingTicks, CallbackInfoReturnable<Long> cir) {
         Double mult = meditationMultiplier.get();
         if (mult != null && mult != 1.0) {

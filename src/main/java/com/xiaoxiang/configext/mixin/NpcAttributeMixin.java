@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = "com.xiaoxiang.cultivation.entity.npc.WanderingCultivatorEntity", remap = false)
 public abstract class NpcAttributeMixin {
 
-    @Inject(method = "createAttributes", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "createAttributes", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private static void configExt$scaleNpcAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         AttributeSupplier.Builder builder = cir.getReturnValue();
         if (builder == null) return;

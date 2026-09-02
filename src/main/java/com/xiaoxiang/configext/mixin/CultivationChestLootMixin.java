@@ -58,50 +58,123 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
  *
  * Targeting the call sites rather than the literals avoids the extremely
  * ambiguous iconst_1/2/3 soup in that ~900-byte method.
+ *
+ * CORRECTED 2026-09-02 (systematic sweep): the entire "ruined vs complete"
+ * distinction described above was DELETED from base mod 0.1.1479. javap -p
+ * confirms the class no longer has any method named fill(...) at all -
+ * static void fill(RandomizableContainerBlockEntity, RandomSource, boolean)
+ * was split/replaced by two new methods, neither of which takes a `ruined`
+ * boolean:
+ *   - static void fillSectContainer(RandomizableContainerBlockEntity,
+ *     RandomSource): the new public entry point (was `fill`'s old role),
+ *     but its body no longer branches on ruined/complete at all - it just
+ *     delegates straight to fillSectLoot(Container, RandomSource).
+ *   - private static void fillSectLoot(Container, RandomSource): unified
+ *     roll logic, bytecode-verified (javap -p -c) to always run
+ *     randomBetween(r, 3, 6) for vanilla rolls and randomBetween(r, 1, 3)
+ *     for cultivation rolls - i.e. exactly the OLD "complete" branch,
+ *     unconditionally. The old "ruined" branch (2..4 vanilla rolls,
+ *     nextInt(3) cultivation rolls) is not present anywhere in the new
+ *     bytecode - the ruined/complete chest variants apparently no longer
+ *     get different roll counts upstream.
+ * Since `fill` no longer exists as a method name, all 6 handlers below were
+ * silently inert (require = 0 degrades an unmatched target to "no
+ * override", not a crash - confirmed via the systematic checker, this was
+ * NOT among the launch-crash bugs) rather than actually broken at load
+ * time. Fixed by retargeting to fillSectLoot with re-verified ordinals
+ * (only 2 int-3 occurrences remain there now, not 3 - offsets recomputed
+ * via fresh javap -c):
+ *   - completeVanillaRollsMin/Max (3, 6): still apply, now unconditionally
+ *     (every chest uses these, not just "complete" ones). Ordinals
+ *     unchanged (still ordinal 0 for both).
+ *   - completeCultivationRollsMin (1): still applies unconditionally.
+ *     Ordinal unchanged (0).
+ *   - completeCultivationRollsMax (3): still applies, but its ordinal
+ *     shifted from 2 to 1 - the old ordinal-1 occurrence of "3" (the ruined
+ *     branch's nextInt bound) no longer exists, so the surviving two
+ *     occurrences of "3" in fillSectLoot are now ordinal 0 (vanilla min,
+ *     still completeVanillaRollsMin's target) and ordinal 1 (cultivation
+ *     max, this field's target).
+ *   - ruinedVanillaRollsMin/Max (2, 4): PERMANENTLY DEAD - their literals
+ *     do not appear anywhere in fillSectLoot at all. Retargeted to
+ *     fillSectLoot anyway (safe: no ordinal-0 occurrence of 2 or 4 exists
+ *     there to collide with) purely so a future reader sees they at least
+ *     resolve to the right class/method; they will simply never fire.
+ *   - ruinedCultivationRollsMax (3, old ordinal 1): also PERMANENTLY DEAD,
+ *     but deliberately left targeting the nonexistent "fill" rather than
+ *     "fillSectLoot" - unlike the two fields above, fillSectLoot's "3"
+ *     literal DOES still occur (twice), and both occurrences are real, live
+ *     targets of other handlers (completeVanillaRollsMin at ordinal 0,
+ *     completeCultivationRollsMax at ordinal 1). Retargeting this one to
+ *     fillSectLoot at either ordinal would collide with one of those and
+ *     silently fight over the same call site instead of being harmlessly
+ *     inert, so it stays pointed at "fill" instead.
+ * All three dead handlers degrade to a silent no-op under require = 0
+ * (not a crash - confirmed via the systematic checker, none of these 6
+ * were among the actual launch-crash bugs), which is the correct degraded
+ * behavior given the base mod removed their upstream code path entirely.
+ * Not deleted outright since ExtendedConfig still declares these three
+ * fields and removing the handlers would silently orphan them with zero
+ * explanation in this file.
  */
 @Mixin(targets = "com.xiaoxiang.cultivation.worldgen.CultivationChestLoot", remap = false)
 public abstract class CultivationChestLootMixin {
 
     // ---------------------------------------------------------------- rolls
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 2, ordinal = 0), require = 0)
+    /** Dead: literal 2 no longer occurs anywhere in fillSectLoot (see class doc). */
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 2, ordinal = 0), require = 0)
     private static int configExt$ruinedVanillaRollsMin(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_RUINED_VANILLA_ROLLS_MIN.get();
     }
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 4, ordinal = 0), require = 0)
+    /** Dead: literal 4 no longer occurs anywhere in fillSectLoot (see class doc). */
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 4, ordinal = 0), require = 0)
     private static int configExt$ruinedVanillaRollsMax(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_RUINED_VANILLA_ROLLS_MAX.get();
     }
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 3, ordinal = 0), require = 0)
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 3, ordinal = 0), require = 0)
     private static int configExt$completeVanillaRollsMin(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_COMPLETE_VANILLA_ROLLS_MIN.get();
     }
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 6, ordinal = 0), require = 0)
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 6, ordinal = 0), require = 0)
     private static int configExt$completeVanillaRollsMax(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_COMPLETE_VANILLA_ROLLS_MAX.get();
     }
 
-    /** Exclusive bound of RandomSource.nextInt(..) - must stay >= 1. */
+    /**
+     * Dead, and deliberately left targeting the no-longer-existent "fill"
+     * (NOT retargeted to fillSectLoot): the ruined branch's nextInt(3)
+     * exclusive bound no longer exists anywhere in the new bytecode, and
+     * fillSectLoot's only two "3" occurrences (ordinals 0 and 1) are both
+     * real, live targets now (completeVanillaRollsMin and
+     * completeCultivationRollsMax respectively - see class doc). Pointing
+     * this handler at fillSectLoot with ANY ordinal would either miss
+     * entirely or, worse, collide with one of those two real handlers and
+     * silently fight over the same call site whenever both are enabled.
+     * Left targeting "fill" so it stays unambiguously inert (require = 0 -
+     * "fill" not found = no-op, same as before) with zero collision risk.
+     */
     @ModifyConstant(method = "fill", constant = @Constant(intValue = 3, ordinal = 1), require = 0)
     private static int configExt$ruinedCultivationRollsMax(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return Math.max(1, ExtendedConfig.LOOT_RUINED_CULTIVATION_ROLLS_MAX.get());
     }
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 1, ordinal = 0), require = 0)
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 1, ordinal = 0), require = 0)
     private static int configExt$completeCultivationRollsMin(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_COMPLETE_CULTIVATION_ROLLS_MIN.get();
     }
 
-    @ModifyConstant(method = "fill", constant = @Constant(intValue = 3, ordinal = 2), require = 0)
+    /** Ordinal corrected from 2 to 1 - see class doc. */
+    @ModifyConstant(method = "fillSectLoot", constant = @Constant(intValue = 3, ordinal = 1), require = 0)
     private static int configExt$completeCultivationRollsMax(int original) {
         if (!ExtendedConfig.ENABLE_LOOT_OVERRIDES.get()) return original;
         return ExtendedConfig.LOOT_COMPLETE_CULTIVATION_ROLLS_MAX.get();

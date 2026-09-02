@@ -18,7 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.logging.LogUtils;
@@ -47,7 +49,7 @@ public abstract class IdentityDrawHandlerMixin {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Random RNG = new Random();
 
-    @Inject(method = "startInitialOriginIfNeeded", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "startInitialOriginIfNeeded", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$applyPreWorldOrigin(ServerPlayer player, CultivationData data, CallbackInfo ci) {
         if (!PreWorldState.hasPreWorldOrigin) {
             return;
@@ -150,8 +152,8 @@ public abstract class IdentityDrawHandlerMixin {
                     LOGGER.info("[XiaoxiangConfigExt] Set mortal lifespan to {} (range {}-{})", lifespan, min, max);
                 }
 
-                // Set bone age to 14-18
-                data.setBoneAge(14 + RNG.nextInt(5));
+                // Set bone age (default 14-18, configurable via lifespanHelper.startBoneAgeMin/Max)
+                data.setBoneAge(configExt$rollStartBoneAge());
 
                 // Set foundation dao to NONE
                 data.setFoundationDao(FoundationDao.NONE);
@@ -200,7 +202,7 @@ public abstract class IdentityDrawHandlerMixin {
      * We intercept at HEAD, check if the card has a custom identity, and if so, apply the origin
      * directly using the base identity and give configurable items, then cancel the original method.
      */
-    @Inject(method = "handleConfirm", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "handleConfirm", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$handleCustomIdentityConfirm(ServerPlayer player, int cardIndex, CallbackInfo ci) {
         try {
             // Access the DECKS map via reflection
@@ -256,8 +258,8 @@ public abstract class IdentityDrawHandlerMixin {
                     int lifespan = min + RNG.nextInt(max - min + 1);
                     data.setMortalLifespan(lifespan);
 
-                    // Set bone age to 14-18
-                    data.setBoneAge(14 + RNG.nextInt(5));
+                    // Set bone age (default 14-18, configurable via lifespanHelper.startBoneAgeMin/Max)
+                    data.setBoneAge(configExt$rollStartBoneAge());
 
                     // Set foundation dao to NONE
                     data.setFoundationDao(FoundationDao.NONE);
@@ -358,7 +360,7 @@ public abstract class IdentityDrawHandlerMixin {
                     int lifespan = min + RNG.nextInt(max - min + 1);
                     data.setMortalLifespan(lifespan);
 
-                    data.setBoneAge(14 + RNG.nextInt(5));
+                    data.setBoneAge(configExt$rollStartBoneAge());
                     data.setFoundationDao(FoundationDao.NONE);
 
                     LOGGER.info("[XiaoxiangConfigExt] Custom origin applied via handleChooseOrigin: {} with {} and {} (lifespan {})",
@@ -385,6 +387,53 @@ public abstract class IdentityDrawHandlerMixin {
     // because Identity.starterItems() is now mixed in to return config items.
     // The original mod calls identity.starterItems() inside those methods,
     // so config items are automatically given.
+
+    /**
+     * Rolls a starting bone age the same way the base mod's own
+     * lambda$applyOrigin$4 does for standard identities (verified via javap:
+     * "bipush 14; ...; iconst_5; Random.nextInt; iadd" - i.e. min + RNG.nextInt(width)),
+     * except reading min/width from config instead of the hardcoded 14/5. These
+     * three call sites (added 2026-09-01) reimplement that same formula for the
+     * mod's own custom-identity paths, which bypass the original method entirely
+     * and so never went through its (separately mixin-wired)
+     * lambda$applyOrigin$4 bipush-14/iconst_5 injection points - without this
+     * they would silently ignore startBoneAgeMin/Max for any custom identity.
+     */
+    private static double configExt$rollStartBoneAge() {
+        if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) {
+            return 14 + RNG.nextInt(5);
+        }
+        int min = ExtendedConfig.LIFESPAN_START_BONE_AGE_MIN.get();
+        int max = ExtendedConfig.LIFESPAN_START_BONE_AGE_MAX.get();
+        int lo = Math.min(min, max);
+        int hi = Math.max(min, max);
+        return lo + RNG.nextInt(hi - lo + 1);
+    }
+
+    /**
+     * LIFESPAN_START_BONE_AGE_MIN/MAX for the ORIGINAL (non-custom) identity
+     * flow (added 2026-09-01). Verified via javap -p -c -s: private static void
+     * lambda$applyOrigin$4(...) - the actual body the base mod runs for a
+     * standard identity draw - contains exactly one "bipush 14" and one
+     * "iconst_5" (Random.nextInt bound), both in the single statement
+     * "setBoneAge(14 + RNG.nextInt(5))". The width injector below recomputes
+     * (max - min + 1) from both config values so widening/narrowing the range
+     * from either end works correctly; it also matches the base value (5) when
+     * min=14/max=18 (the defaults), verified by hand.
+     */
+    @ModifyConstant(method = "lambda$applyOrigin$4", constant = @Constant(intValue = 14), remap = false, require = 0)
+    private static int configExt$startBoneAgeMinVanilla(int original) {
+        if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) return original;
+        return Math.min(ExtendedConfig.LIFESPAN_START_BONE_AGE_MIN.get(), ExtendedConfig.LIFESPAN_START_BONE_AGE_MAX.get());
+    }
+
+    @ModifyConstant(method = "lambda$applyOrigin$4", constant = @Constant(intValue = 5), remap = false, require = 0)
+    private static int configExt$startBoneAgeWidthVanilla(int original) {
+        if (!ExtendedConfig.ENABLE_LIFESPAN_OVERRIDES.get()) return original;
+        int min = Math.min(ExtendedConfig.LIFESPAN_START_BONE_AGE_MIN.get(), ExtendedConfig.LIFESPAN_START_BONE_AGE_MAX.get());
+        int max = Math.max(ExtendedConfig.LIFESPAN_START_BONE_AGE_MIN.get(), ExtendedConfig.LIFESPAN_START_BONE_AGE_MAX.get());
+        return Math.max(1, max - min + 1);
+    }
 
     /**
      * Give item-based perks to the player (swords, storage bags, etc.)

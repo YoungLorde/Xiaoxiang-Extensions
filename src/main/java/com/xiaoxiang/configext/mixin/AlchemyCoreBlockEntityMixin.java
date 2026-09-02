@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AlchemyCoreBlockEntity.class)
 public abstract class AlchemyCoreBlockEntityMixin {
 
-    @Inject(method = "getMaxQi", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "getMaxQi", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$getMaxQi(CallbackInfoReturnable<Long> cir) {
         if (!ExtendedConfig.ENABLE_ALCHEMY_OVERRIDES.get()) {
             return;

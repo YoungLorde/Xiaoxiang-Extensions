@@ -19,6 +19,22 @@ import java.util.List;
 /**
  * Overrides identity starting lifespan ranges and starter items with config-driven ones.
  *
+ * lifespanRange() fully replaces the vanilla method via @Inject/HEAD/cancellable, so it
+ * does not need to match the real method's internal structure to work correctly. Verified
+ * anyway (2026-09-01) via javap -p -c -s of Identity.class's lifespanRange() plus
+ * Identity$1's $SwitchMap static initializer: the base mod does NOT give every identity an
+ * independent range, it groups the 23 Identity constants into 5 shared ranges (14 named
+ * identities across 4 buckets, plus a "default" bucket covering the other 9, including
+ * FISHERMAN, FARMER, MORTAL_CHILD, FALLEN_NOBLE, SMITH_APPRENTICE, the 3 OUTER_DISCIPLE
+ * identities, and FORMATION_APPRENTICE). All 17 ExtendedConfig default pairs were
+ * previously guessed and wrong across the board; see the corrected values and full bucket
+ * breakdown documented above IDENTITY_LIFESPAN_LONE_CULTIVATOR_MIN in ExtendedConfig.java.
+ * This mixin keeps FISHERMAN and FARMER on their own dedicated config fields (a legitimate
+ * enhancement over vanilla's coarser grouping) and correctly routes the 7 identities with
+ * no dedicated field (MORTAL_CHILD, FALLEN_NOBLE, SMITH_APPRENTICE, QINGYUN/WANJIAN/
+ * DANDING_OUTER_DISCIPLE, FORMATION_APPRENTICE) to the else-branch default, matching their
+ * real vanilla bucket exactly.
+ *
  * For starter items: if the player has configured custom starting items for an identity
  * in the config screen, those items are returned instead of the original mod's hardcoded
  * items. If the config is empty, the original items are returned (fallthrough).
@@ -28,7 +44,7 @@ public abstract class IdentityMixin {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    @Inject(method = "lifespanRange", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "lifespanRange", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$lifespanRange(CallbackInfoReturnable<int[]> cir) {
         if (!ExtendedConfig.ENABLE_IDENTITY_OVERRIDES.get()) {
             return;
@@ -79,7 +95,7 @@ public abstract class IdentityMixin {
      * original mod's hardcoded items. If the config is empty, fall through
      * to the original method (which returns the original mod's items).
      */
-    @Inject(method = "starterItems", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "starterItems", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$starterItems(CallbackInfoReturnable<List<ItemStack>> cir) {
         if (!ExtendedConfig.ENABLE_IDENTITY_OVERRIDES.get()) {
             return;

@@ -34,7 +34,7 @@ public abstract class SectProtectionBarrierMixin {
      * the barrier should not block anyone, even if the physical block
      * hasn't been removed yet.
      */
-    @Inject(method = "m_5939_", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "m_5939_", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void configExt$fixInvisibleWall(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx,
                                             CallbackInfoReturnable<VoxelShape> cir) {
         // Only handle server-side Level instances

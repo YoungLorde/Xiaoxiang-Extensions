@@ -36,7 +36,7 @@ public abstract class SectSizeMixin {
      * Replace chooseScale() with a weighted random selection from 13 tiers.
      * The "spawn chance" values are relative — higher = more likely to appear.
      */
-    @Inject(method = "chooseScale", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "chooseScale", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private static void configExt$chooseScale(RandomSource random, CallbackInfoReturnable<Integer> cir) {
         // Check if a forced scale is pending (e.g., for the initial sect)
         if (SectScaleState.hasForcedScale()) {

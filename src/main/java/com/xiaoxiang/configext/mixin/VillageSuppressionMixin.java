@@ -31,7 +31,7 @@ import java.util.Iterator;
 @Mixin(ChunkGenerator.class)
 public abstract class VillageSuppressionMixin {
 
-    @Inject(method = "createStructures", at = @At("HEAD"))
+    @Inject(method = "createStructures", at = @At("HEAD"), require = 0)
     private void configExt$suppressVillages(RegistryAccess registryAccess,
                                             ChunkGeneratorStructureState state,
                                             StructureManager structureManager,
@@ -45,7 +45,7 @@ public abstract class VillageSuppressionMixin {
      * Intercept tryGenerateStructure to skip village structures entirely.
      * This is called for each structure set during chunk generation.
      */
-    @Inject(method = "tryGenerateStructure", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "tryGenerateStructure", at = @At("HEAD"), cancellable = true, require = 0)
     private void configExt$skipVillageStructure(StructureSet.StructureSelectionEntry entry,
                                                  StructureManager structureManager,
                                                  RegistryAccess registryAccess,

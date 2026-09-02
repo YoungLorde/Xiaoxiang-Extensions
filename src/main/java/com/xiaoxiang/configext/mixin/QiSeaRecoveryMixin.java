@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(targets = "com.xiaoxiang.cultivation.event.QiSeaRecoveryHandler", remap = false)
 public abstract class QiSeaRecoveryMixin {
 
-    @ModifyConstant(method = "onPlayerTick", constant = @Constant(intValue = 20), remap = false)
+    @ModifyConstant(method = "onPlayerTick", constant = @Constant(intValue = 20), remap = false, require = 0)
     private static int configExt$modifyTickInterval(int original) {
         return ExtendedConfig.MEDITATION_TICK_INTERVAL.get();
     }

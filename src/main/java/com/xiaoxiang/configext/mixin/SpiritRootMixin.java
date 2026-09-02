@@ -51,7 +51,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpiritRoot.class)
 public abstract class SpiritRootMixin {
 
-    @Inject(method = "bonus", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "bonus", at = @At("RETURN"), cancellable = true, remap = false, require = 0)
     private void configExt$bonus(CallbackInfoReturnable<SpiritRootBonus> cir) {
         if (!ExtendedConfig.ENABLE_SPIRIT_ROOT_OVERRIDES.get()) {
             return;

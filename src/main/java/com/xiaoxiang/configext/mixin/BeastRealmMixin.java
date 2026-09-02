@@ -1,46 +1,21 @@
-package com.xiaoxiang.configext.mixin;
-
-import com.xiaoxiang.configext.config.ExtendedConfig;
-import com.xiaoxiang.cultivation.cultivation.realm.BeastRealm;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-/**
- * Overrides beast realm advance costs with config-driven values.
- */
-@Mixin(BeastRealm.class)
-public abstract class BeastRealmMixin {
-
-    @Inject(method = "advanceCost", at = @At("HEAD"), cancellable = true, remap = false)
-    private void configExt$advanceCost(CallbackInfoReturnable<Long> cir) {
-        if (!ExtendedConfig.ENABLE_BEAST_OVERRIDES.get()) {
-            return;
-        }
-        BeastRealm self = (BeastRealm) (Object) this;
-        // Use if-else instead of switch to avoid generating anonymous inner class
-        // (BeastRealmMixin$1) which causes NoClassDefFoundError at runtime
-        long val;
-        if (self == BeastRealm.MORTAL_BEAST) {
-            val = 0L;
-        } else if (self == BeastRealm.SPIRIT_SOLDIER) {
-            val = ExtendedConfig.SPIRIT_SOLDIER_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_GENERAL) {
-            val = ExtendedConfig.SPIRIT_GENERAL_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_MARSHAL) {
-            val = ExtendedConfig.SPIRIT_MARSHAL_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_KING) {
-            val = ExtendedConfig.SPIRIT_KING_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_EMPEROR) {
-            val = ExtendedConfig.SPIRIT_EMPEROR_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_LORD) {
-            val = ExtendedConfig.SPIRIT_LORD_ADVANCE_COST.get();
-        } else if (self == BeastRealm.SPIRIT_SAINT) {
-            val = Long.MAX_VALUE;
-        } else {
-            val = 0L;
-        }
-        cir.setReturnValue(val);
-    }
-}
+// RETIRED (2026-09-02): base mod 0.1.1479 deleted the BeastRealm enum this
+// mixin targeted entirely (confirmed: the class is genuinely absent from the
+// new jar's com/xiaoxiang/cultivation/cultivation/realm/ package, not just
+// renamed - com.xiaoxiang.cultivation.cultivation.realm.BeastRealm no longer
+// exists anywhere in 0.1.1479). Beast realm progression was redesigned to
+// route through the same Realm enum players use, via a new static utility,
+// BeastProgressionRules.advanceCost(Realm).
+//
+// This file's logic has been fully ported to the new target - see
+// BeastProgressionRulesMixin.java in this same package, which covers the
+// same 6 pre-existing "spirit*" config fields (unchanged names/values - the
+// new system's first 6 tiers use identical defaults) plus 4 new fields for
+// the 4 additional Realm tiers the redesign added.
+//
+// This session cannot delete files on your computer directly - please
+// delete this file by hand:
+//   src/main/java/com/xiaoxiang/configext/mixin/BeastRealmMixin.java
+// It has been removed from xiaoxiang_config_ext.mixins.json (replaced by
+// BeastProgressionRulesMixin) and contains no class, so leaving it in place
+// changes nothing about how the mod behaves - it just won't compile-reference
+// BeastRealm anymore, since that class doesn't exist in 0.1.1479.
