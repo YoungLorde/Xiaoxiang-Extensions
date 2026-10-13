@@ -1,0 +1,73 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  NOTHING IS PUBLISHED UNLESS IT IS NAMED BELOW.
+#
+#  This file works the opposite way round from a normal .gitignore. Instead of
+#  listing what to leave out, it excludes everything and then names the few
+#  things allowed back in.
+#
+#  That direction is deliberate. A list of exclusions has to be updated every
+#  time a file is added, and the day somebody forgets is the day something
+#  private is published - permanently, because a public git history cannot be
+#  taken back. With this direction, forgetting means a file is NOT published,
+#  which is the safe way to be wrong.
+#
+#  Published: the read-me, the changelogs, the licence, and whatever is put in
+#  release/.
+#  Not published: source, notes, plans, tooling, audits, screenshots, the
+#  question bank, build scripts, and anything else on this disk.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Everything.
+/*
+
+# The exceptions, and there are only these.
+!/.gitignore
+!/README.md
+!/CHANGELOG_*.md
+!/LICENSE
+!/release/
+
+# ── release/ ───────────────────────────────────────────────────────────────
+# The build script puts the current release's jar and its notes here, and
+# nothing else goes in. Keeping them in a folder of their own means the
+# allow-list above never has to name a file that changes with every version.
+#
+# Do NOT put the sources jar or the source zip in here. Both hold the entire
+# source tree.
+
+# ── A note on the licence ──────────────────────────────────────────────────
+# LICENSE is published on purpose, and it is the one exception worth arguing
+# for. The terms are all rights reserved, with one permission written into
+# them: modpacks may include this mod, unmodified, without asking.
+#
+# That permission only works if people can read it. A pack author deciding
+# what to include skips anything whose permission is unclear more readily than
+# anything merely restrictive, and a repository holding a jar and no terms is
+# as unclear as it gets. Hiding the file would work against the exact reason
+# it says what it says.
+#
+# The source is not published and the licence does not ask for it to be.
+
+# ── A note on history ──────────────────────────────────────────────────────
+# This file governs what is committed from now on. It does NOT remove anything
+# that was committed before it existed. If a previous push put source, notes or
+# tooling on the remote, all of that is still in the history and still public,
+# and only rewriting that history removes it.
+
+# ── Secrets ────────────────────────────────────────────────────────────────
+# Every one of these is already excluded by the /* above. They are named again
+# anyway, and the redundancy is the point.
+#
+# secrets.properties holds the crash-report webhook. A webhook URL is a live
+# credential: anyone holding it can post into that channel. It is the one file
+# here whose exposure cannot be undone - a credential pushed to a public
+# repository is public from that moment, and replacing it is the only remedy.
+#
+# So it does not rely on a rule that has to be reasoned about. "Everything is
+# excluded, therefore this is excluded" is correct, and it is one careless
+# allow-list entry away from not being correct. A line with the filename on it
+# survives that. The build refuses to run without these lines for the same
+# reason, and it was right to.
+secrets.properties
+*.secrets.properties
+secrets.local.properties
